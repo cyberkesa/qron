@@ -1,7 +1,4 @@
-import React from "react";
-import { NextPage } from "next";
-
-const Custom404: NextPage = () => {
+export default function Custom404() {
   return (
     <div
       style={{
@@ -10,7 +7,7 @@ const Custom404: NextPage = () => {
         alignItems: "center",
         height: "100vh",
         flexDirection: "column",
-        fontFamily: "Arial, sans-serif",
+        fontFamily: "sans-serif",
       }}
     >
       <h1
@@ -48,6 +45,4 @@ const Custom404: NextPage = () => {
       </a>
     </div>
   );
-};
-
-export default Custom404;
+}

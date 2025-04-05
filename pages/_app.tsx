@@ -1,4 +1,3 @@
-import React from "react";
 import type { AppProps } from "next/app";
 
 // Базовый компонент приложения для Pages Router с TypeScript

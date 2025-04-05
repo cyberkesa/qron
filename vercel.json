@@ -1,19 +1,7 @@
 {
-  "version": 2,
-  "buildCommand": "SKIP_TRANSFORM_VALIDATION=true NODE_OPTIONS='--max-old-space-size=4096' yarn build",
   "framework": "nextjs",
-  "ignoreCommand": "echo 'Ignoring lint errors'",
-  "cleanUrls": true,
+  "buildCommand": "yarn build",
   "env": {
-    "NEXT_DISABLE_BAILOUT_CHECK": "1",
-    "NEXT_DISABLE_CSR_BAILOUT": "1",
-    "NEXT_DEVELOPMENT_MODE": "true",
-    "NEXT_SKIP_TRANSFORMS": "1",
-    "NODE_ENV": "production",
-    "DISABLE_ESLINT_PLUGIN": "true",
-    "IGNORE_BUILD_ERRORS": "true",
-    "SKIP_VALIDATION": "1",
-    "NEXT_DISABLE_SERVER_COMPONENTS": "1",
-    "NEXT_PUBLIC_FORCE_CLIENT_PAGES_ROUTER": "1"
+    "NEXT_TELEMETRY_DISABLED": "1"
   }
 } 
