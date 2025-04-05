@@ -1,6 +1,5 @@
-import React, { Suspense } from "react";
-
-function Custom404Content() {
+export default function Custom404() {
+  // Простая статическая страница без хуков
   return (
     <div
       style={{
@@ -46,13 +45,5 @@ function Custom404Content() {
         Вернуться на главную
       </a>
     </div>
-  );
-}
-
-export default function Custom404() {
-  return (
-    <Suspense fallback={<div>Загрузка...</div>}>
-      <Custom404Content />
-    </Suspense>
   );
 }

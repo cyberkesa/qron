@@ -1,21 +1,30 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+/**
+ * @type {import('next').NextConfig}
+ */
+module.exports = {
+  // Базовые настройки
+  distDir: "build",
   images: {
     domains: ["files.tovari-kron.ru"],
     unoptimized: true,
   },
-  // Отключаем проверки для успешного деплоя
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // Отключаем автоматическую страницу 404 и оптимизации
-  distDir: ".next",
+  // Отключение всех проверок
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
+  // Отключение всех оптимизаций
+  optimizeFonts: false,
+  poweredByHeader: false,
+  generateEtags: false,
+  compress: false,
+  // Настройки для отключения пререндеринга
   trailingSlash: false,
-  skipTrailingSlashRedirect: true,
-  skipMiddlewareUrlNormalize: true,
+  productionBrowserSourceMaps: false,
+  reactStrictMode: false,
+  // Игнорирование ошибок сборки
+  onDemandEntries: {
+    maxInactiveAge: 60 * 60 * 1000,
+    pagesBufferLength: 5,
+  },
+  // Отключаем опцию useFileSystemPublicRoutes, чтобы использовать собственный роутинг
+  useFileSystemPublicRoutes: false,
 };
-
-module.exports = nextConfig;
