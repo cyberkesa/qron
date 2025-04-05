@@ -1,4 +1,6 @@
-export default function Custom404() {
+import React, { Suspense } from "react";
+
+function Custom404Content() {
   return (
     <div
       style={{
@@ -44,5 +46,13 @@ export default function Custom404() {
         Вернуться на главную
       </a>
     </div>
+  );
+}
+
+export default function Custom404() {
+  return (
+    <Suspense fallback={<div>Загрузка...</div>}>
+      <Custom404Content />
+    </Suspense>
   );
 }

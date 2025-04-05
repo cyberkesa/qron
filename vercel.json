@@ -1,7 +1,19 @@
 {
   "framework": "nextjs",
+  "outputDirectory": ".next",
   "buildCommand": "yarn build",
+  "installCommand": "yarn install",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/_not-found",
+      "destination": "/404",
+      "permanent": true
+    }
+  ],
   "env": {
-    "NEXT_TELEMETRY_DISABLED": "1"
+    "NEXT_TELEMETRY_DISABLED": "1",
+    "NODE_ENV": "production"
   }
 } 

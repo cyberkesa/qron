@@ -11,9 +11,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    appDir: false, // Отключаем App Router для деплоя
-  },
+  // Отключаем автоматическую страницу 404 и оптимизации
+  distDir: ".next",
+  trailingSlash: false,
+  skipTrailingSlashRedirect: true,
+  skipMiddlewareUrlNormalize: true,
 };
 
 module.exports = nextConfig;
