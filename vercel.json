@@ -1,9 +1,5 @@
 {
   "version": 2,
-  "framework": "nextjs",
-  "buildCommand": "CI=false yarn vercel-build",
-  "installCommand": "yarn install --ignore-engines",
-  "env": {
-    "NEXT_TELEMETRY_DISABLED": "1"
-  }
+  "buildCommand": "yarn build",
+  "framework": "nextjs"
 } 

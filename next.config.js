@@ -14,16 +14,9 @@ const nextConfig = {
   },
   // Отключаем строгий режим
   reactStrictMode: false,
-  // Полностью отключаем все проверки для деплоя
-  experimental: {
-    appDocumentPreloading: false,
-    missingSuspenseWithCSRBailout: false,
-    serverComponentsExternalPackages: ["*"],
-  },
-  // Отключаем предварительный рендеринг для страниц 404 и ошибок
-  excludeDefaultMomentLocales: true,
+  // Упрощенная конфигурация без проблемных опций
   poweredByHeader: false,
-  swcMinify: false,
+  swcMinify: true,
 };
 
 module.exports = nextConfig;
