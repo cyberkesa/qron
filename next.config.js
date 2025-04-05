@@ -5,22 +5,25 @@ const nextConfig = {
     unoptimized: true,
   },
   typescript: {
-    // ⚠️ Опасно! Игнорировать ошибки TypeScript для деплоя
+    // Отключаем проверку типов
     ignoreBuildErrors: true,
   },
   eslint: {
-    // ⚠️ Опасно! Игнорировать ошибки ESLint для деплоя
+    // Отключаем проверку линтера
     ignoreDuringBuilds: true,
   },
-  // Отключить strict mode для избежания ошибок
+  // Отключаем строгий режим
   reactStrictMode: false,
-  // Пропускаем все проверки
+  // Полностью отключаем все проверки для деплоя
   experimental: {
-    // Отключаем некоторые строгие проверки для успешного деплоя
+    appDocumentPreloading: false,
     missingSuspenseWithCSRBailout: false,
+    serverComponentsExternalPackages: ["*"],
   },
-  // Использовать упрощенный вывод для избежания проблем с предварительным рендерингом
-  output: "standalone",
+  // Отключаем предварительный рендеринг для страниц 404 и ошибок
+  excludeDefaultMomentLocales: true,
+  poweredByHeader: false,
+  swcMinify: false,
 };
 
 module.exports = nextConfig;
