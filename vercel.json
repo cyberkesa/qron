@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "buildCommand": "yarn vercel-build",
+  "installCommand": "yarn install --frozen-lockfile",
+  "framework": "nextjs",
+  "functions": {
+    "**": {
+      "memory": 1024
+    }
+  }
+} 
