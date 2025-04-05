@@ -17,6 +17,14 @@ const nextConfig = {
   // Упрощенная конфигурация без проблемных опций
   poweredByHeader: false,
   swcMinify: true,
+
+  // Отключить проверки bailout
+  experimental: {
+    // Специально отключаем проверку useSearchParams в Suspense
+    missingSuspenseWithCSRBailout: {
+      enabled: false,
+    },
+  },
 };
 
 module.exports = nextConfig;

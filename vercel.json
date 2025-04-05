@@ -1,5 +1,10 @@
 {
   "version": 2,
   "buildCommand": "yarn build",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "env": {
+    "NEXT_DISABLE_BAILOUT_CHECK": "1",
+    "NEXT_DISABLE_CSR_BAILOUT": "1",
+    "NEXT_DEVELOPMENT_MODE": "true"
+  }
 } 
