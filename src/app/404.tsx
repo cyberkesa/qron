@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
-// Создаем простой компонент содержимого, не использующий useSearchParams
+// Компонент содержимого без useSearchParams
 function NotFoundContent() {
   return (
     <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-[70vh]">
@@ -26,8 +26,8 @@ function NotFoundContent() {
   );
 }
 
-// Обертываем в Suspense для предотвращения ошибки с useSearchParams
-export default function NotFound() {
+// Обертываем в Suspense для предотвращения ошибки
+export default function Custom404() {
   return (
     <Suspense fallback={<div>Загрузка...</div>}>
       <NotFoundContent />
