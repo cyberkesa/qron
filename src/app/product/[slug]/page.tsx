@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, Fragment } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useQuery, useMutation, useApolloClient } from "@apollo/client";
@@ -12,35 +12,23 @@ import {
   GET_CURRENT_REGION,
   GET_REGIONS,
 } from "@/lib/queries";
-import {
-  Product,
-  ProductStockAvailabilityStatus,
-  Category,
-  ProductSortOrder,
-} from "@/types/api";
-import { Region as ApiRegion } from "@/types/api";
+import { ProductStockAvailabilityStatus } from "@/types/api";
 import {
   CheckIcon,
   XMarkIcon,
-  ClockIcon,
   ShoppingCartIcon,
-  ArrowLeftIcon,
   MapPinIcon,
   ChevronRightIcon,
   PlusIcon,
   MinusIcon,
   TruckIcon,
-  TagIcon,
   ShieldCheckIcon,
   ArrowsPointingOutIcon,
   PhotoIcon,
   CurrencyRupeeIcon,
   ChevronLeftIcon,
-  ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
-import { Dialog, Transition } from "@headlessui/react";
-import clsx from "clsx";
 
 // Типы для компонента страницы продукта
 interface ProductPageProps {
@@ -76,16 +64,14 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<TabType>("description");
-  const [addNotification, setAddNotification] = useState(false);
-  const [isRegionModalOpen, setIsRegionModalOpen] = useState(false);
+  const [showAddedNotification, setShowAddedNotification] = useState(false);
   const [currentRegion, setCurrentRegion] = useState<Region | null>(null);
   const [notAvailableInRegion, setNotAvailableInRegion] = useState(false);
   const [showRegionModal, setShowRegionModal] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   // Получаем текущий регион при загрузке страницы
-  const { data: regionData, loading: regionLoading } =
-    useQuery(GET_CURRENT_REGION);
+  const { data: regionData } = useQuery(GET_CURRENT_REGION);
 
   // Получаем данные о продукте, передавая slug из URL
   const { data, loading, error } = useQuery(GET_PRODUCT, {
@@ -97,9 +83,9 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [addToCart] = useMutation(ADD_TO_CART, {
     onCompleted(data) {
       if (data && data.addToCart) {
-        setAddNotification(true);
+        setShowAddedNotification(true);
         setTimeout(() => {
-          setAddNotification(false);
+          setShowAddedNotification(false);
         }, 3000);
         setIsAddingToCart(false);
       }
@@ -145,17 +131,20 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
   }, [data, currentRegion]);
 
+  // При инициализации компонента, устанавливаем начальное количество равное шагу
+  useEffect(() => {
+    if (data && data.productBySlug && data.productBySlug.quantityMultiplicity) {
+      setQuantity(data.productBySlug.quantityMultiplicity);
+    } else {
+      setQuantity(1);
+    }
+  }, [data]);
+
   const handleAddToCart = async () => {
     if (!data || !data.productBySlug || isAddingToCart) return;
 
     try {
       setIsAddingToCart(true);
-      console.log(
-        "Добавляем в корзину товар ID:",
-        data.productBySlug.id,
-        "в количестве:",
-        quantity
-      );
 
       await addToCart({
         variables: {
@@ -170,11 +159,11 @@ export default function ProductPage({ params }: ProductPageProps) {
       });
 
       // Показываем уведомление об успешном добавлении
-      setAddNotification(true);
+      setShowAddedNotification(true);
 
       // Скрываем уведомление через 3 секунды
       setTimeout(() => {
-        setAddNotification(false);
+        setShowAddedNotification(false);
       }, 3000);
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -186,12 +175,25 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
   };
 
-  const changeQuantity = (delta: number) => {
-    const newQuantity = quantity + delta;
-    const maxQuantity = data.productBySlug.stock || 999;
+  const handleUpdateQuantity = (delta: number) => {
+    if (!data || !data.productBySlug) return;
 
-    if (newQuantity >= 1 && newQuantity <= maxQuantity) {
-      setQuantity(newQuantity);
+    // Получаем шаг товара (по умолчанию 1)
+    const step = data.productBySlug.quantityMultiplicity || 1;
+
+    // Вычисляем новое количество
+    const newQuantity = quantity + delta * step;
+
+    // Проверяем, что новое количество не меньше шага
+    if (newQuantity < step) return;
+
+    // Убеждаемся, что количество кратно шагу
+    const adjustedQuantity = Math.round(newQuantity / step) * step;
+
+    // Проверяем, что не превышаем максимально доступное количество
+    const maxQuantity = data.productBySlug.stock || 999;
+    if (adjustedQuantity <= maxQuantity) {
+      setQuantity(adjustedQuantity);
     }
   };
 
@@ -260,7 +262,8 @@ export default function ProductPage({ params }: ProductPageProps) {
       : [{ id: "main", url: product.image || "/placeholder-image.jpg" }];
 
   // Извлекаем атрибуты товара, если они есть
-  const productAttributes = (product as any).attributes || [];
+  const productAttributes =
+    (product as { attributes?: ProductAttribute[] }).attributes || [];
 
   const renderRegionSelection = () => {
     return (
@@ -443,25 +446,27 @@ export default function ProductPage({ params }: ProductPageProps) {
           {/* Миниатюры изображений */}
           {images.length > 1 && (
             <div className="flex space-x-2 overflow-x-auto pb-2">
-              {images.map((image: any, index: number) => (
-                <button
-                  key={image.id}
-                  className={`relative border-2 rounded-md w-20 h-20 flex-shrink-0 focus:outline-none ${
-                    selectedImageIndex === index
-                      ? "border-blue-600"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                  onClick={() => setSelectedImageIndex(index)}
-                >
-                  <Image
-                    src={image.url}
-                    alt={`${product.name} - изображение ${index + 1}`}
-                    fill
-                    className="object-contain p-1"
-                    sizes="80px"
-                  />
-                </button>
-              ))}
+              {images.map(
+                (image: { id: string; url: string }, index: number) => (
+                  <button
+                    key={image.id}
+                    className={`relative border-2 rounded-md w-20 h-20 flex-shrink-0 focus:outline-none ${
+                      selectedImageIndex === index
+                        ? "border-blue-600"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                    onClick={() => setSelectedImageIndex(index)}
+                  >
+                    <Image
+                      src={image.url}
+                      alt={`${product.name} - изображение ${index + 1}`}
+                      fill
+                      className="object-contain p-1"
+                      sizes="80px"
+                    />
+                  </button>
+                )
+              )}
             </div>
           )}
         </div>
@@ -536,102 +541,76 @@ export default function ProductPage({ params }: ProductPageProps) {
             </div>
           </div>
 
-          {/* Добавление в корзину */}
-          {!notAvailableInRegion && (
-            <div className="border border-gray-200 rounded-lg p-4 mb-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center mb-4">
-                <span className="text-gray-700 mr-4 font-medium">
-                  Количество:
-                </span>
-                <div className="flex border border-gray-300 rounded-md shadow-sm">
-                  <button
-                    className="px-3 py-1 border-r border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center"
-                    onClick={() => changeQuantity(-1)}
-                    disabled={quantity <= 1 || isAddingToCart}
-                    aria-label="Уменьшить количество"
-                  >
-                    <MinusIcon className="h-4 w-4" />
-                  </button>
-                  <input
-                    type="number"
-                    min="1"
-                    max={product.stock || 999}
-                    value={quantity}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value);
-                      if (
-                        !isNaN(value) &&
-                        value >= 1 &&
-                        value <= (product.stock || 999)
-                      ) {
-                        setQuantity(value);
-                      }
-                    }}
-                    className="w-16 text-center border-none focus:ring-0"
-                    disabled={isAddingToCart}
-                  />
-                  <button
-                    className="px-3 py-1 border-l border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center"
-                    onClick={() => changeQuantity(1)}
-                    disabled={
-                      quantity >= (product.stock || 999) || isAddingToCart
-                    }
-                    aria-label="Увеличить количество"
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                  </button>
-                </div>
+          {/* Секция с количеством и добавлением в корзину */}
+          <div className="mt-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4">
+              <div className="flex items-center bg-white border rounded-md mr-0 sm:mr-4 mb-4 sm:mb-0">
+                <button
+                  onClick={() => handleUpdateQuantity(-1)}
+                  disabled={
+                    quantity <= (data.productBySlug.quantityMultiplicity || 1)
+                  }
+                  className="p-2 text-gray-500 hover:text-gray-700 disabled:text-gray-300 focus:outline-none"
+                >
+                  <MinusIcon className="h-5 w-5" />
+                </button>
+                <span className="w-12 text-center font-medium">{quantity}</span>
+                <button
+                  onClick={() => handleUpdateQuantity(1)}
+                  className="p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                  <PlusIcon className="h-5 w-5" />
+                </button>
               </div>
 
-              <button
-                className={`w-full py-3 px-6 rounded-md font-medium flex items-center justify-center transition-all duration-300 ${
-                  addNotification
-                    ? "bg-green-600 hover:bg-green-700 text-white transform scale-105"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
-                }`}
-                onClick={handleAddToCart}
-                disabled={isAddingToCart || notAvailableInRegion}
-              >
-                {isAddingToCart ? (
-                  <>
-                    <span className="inline-block h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-                    <span>Добавление...</span>
-                  </>
-                ) : addNotification ? (
-                  <>
-                    <CheckIcon className="h-5 w-5 mr-2" />
-                    <span>Добавлено в корзину</span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCartIcon className="h-5 w-5 mr-2" />
-                    <span>Добавить в корзину</span>
-                    {quantity > 1 && (
-                      <span className="ml-2 bg-white bg-opacity-20 px-2 py-0.5 rounded-full text-sm">
-                        × {quantity}
-                      </span>
-                    )}
-                  </>
+              {/* Информация о шаге, если он больше 1 */}
+              {data.productBySlug.quantityMultiplicity &&
+                data.productBySlug.quantityMultiplicity > 1 && (
+                  <div className="bg-blue-50 border border-blue-200 text-blue-800 text-xs px-2 py-1 rounded flex items-center mb-4 sm:mb-0">
+                    <span className="mr-1">•</span>
+                    <span>
+                      Товар продается упаковками по{" "}
+                      {data.productBySlug.quantityMultiplicity} шт.
+                    </span>
+                  </div>
                 )}
-              </button>
-
-              {addNotification && (
-                <div className="mt-4 flex justify-between items-center bg-green-50 p-3 rounded-md border border-green-200 text-green-800">
-                  <span className="flex items-center">
-                    <CheckIcon className="h-5 w-5 mr-2 text-green-600" />
-                    Товар успешно добавлен в корзину
-                  </span>
-                  <Link
-                    href="/cart"
-                    className="text-sm font-medium text-green-700 hover:text-green-900 flex items-center"
-                  >
-                    Перейти в корзину
-                    <ArrowRightIcon className="h-4 w-4 ml-1" />
-                  </Link>
-                </div>
-              )}
             </div>
-          )}
+
+            <button
+              onClick={handleAddToCart}
+              disabled={
+                isAddingToCart ||
+                data.productBySlug.stockAvailabilityStatus ===
+                  ProductStockAvailabilityStatus.OUT_OF_STOCK
+              }
+              className={`w-full py-3 px-4 font-medium rounded-md flex items-center justify-center transition-colors ${
+                data.productBySlug.stockAvailabilityStatus ===
+                ProductStockAvailabilityStatus.OUT_OF_STOCK
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+            >
+              {isAddingToCart ? (
+                <span className="flex items-center">
+                  <span className="animate-spin h-5 w-5 mr-2 border-2 border-white border-t-transparent rounded-full"></span>
+                  Добавление...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <ShoppingCartIcon className="h-5 w-5 mr-2" />
+                  {data.productBySlug.stockAvailabilityStatus ===
+                  ProductStockAvailabilityStatus.OUT_OF_STOCK
+                    ? "Нет в наличии"
+                    : `Добавить в корзину${
+                        data.productBySlug.quantityMultiplicity &&
+                        data.productBySlug.quantityMultiplicity > 1
+                          ? ` (${quantity} шт.)`
+                          : ""
+                      }`}
+                </span>
+              )}
+            </button>
+          </div>
 
           {/* Характеристики доставки */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -766,6 +745,22 @@ export default function ProductPage({ params }: ProductPageProps) {
                 sizes="100vw"
               />
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Всплывающее уведомление о добавлении в корзину */}
+      {showAddedNotification && (
+        <div className="fixed bottom-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50 flex items-center">
+          <CheckIcon className="h-6 w-6 mr-2" />
+          <div>
+            <p className="font-medium">Товар добавлен в корзину</p>
+            <Link
+              href="/cart"
+              className="text-sm underline hover:text-green-200"
+            >
+              Перейти в корзину
+            </Link>
           </div>
         </div>
       )}

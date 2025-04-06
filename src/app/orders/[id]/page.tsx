@@ -1,17 +1,22 @@
 "use client";
 
+import React from "react";
 import { useQuery } from "@apollo/client";
 import { GET_ORDER } from "@/lib/queries";
 import Link from "next/link";
 import Image from "next/image";
+import { OrderItem } from "@/types/api";
 
 export default function OrderDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  // Извлекаем id из params с помощью React.use()
+  const { id } = React.use(params);
+
   const { data, loading, error } = useQuery(GET_ORDER, {
-    variables: { id: params.id },
+    variables: { id },
   });
 
   const order = data?.order;
@@ -107,9 +112,7 @@ export default function OrderDetailsPage({
         >
           ← Назад к заказам
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          Заказ #{params.id}
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">Заказ #{id}</h1>
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
           {error.message || "Произошла ошибка при загрузке заказа"}
         </div>
@@ -126,9 +129,7 @@ export default function OrderDetailsPage({
         >
           ← Назад к заказам
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          Заказ #{params.id}
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">Заказ #{id}</h1>
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6">
           Заказ не найден
         </div>
@@ -292,14 +293,14 @@ export default function OrderDetailsPage({
             <p className="text-gray-600 p-6">Нет данных о товарах в заказе</p>
           ) : (
             <ul className="divide-y divide-gray-200">
-              {items.map((item: any) => (
+              {items.map((item: OrderItem) => (
                 <li key={item.id} className="p-6">
                   <div className="flex items-start space-x-4">
-                    {item.imageUrl && (
+                    {item.product?.images?.[0]?.url && (
                       <div className="flex-shrink-0 w-20 h-20 relative">
                         <Image
-                          src={item.imageUrl}
-                          alt={item.name}
+                          src={item.product.images[0].url}
+                          alt={item.product.name}
                           fill
                           className="object-cover rounded"
                         />
@@ -307,7 +308,7 @@ export default function OrderDetailsPage({
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
-                        {item.name}
+                        {item.product.name}
                       </p>
                       <p className="text-sm text-gray-500">
                         Количество: {item.quantity}

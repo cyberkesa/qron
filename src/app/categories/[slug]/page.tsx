@@ -1,54 +1,40 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import {
-  GET_PRODUCTS,
-  GET_CATEGORIES,
-  GET_CATEGORY_BY_SLUG,
-} from "@/lib/queries";
-import { ProductSortOrder, Category, Product } from "@/types/api";
+import { GET_PRODUCTS, GET_CATEGORY_BY_SLUG } from "@/lib/queries";
+import { ProductSortOrder, Product } from "@/types/api";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductSorter } from "@/components/ProductSorter";
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default function CategoryPage({ params }: CategoryPageProps) {
   const router = useRouter();
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Создаем ref для элемента-наблюдателя
-  const observerTarget = useRef<HTMLDivElement>(null);
+  // Извлекаем slug из params с помощью React.use()
+  const { slug } = React.use(params);
 
-  // Извлекаем slug из params
-  const slug = params.slug;
-
-  // Получаем информацию о категории по slug
-  const {
-    data: categoryData,
-    loading: categoryLoading,
-    error: categoryError,
-  } = useQuery(GET_CATEGORY_BY_SLUG, {
-    variables: { slug },
-    skip: !slug,
-  });
+  // Получаем данные о категории по slug
+  const { data: categoryData, error: categoryError } = useQuery(
+    GET_CATEGORY_BY_SLUG,
+    {
+      variables: {
+        slug: decodeURIComponent(slug),
+      },
+    }
+  );
 
   // Получаем товары из этой категории с пагинацией
-  const {
-    data: productsData,
-    loading: productsLoading,
-    error: productsError,
-    fetchMore,
-  } = useQuery(GET_PRODUCTS, {
+  const { data: productsData, error: productsError } = useQuery(GET_PRODUCTS, {
     variables: {
       first: 16, // Загружаем по 16 товаров за раз
       categoryId: categoryData?.categoryBySlug?.id,
@@ -63,112 +49,31 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     productsData?.products?.edges?.map(
       (edge: { node: Product; cursor: string }) => edge.node
     ) || [];
-  const hasMoreProducts =
-    productsData?.products?.pageInfo?.hasNextPage || false;
-  const endCursor = productsData?.products?.pageInfo?.endCursor || null;
-  const isDataLoading = categoryLoading || productsLoading;
-  const hasError = categoryError || productsError;
 
   // Вычисляем примерное общее количество товаров (на основе текущих данных)
   // Обычно сервер возвращает общее количество, но если нет, можно примерно оценить
   const totalProductsCount =
     productsData?.products?.totalCount || products.length;
 
-  const handleLoadMore = useCallback(() => {
-    if (hasMoreProducts && !productsLoading && !isLoadingMore) {
-      setIsLoadingMore(true);
-      fetchMore({
-        variables: {
-          after: endCursor,
-          first: 16,
-          categoryId: categoryData?.categoryBySlug?.id,
-          sortOrder,
-        },
-      })
-        .then(() => {
-          setIsLoadingMore(false);
-        })
-        .catch((error) => {
-          console.error("Error loading more products:", error);
-          setIsLoadingMore(false);
-        });
-    }
-  }, [
-    hasMoreProducts,
-    productsLoading,
-    isLoadingMore,
-    fetchMore,
-    endCursor,
-    categoryData,
-    sortOrder,
-  ]);
-
-  // Настраиваем Intersection Observer для автоматической подгрузки товаров
-  useEffect(() => {
-    const currentObserverTarget = observerTarget.current;
-
-    if (!currentObserverTarget || !hasMoreProducts) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          handleLoadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(currentObserverTarget);
-
-    return () => {
-      if (currentObserverTarget) {
-        observer.unobserve(currentObserverTarget);
-      }
-    };
-  }, [handleLoadMore, hasMoreProducts]);
-
+  // Обработчик изменения сортировки
   const handleSortChange = (newSortOrder: ProductSortOrder) => {
     setSortOrder(newSortOrder);
   };
-
-  // Рендер состояния загрузки
-  if (isDataLoading && !products.length) {
-    return (
-      <div className="container mx-auto px-4 py-10 flex justify-center">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/2 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            {[...Array(6)].map((_, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm p-4">
-                <div className="h-40 bg-gray-200 rounded-md mb-3"></div>
-                <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Рендер ошибки категории
   if (categoryError) {
     return (
       <div className="container mx-auto px-4 py-10">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <h2 className="text-lg font-medium text-red-800">
+        <div className="bg-red-50 p-4 rounded-md">
+          <h2 className="text-xl font-semibold text-red-800">
             Ошибка загрузки категории
           </h2>
           <p className="mt-2 text-red-700">{categoryError.message}</p>
           <button
             onClick={() => router.push("/categories")}
-            className="mt-4 inline-flex items-center text-red-600 hover:text-red-800"
+            className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800"
           >
-            <ArrowLeftIcon className="mr-2 h-4 w-4" />
+            <ArrowLeftIcon className="h-4 w-4 mr-1" />
             Вернуться к списку категорий
           </button>
         </div>
@@ -180,16 +85,16 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   if (productsError) {
     return (
       <div className="container mx-auto px-4 py-10">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <h2 className="text-lg font-medium text-red-800">
+        <div className="bg-red-50 p-4 rounded-md">
+          <h2 className="text-xl font-semibold text-red-800">
             Ошибка загрузки товаров
           </h2>
           <p className="mt-2 text-red-700">{productsError.message}</p>
           <button
             onClick={() => router.push("/categories")}
-            className="mt-4 inline-flex items-center text-red-600 hover:text-red-800"
+            className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800"
           >
-            <ArrowLeftIcon className="mr-2 h-4 w-4" />
+            <ArrowLeftIcon className="h-4 w-4 mr-1" />
             Вернуться к списку категорий
           </button>
         </div>
@@ -373,37 +278,19 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product: Product) => (
-              <ProductCard key={product.id} product={product} />
+            {products.map((product: Product, index: number) => (
+              <ProductCard key={`${product.id}-${index}`} product={product} />
             ))}
           </div>
 
-          {/* Индикатор загрузки дополнительных товаров */}
-          {(hasMoreProducts || isLoadingMore) && (
-            <div
-              ref={observerTarget}
-              className="w-full h-16 mt-8 flex justify-center items-center"
-            >
-              {isLoadingMore ? (
-                <div className="flex items-center justify-center">
-                  <span className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full mr-2"></span>
-                  <span className="text-gray-600">Загрузка...</span>
-                </div>
-              ) : (
-                <div className="text-gray-500 text-sm">
-                  Прокрутите вниз, чтобы загрузить еще
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Сообщение об окончании списка товаров */}
-          {!hasMoreProducts && products.length >= 16 && (
-            <div className="mt-8 text-center text-gray-500">
-              Загружены все доступные товары ({products.length} из{" "}
-              {totalProductsCount})
-            </div>
-          )}
+          {!productsData?.products?.pageInfo?.hasNextPage &&
+            products.length >= 16 && (
+              <div className="mt-8 text-center text-gray-500">
+                Загружены все доступные товары ({products.length} из{" "}
+                {totalProductsCount})
+              </div>
+            )}
         </>
       )}
     </div>
