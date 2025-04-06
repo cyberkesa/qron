@@ -33,6 +33,7 @@ export const GET_PRODUCTS = gql`
             slug
           }
           stockAvailabilityStatus
+          quantityMultiplicity
         }
       }
       pageInfo {
@@ -77,6 +78,7 @@ export const GET_PRODUCT = gql`
         slug
       }
       stockAvailabilityStatus
+      quantityMultiplicity
     }
   }
 `;
@@ -105,6 +107,7 @@ export const GET_CART = gql`
                 slug
               }
               stockAvailabilityStatus
+              quantityMultiplicity
             }
             quantity
           }
@@ -144,6 +147,7 @@ export const ADD_TO_CART = gql`
                   slug
                 }
                 stockAvailabilityStatus
+                quantityMultiplicity
               }
               quantity
             }
@@ -160,38 +164,41 @@ export const ADD_TO_CART = gql`
 `;
 
 export const REMOVE_FROM_CART = gql`
-  mutation RemoveFromCart($cartItemId: ID!) {
-    removeFromCart(cartItemId: $cartItemId) {
-      cart {
-        id
-        items(first: 20) {
-          edges {
-            node {
-              id
-              product {
+  mutation RemoveFromCart($productId: ID!) {
+    updateCartItemQuantity(productId: $productId, quantity: 0) {
+      ... on UpdateCartItemQuantitySuccessResult {
+        cart {
+          id
+          items(first: 20) {
+            edges {
+              node {
                 id
-                name
-                description
-                price
-                images {
+                product {
                   id
-                  url
-                }
-                slug
-                category {
-                  id
-                  title
+                  name
+                  description
+                  price
+                  images {
+                    id
+                    url
+                  }
                   slug
+                  category {
+                    id
+                    title
+                    slug
+                  }
+                  stockAvailabilityStatus
+                  quantityMultiplicity
                 }
-                stockAvailabilityStatus
+                quantity
               }
-              quantity
             }
-          }
-          decimalTotalPrice
-          pageInfo {
-            hasNextPage
-            endCursor
+            decimalTotalPrice
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
           }
         }
       }
@@ -200,38 +207,41 @@ export const REMOVE_FROM_CART = gql`
 `;
 
 export const UPDATE_CART_ITEM_QUANTITY = gql`
-  mutation UpdateCartItemQuantity($cartItemId: ID!, $quantity: Int!) {
-    updateCartItemQuantity(cartItemId: $cartItemId, quantity: $quantity) {
-      cart {
-        id
-        items(first: 20) {
-          edges {
-            node {
-              id
-              product {
+  mutation UpdateCartItemQuantity($productId: ID!, $quantity: Int!) {
+    updateCartItemQuantity(productId: $productId, quantity: $quantity) {
+      ... on UpdateCartItemQuantitySuccessResult {
+        cart {
+          id
+          items(first: 20) {
+            edges {
+              node {
                 id
-                name
-                description
-                price
-                images {
+                product {
                   id
-                  url
-                }
-                slug
-                category {
-                  id
-                  title
+                  name
+                  description
+                  price
+                  images {
+                    id
+                    url
+                  }
                   slug
+                  category {
+                    id
+                    title
+                    slug
+                  }
+                  stockAvailabilityStatus
+                  quantityMultiplicity
                 }
-                stockAvailabilityStatus
+                quantity
               }
-              quantity
             }
-          }
-          decimalTotalPrice
-          pageInfo {
-            hasNextPage
-            endCursor
+            decimalTotalPrice
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
           }
         }
       }
