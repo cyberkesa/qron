@@ -1,54 +1,43 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
-import { HomeIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
 
 export default function NotFound() {
-  // Для отслеживания посещения страницы 404 в аналитике
+  const [isClient, setIsClient] = useState(false);
+
+  // Проверяем, что мы на клиенте для избежания ошибок гидратации
   useEffect(() => {
-    // Здесь можно добавить код для отправки события в аналитику
-    console.log("404 page visited");
+    setIsClient(true);
   }, []);
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center">
-      <div className="max-w-2xl w-full text-center px-4 error-404">
-        <h1 className="text-9xl font-bold text-blue-600 mb-4">404</h1>
-
-        <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-gray-300 to-transparent my-8 divider"></div>
-
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">
+    <div className="min-h-[70vh] flex items-center justify-center px-4">
+      <div className="text-center max-w-md">
+        <h1 className="text-6xl font-bold text-blue-600 mb-4">404</h1>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
           Страница не найдена
         </h2>
-
-        <p className="text-gray-600 mb-8 max-w-lg mx-auto">
-          Извините, но мы не можем найти запрашиваемую вами страницу. Возможно,
-          она была перемещена, удалена или никогда не существовала.
+        <p className="text-gray-600 mb-8">
+          Запрашиваемая страница не существует или была перемещена.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="space-y-4">
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors"
+            className="block w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <HomeIcon className="h-5 w-5" />
-            На главную
+            Вернуться на главную
           </Link>
 
-          <Link
-            href="/categories"
-            className="inline-flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-6 rounded-lg font-medium transition-colors"
-          >
-            Перейти в каталог
-          </Link>
-        </div>
-
-        <div className="mt-12 text-sm text-gray-500">
-          Если вы считаете, что это ошибка, пожалуйста,{" "}
-          <Link href="/contact" className="text-blue-600 hover:underline">
-            свяжитесь с нами
-          </Link>
+          {isClient && (
+            <button
+              onClick={() => window.history.back()}
+              className="block w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Вернуться назад
+            </button>
+          )}
         </div>
       </div>
     </div>

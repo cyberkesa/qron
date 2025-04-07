@@ -125,7 +125,15 @@ export default function Home() {
   const observerTarget = useRef<HTMLDivElement>(null);
 
   // Получение текущего региона
-  const { data: regionData } = useQuery(GET_CURRENT_REGION);
+  const { data: regionData, error: regionError } = useQuery(
+    GET_CURRENT_REGION,
+    {
+      fetchPolicy: "cache-and-network",
+      onError: (error) => {
+        console.error("Ошибка при получении региона:", error);
+      },
+    }
+  );
 
   // Запрос товаров с использованием выбранных фильтров
   const {
@@ -140,6 +148,10 @@ export default function Home() {
       categoryId: selectedCategory || undefined,
     },
     skip: !currentRegion,
+    fetchPolicy: "cache-and-network",
+    onError: (error) => {
+      console.error("Ошибка при получении товаров:", error);
+    },
   });
 
   // Запрос категорий для фильтров
@@ -147,7 +159,12 @@ export default function Home() {
     data: categoriesData,
     loading: categoriesLoading,
     error: categoriesError,
-  } = useQuery(GET_CATEGORIES);
+  } = useQuery(GET_CATEGORIES, {
+    fetchPolicy: "cache-and-network",
+    onError: (error) => {
+      console.error("Ошибка при получении категорий:", error);
+    },
+  });
 
   // Запрос лучших предложений
   const {
@@ -156,32 +173,46 @@ export default function Home() {
     error: bestDealsError,
   } = useQuery(GET_BEST_DEAL_PRODUCTS, {
     skip: !currentRegion,
+    fetchPolicy: "cache-and-network",
+    onError: (error) => {
+      console.error("Ошибка при получении лучших предложений:", error);
+    },
   });
 
   // Запрос данных пользователя
-  const { data: userData } = useQuery(GET_VIEWER);
+  const { data: userData } = useQuery(GET_VIEWER, {
+    fetchPolicy: "cache-and-network",
+    onError: (error) => {
+      console.error("Ошибка при получении данных пользователя:", error);
+    },
+  });
 
   // Подготовка данных для использования в компоненте - мемоизируем эти вычисления
   const user = useMemo(() => userData?.viewer, [userData]);
 
   // Мемоизируем обработанные товары
   const products = useMemo(() => {
-    const allProducts =
-      productsData?.products.edges.map(
-        (edge: { node: Product }) => edge.node
-      ) || [];
+    try {
+      const allProducts =
+        productsData?.products?.edges?.map(
+          (edge: { node: Product }) => edge.node
+        ) || [];
 
-    // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
-    if (hideOutOfStock) {
-      return allProducts.filter(
-        (product: Product) =>
-          product.stockAvailabilityStatus !==
-          ProductStockAvailabilityStatus.OUT_OF_STOCK
-      );
+      // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
+      if (hideOutOfStock) {
+        return allProducts.filter(
+          (product: Product) =>
+            product.stockAvailabilityStatus !==
+            ProductStockAvailabilityStatus.OUT_OF_STOCK
+        );
+      }
+
+      return allProducts;
+    } catch (error) {
+      console.error("Ошибка обработки данных товаров:", error);
+      return [];
     }
-
-    return allProducts;
-  }, [productsData?.products.edges, hideOutOfStock]);
+  }, [productsData?.products?.edges, hideOutOfStock]);
 
   const categories = useMemo(
     () => categoriesData?.rootCategories || [],
@@ -192,11 +223,11 @@ export default function Home() {
     [bestDealsData]
   );
   const hasMoreProducts = useMemo(
-    () => productsData?.products.pageInfo.hasNextPage || false,
+    () => productsData?.products?.pageInfo?.hasNextPage || false,
     [productsData]
   );
   const endCursor = useMemo(
-    () => productsData?.products.pageInfo.endCursor || null,
+    () => productsData?.products?.pageInfo?.endCursor || null,
     [productsData]
   );
 
@@ -206,16 +237,17 @@ export default function Home() {
   );
 
   const hasError = useMemo(
-    () => productsError || categoriesError || bestDealsError,
-    [productsError, categoriesError, bestDealsError]
+    () => productsError || categoriesError || bestDealsError || regionError,
+    [productsError, categoriesError, bestDealsError, regionError]
   );
 
   const errorMessage = useMemo(
     () =>
       productsError?.message ||
       categoriesError?.message ||
-      bestDealsError?.message,
-    [productsError, categoriesError, bestDealsError]
+      bestDealsError?.message ||
+      regionError?.message,
+    [productsError, categoriesError, bestDealsError, regionError]
   );
 
   // Получаем общее количество товаров
@@ -224,36 +256,45 @@ export default function Home() {
     [productsData?.products?.totalCount, products.length]
   );
 
-  // Проверка авторизации пользователя
+  // Проверка авторизации пользователя - безопасно для SSR
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    setIsAuth(!!token);
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("accessToken");
+      setIsAuth(!!token);
+    }
   }, [userData]);
 
-  // Получение/установка региона
+  // Получение/установка региона - безопасно для SSR
   useEffect(() => {
     if (regionData?.viewer?.region) {
       setCurrentRegion(regionData.viewer.region);
-      localStorage.setItem(
-        "selectedRegion",
-        JSON.stringify(regionData.viewer.region)
-      );
-    } else {
-      const savedRegion = localStorage.getItem("selectedRegion");
-      if (savedRegion) {
+
+      if (typeof window !== "undefined") {
         try {
-          setCurrentRegion(JSON.parse(savedRegion));
-        } catch (e) {
-          console.error("Ошибка при разборе сохраненного региона:", e);
-          localStorage.removeItem("selectedRegion");
+          localStorage.setItem(
+            "selectedRegion",
+            JSON.stringify(regionData.viewer.region)
+          );
+        } catch (error) {
+          console.error("Ошибка при сохранении региона:", error);
         }
+      }
+    } else if (typeof window !== "undefined") {
+      try {
+        const savedRegion = localStorage.getItem("selectedRegion");
+        if (savedRegion) {
+          setCurrentRegion(JSON.parse(savedRegion));
+        }
+      } catch (e) {
+        console.error("Ошибка при разборе сохраненного региона:", e);
+        localStorage.removeItem("selectedRegion");
       }
     }
   }, [regionData]);
 
-  // Функция загрузки дополнительных товаров
+  // Функция загрузки дополнительных товаров с обработкой ошибок
   const handleLoadMore = useCallback(() => {
-    if (hasMoreProducts && !productsLoading && !isLoadingMore) {
+    if (hasMoreProducts && !productsLoading && !isLoadingMore && endCursor) {
       setIsLoadingMore(true);
       fetchMore({
         variables: {
@@ -281,21 +322,27 @@ export default function Home() {
     endCursor,
   ]);
 
-  // Настройка Intersection Observer для бесконечной прокрутки
+  // Оптимизированная настройка Intersection Observer для бесконечной прокрутки
   useEffect(() => {
+    // Проверяем, что мы в браузере
+    if (typeof window === "undefined") {
+      return;
+    }
+
     const currentObserverTarget = observerTarget.current;
 
     if (!currentObserverTarget || !hasMoreProducts) {
       return;
     }
 
+    // Используем IntersectionObserver
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
           handleLoadMore();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: "100px" }
     );
 
     observer.observe(currentObserverTarget);

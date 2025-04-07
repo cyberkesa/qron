@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_PRODUCTS } from "@/lib/queries";
 import { ProductCard } from "@/components/ProductCard";
@@ -18,7 +18,8 @@ import {
 import { ProductSorter } from "@/components/ProductSorter";
 import { StockFilter } from "@/components/StockFilter";
 
-export default function SearchPage() {
+// Create a client component that uses useSearchParams
+function SearchPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const searchQuery = searchParams?.get("q") ?? "";
@@ -249,5 +250,25 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Load indicator for Suspense
+function SearchLoading() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-center items-center h-40">
+        <div className="animate-spin h-8 w-8 border-4 border-blue-600 rounded-full border-t-transparent"></div>
+      </div>
+    </div>
+  );
+}
+
+// Main page component with Suspense
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<SearchLoading />}>
+      <SearchPageContent />
+    </Suspense>
   );
 }
