@@ -18,21 +18,20 @@ export default function ProfilePage() {
       const result = await logout();
 
       if (result.data?.logOut?.success) {
-        // Удаляем токены из localStorage
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-
-        setLogoutMessage("Вы успешно вышли из аккаунта");
-
-        // Перенаправляем на страницу входа через 2 секунды
+        localStorage.removeItem("selectedRegion");
+        setLogoutMessage("Вы успешно вышли из аккаунта. Перенаправление...");
         setTimeout(() => {
           router.push("/login");
         }, 2000);
       } else if (result.data?.logOut?.message) {
         setLogoutMessage(`Ошибка: ${result.data.logOut.message}`);
       }
-    } catch (error: any) {
-      setLogoutMessage(`Ошибка: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Неизвестная ошибка";
+      setLogoutMessage(`Ошибка: ${errorMessage}`);
     }
   };
 

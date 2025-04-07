@@ -4,6 +4,7 @@ import { useQuery } from "@apollo/client";
 import { GET_ORDERS } from "@/lib/queries";
 import Link from "next/link";
 import { useState } from "react";
+import { Order } from "@/types/api";
 
 export default function OrdersPage() {
   const [page, setPage] = useState(1);
@@ -11,8 +12,8 @@ export default function OrdersPage() {
 
   const { data, loading, error } = useQuery(GET_ORDERS);
 
-  const orders = data?.orders?.edges?.map((edge: any) => edge.node) || [];
-  const pageInfo = data?.orders?.pageInfo || {};
+  const orders =
+    data?.orders?.edges?.map((edge: { node: Order }) => edge.node) || [];
   const totalCount = data?.orders?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -142,7 +143,7 @@ export default function OrdersPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {orders.map((order: any) => {
+                {orders.map((order: Order) => {
                   const status = getStatusLabel(order.status);
                   return (
                     <tr key={order.id} className="hover:bg-gray-50">
@@ -160,7 +161,7 @@ export default function OrdersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {order.totalPrice} ₽
+                        {order.decimalTotalPrice} ₽
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <Link

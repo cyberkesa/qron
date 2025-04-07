@@ -1,14 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GET_PRODUCTS, GET_CATEGORY_BY_SLUG } from "@/lib/queries";
-import { ProductSortOrder, Product } from "@/types/api";
+import {
+  ProductSortOrder,
+  Product,
+  ProductStockAvailabilityStatus,
+} from "@/types/api";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductSorter } from "@/components/ProductSorter";
+import { StockFilter } from "@/components/StockFilter";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -19,22 +24,33 @@ interface CategoryPageProps {
 export default function CategoryPage({ params }: CategoryPageProps) {
   const router = useRouter();
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
+  const [hideOutOfStock, setHideOutOfStock] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  // Ref для бесконечной прокрутки
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   // Извлекаем slug из params с помощью React.use()
   const { slug } = React.use(params);
 
   // Получаем данные о категории по slug
-  const { data: categoryData, error: categoryError } = useQuery(
-    GET_CATEGORY_BY_SLUG,
-    {
-      variables: {
-        slug: decodeURIComponent(slug),
-      },
-    }
-  );
+  const {
+    data: categoryData,
+    error: categoryError,
+    loading: categoryLoading,
+  } = useQuery(GET_CATEGORY_BY_SLUG, {
+    variables: {
+      slug: decodeURIComponent(slug),
+    },
+  });
 
   // Получаем товары из этой категории с пагинацией
-  const { data: productsData, error: productsError } = useQuery(GET_PRODUCTS, {
+  const {
+    data: productsData,
+    error: productsError,
+    loading: productsLoading,
+    fetchMore,
+  } = useQuery(GET_PRODUCTS, {
     variables: {
       first: 16, // Загружаем по 16 товаров за раз
       categoryId: categoryData?.categoryBySlug?.id,
@@ -45,20 +61,126 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   // Подготовка данных из результатов запросов
   const category = categoryData?.categoryBySlug || null;
-  const products =
+  let products =
     productsData?.products?.edges?.map(
       (edge: { node: Product; cursor: string }) => edge.node
     ) || [];
+
+  // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
+  if (hideOutOfStock) {
+    products = products.filter(
+      (product: Product) =>
+        product.stockAvailabilityStatus !==
+        ProductStockAvailabilityStatus.OUT_OF_STOCK
+    );
+  }
+
+  const hasMoreProducts =
+    productsData?.products?.pageInfo?.hasNextPage || false;
+  const endCursor = productsData?.products?.pageInfo?.endCursor || null;
 
   // Вычисляем примерное общее количество товаров (на основе текущих данных)
   // Обычно сервер возвращает общее количество, но если нет, можно примерно оценить
   const totalProductsCount =
     productsData?.products?.totalCount || products.length;
 
+  // Определяем общее состояние загрузки
+  const isLoading = categoryLoading || productsLoading;
+
+  // Функция загрузки дополнительных товаров
+  const handleLoadMore = useCallback(() => {
+    if (hasMoreProducts && !isLoadingMore && fetchMore) {
+      setIsLoadingMore(true);
+      fetchMore({
+        variables: {
+          after: endCursor,
+          first: 16,
+          categoryId: categoryData?.categoryBySlug?.id,
+          sortOrder,
+        },
+      })
+        .then(() => {
+          setIsLoadingMore(false);
+        })
+        .catch((error) => {
+          console.error("Error loading more products:", error);
+          setIsLoadingMore(false);
+        });
+    }
+  }, [
+    fetchMore,
+    hasMoreProducts,
+    isLoadingMore,
+    endCursor,
+    categoryData?.categoryBySlug?.id,
+    sortOrder,
+  ]);
+
+  // Настройка Intersection Observer для бесконечной прокрутки
+  useEffect(() => {
+    const currentObserverTarget = observerTarget.current;
+
+    if (!currentObserverTarget || !hasMoreProducts) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(currentObserverTarget);
+
+    return () => {
+      if (currentObserverTarget) {
+        observer.unobserve(currentObserverTarget);
+      }
+    };
+  }, [handleLoadMore, hasMoreProducts]);
+
   // Обработчик изменения сортировки
   const handleSortChange = (newSortOrder: ProductSortOrder) => {
     setSortOrder(newSortOrder);
   };
+
+  // Обработчик изменения фильтра наличия
+  const handleStockFilterChange = (newHideOutOfStock: boolean) => {
+    setHideOutOfStock(newHideOutOfStock);
+  };
+
+  // Рендер скелетона при загрузке
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-10">
+        <div className="mb-6">
+          <div className="h-6 bg-gray-200 rounded w-1/4 animate-pulse"></div>
+        </div>
+
+        <div className="h-8 bg-gray-200 rounded w-2/3 mb-8 animate-pulse"></div>
+
+        <div className="flex justify-between mb-6">
+          <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+          <div className="flex gap-4">
+            <div className="h-10 bg-gray-200 rounded w-40 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div
+              key={index}
+              className="h-72 bg-gray-200 rounded-lg animate-pulse"
+            ></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // Рендер ошибки категории
   if (categoryError) {
@@ -102,8 +224,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     );
   }
 
-  // Если категория не найдена
-  if (!category) {
+  // Если категория не найдена и загрузка завершена
+  if (!category && !isLoading) {
     return (
       <div className="container mx-auto px-4 py-10">
         <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
@@ -162,7 +284,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
               </div>
             </li>
             {/* Показываем родительскую категорию, если она есть */}
-            {category.parent && (
+            {category?.parent && (
               <li>
                 <div className="flex items-center">
                   <span className="mx-2 text-gray-400">
@@ -208,7 +330,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                     />
                   </svg>
                 </span>
-                <span className="text-gray-500">{category.title}</span>
+                <span className="text-gray-500">{category?.title}</span>
               </div>
             </li>
           </ol>
@@ -216,11 +338,11 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       </div>
 
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-        {category.title}
+        {category?.title}
       </h1>
 
       {/* Отображаем подкатегории, если они есть */}
-      {category.children && category.children.length > 0 && (
+      {category?.children && category.children.length > 0 && (
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             Подкатегории
@@ -268,7 +390,13 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             ` (загружено ${products.length})`}
         </p>
 
-        <ProductSorter value={sortOrder} onChange={handleSortChange} />
+        <div className="flex flex-col sm:flex-row gap-4">
+          <ProductSorter value={sortOrder} onChange={handleSortChange} />
+          <StockFilter
+            value={hideOutOfStock}
+            onChange={handleStockFilterChange}
+          />
+        </div>
       </div>
 
       {products.length === 0 ? (
@@ -283,14 +411,32 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             ))}
           </div>
 
+          {/* Индикатор загрузки и триггер для подгрузки */}
+          {(hasMoreProducts || isLoadingMore) && (
+            <div
+              ref={observerTarget}
+              className="w-full h-16 mt-8 flex justify-center items-center"
+            >
+              {isLoadingMore ? (
+                <div className="flex items-center justify-center">
+                  <span className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full mr-2"></span>
+                  <span className="text-gray-600">Загрузка...</span>
+                </div>
+              ) : (
+                <div className="text-gray-500 text-sm">
+                  Прокрутите вниз, чтобы загрузить еще
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Сообщение об окончании списка товаров */}
-          {!productsData?.products?.pageInfo?.hasNextPage &&
-            products.length >= 16 && (
-              <div className="mt-8 text-center text-gray-500">
-                Загружены все доступные товары ({products.length} из{" "}
-                {totalProductsCount})
-              </div>
-            )}
+          {!hasMoreProducts && products.length >= 16 && (
+            <div className="mt-8 text-center text-gray-500">
+              Загружены все доступные товары ({products.length} из{" "}
+              {totalProductsCount})
+            </div>
+          )}
         </>
       )}
     </div>

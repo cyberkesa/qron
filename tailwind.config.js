@@ -14,6 +14,18 @@ module.exports = {
           light: "#60a5fa",
         },
       },
+      keyframes: {
+        fadeIn: {
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
+        },
+      },
+      animation: {
+        fadeIn: "fadeIn 0.3s ease-in-out",
+      },
+      scale: {
+        98: "0.98",
+      },
     },
   },
   plugins: [],

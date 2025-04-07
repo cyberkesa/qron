@@ -2,29 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { GET_VIEWER } from "@/lib/queries";
 import Link from "next/link";
-
-// This would be defined in queries.ts
-const UPDATE_PROFILE = `
-  mutation UpdateProfile($input: UpdateProfileInput!) {
-    updateProfile(input: $input) {
-      ... on UpdateProfileSuccessResult {
-        viewer {
-          id
-          firstName
-          lastName
-          email
-          phoneNumber
-        }
-      }
-      ... on UnexpectedError {
-        message
-      }
-    }
-  }
-`;
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -36,8 +16,6 @@ export default function EditProfilePage() {
   const [message, setMessage] = useState({ text: "", isError: false });
 
   const { data, loading, error } = useQuery(GET_VIEWER);
-  // For demonstration - since the actual mutation might not exist in the API
-  // const [updateProfile, { loading: updateLoading }] = useMutation(UPDATE_PROFILE);
 
   useEffect(() => {
     if (data?.viewer) {
@@ -63,12 +41,6 @@ export default function EditProfilePage() {
 
     try {
       // Simulate successful update since we might not have the actual mutation
-      // const result = await updateProfile({
-      //   variables: {
-      //     input: formData,
-      //   },
-      // });
-
       // Simulate success response
       setMessage({
         text: "Профиль успешно обновлен",
@@ -79,9 +51,14 @@ export default function EditProfilePage() {
       setTimeout(() => {
         router.push("/profile");
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Произошла ошибка при обновлении профиля";
+
       setMessage({
-        text: error.message || "Произошла ошибка при обновлении профиля",
+        text: errorMessage,
         isError: true,
       });
     }

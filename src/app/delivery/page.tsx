@@ -11,6 +11,7 @@ import {
   ShieldCheckIcon,
   BanknotesIcon,
   CreditCardIcon as CreditCardOutlineIcon,
+  GlobeEuropeAfricaIcon,
 } from "@heroicons/react/24/outline";
 
 export default function DeliveryPage() {
@@ -261,7 +262,7 @@ export default function DeliveryPage() {
             </h3>
             <p className="text-gray-600">
               Вы можете вернуть товар в течение 14 дней с момента получения
-              заказа. Подробнее в разделе "Возврат и обмен".
+              заказа. Подробнее в разделе &quot;Возврат и обмен&quot;.
             </p>
           </div>
 
@@ -283,6 +284,33 @@ export default function DeliveryPage() {
               Да, доставка осуществляется и в выходные дни в большинстве
               регионов. Время доставки согласовывается с курьером.
             </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-8 mb-12">
+        <h2 className="text-2xl font-bold mb-6">Доставка по России</h2>
+
+        <div className="space-y-6">
+          <div>
+            <div className="flex items-start">
+              <div className="flex-shrink-0 bg-blue-100 rounded-full p-3 mt-1">
+                <GlobeEuropeAfricaIcon className="h-6 w-6 text-blue-600" />
+              </div>
+              <div className="ml-5">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Доставка по России
+                </h3>
+                <div className="mt-2 text-gray-600">
+                  <p className="mb-2">
+                    Доставка по России осуществляется через транспортные
+                    компании &quot;СДЭК&quot;, &quot;Деловые Линии&quot;,
+                    &quot;ПЭК&quot; и &quot;Почта России&quot;. Стоимость и
+                    сроки рассчитываются индивидуально.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

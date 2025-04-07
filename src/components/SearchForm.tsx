@@ -1,126 +1,147 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@apollo/client";
-import { GET_CATEGORIES } from "@/lib/queries";
-import {
-  MagnifyingGlassIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/24/outline";
-import { Category } from "@/types/api";
+import { GET_PRODUCTS } from "@/lib/queries";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { Product } from "@/types/api";
+import Link from "next/link";
 
-export default function SearchForm() {
+// Компонент для элемента в выпадающем списке результатов
+const SearchResultItem = ({ product }: { product: Product }) => (
+  <Link
+    href={`/product/${product.slug}`}
+    className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+  >
+    <div className="flex items-center">
+      <div className="flex-1">
+        <div className="font-medium text-gray-900">{product.name}</div>
+        <div className="text-sm text-gray-500">{product.price} ₽</div>
+      </div>
+    </div>
+  </Link>
+);
+
+// Основной компонент формы поиска
+const SearchForm = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [categoryTitle, setCategoryTitle] = useState("Все категории");
+  const [isResultsOpen, setIsResultsOpen] = useState(false);
+  const searchTimeout = useRef<NodeJS.Timeout>();
+  const searchRef = useRef<HTMLDivElement>(null);
 
-  const { data: categoriesData } = useQuery(GET_CATEGORIES);
-  const categories = categoriesData?.rootCategories || [];
+  // Запрос товаров для живого поиска
+  const { data: searchData, loading: searchLoading } = useQuery(GET_PRODUCTS, {
+    variables: {
+      first: 5,
+      searchQuery,
+    },
+    skip: !searchQuery || searchQuery.length < 2,
+  });
 
+  // Получаем результаты поиска
+  const searchResults = useMemo(
+    () =>
+      searchData?.products?.edges?.map(
+        (edge: { node: Product }) => edge.node
+      ) || [],
+    [searchData]
+  );
+
+  // Обработчик изменения поля поиска
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearchQuery(value);
+
+      // Очищаем предыдущий таймаут
+      if (searchTimeout.current) {
+        clearTimeout(searchTimeout.current);
+      }
+
+      // Устанавливаем новый таймаут для задержки запроса
+      searchTimeout.current = setTimeout(() => {
+        if (value.length >= 2) {
+          setIsResultsOpen(true);
+        } else {
+          setIsResultsOpen(false);
+        }
+      }, 300);
+    },
+    []
+  );
+
+  // Обработчик отправки формы
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (searchQuery.trim()) {
+        router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+        setIsResultsOpen(false);
+      }
+    },
+    [searchQuery, router]
+  );
+
+  // Закрываем результаты при клике вне компонента
   useEffect(() => {
-    // Если URL содержит параметр поиска, установим его в строку поиска
-    const urlQuery = searchParams.get("q");
-    if (urlQuery) {
-      setSearchQuery(urlQuery);
-    }
-
-    // Если URL содержит параметр категории, установим выбранную категорию
-    const urlCategory = searchParams.get("category");
-    if (urlCategory && categories.length > 0) {
-      setSelectedCategory(urlCategory);
-      const category = categories.find(
-        (cat: Category) => cat.id === urlCategory
-      );
-      if (category) {
-        setCategoryTitle(category.title);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setIsResultsOpen(false);
       }
-    }
-  }, [searchParams, categories]);
+    };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      const params = new URLSearchParams();
-      params.set("q", searchQuery);
-      if (selectedCategory) {
-        params.set("category", selectedCategory);
-      }
-      router.push(`/search?${params.toString()}`);
-      setIsDropdownOpen(false);
-    }
-  };
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const selectCategory = (id: string, title: string) => {
-    setSelectedCategory(id);
-    setCategoryTitle(title);
-    setIsDropdownOpen(false);
-  };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <form onSubmit={handleSearch} className="relative w-full flex">
-      {/* Dropdown для выбора категории */}
-      <div className="relative">
-        <button
-          type="button"
-          onClick={toggleDropdown}
-          className="flex items-center h-full px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-r-0 border-gray-300 rounded-l-md transition-colors"
-        >
-          <span className="hidden md:inline truncate max-w-[120px]">
-            {categoryTitle}
-          </span>
-          <span className="md:hidden">
-            <MagnifyingGlassIcon className="h-5 w-5" />
-          </span>
-          <ChevronDownIcon className="h-4 w-4 ml-1" />
-        </button>
+    <div ref={searchRef} className="relative w-full">
+      <form onSubmit={handleSubmit} className="relative">
+        <input
+          type="text"
+          placeholder="Поиск товаров..."
+          className="w-full py-2 px-4 pl-12 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          value={searchQuery}
+          onChange={handleInputChange}
+          onFocus={() => searchQuery.length >= 2 && setIsResultsOpen(true)}
+        />
+        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+      </form>
 
-        {isDropdownOpen && (
-          <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-md shadow-lg z-50 max-h-80 overflow-y-auto border border-gray-200">
-            <div
-              className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-              onClick={() => selectCategory("", "Все категории")}
-            >
-              Все категории
+      {/* Выпадающий список результатов */}
+      {isResultsOpen && (searchResults.length > 0 || searchLoading) && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-md shadow-lg border border-gray-200 z-50 max-h-80 overflow-y-auto">
+          {searchLoading ? (
+            <div className="p-4 text-center text-gray-500">
+              <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+              Поиск...
             </div>
-            <div className="border-t border-gray-100"></div>
-            {categories.map((category: Category) => (
-              <div
-                key={category.id}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                onClick={() => selectCategory(category.id, category.title)}
-              >
-                {category.title}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Поле поиска */}
-      <input
-        type="text"
-        placeholder="Поиск товаров..."
-        className="w-full py-2 px-4 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
-
-      {/* Кнопка поиска */}
-      <button
-        type="submit"
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-        aria-label="Поиск"
-      >
-        <MagnifyingGlassIcon className="h-5 w-5" />
-      </button>
-    </form>
+          ) : (
+            <>
+              {searchResults.map((product: Product) => (
+                <SearchResultItem key={product.id} product={product} />
+              ))}
+              {searchResults.length > 0 && (
+                <div className="border-t border-gray-200 p-2 text-center">
+                  <Link
+                    href={`/search?q=${encodeURIComponent(searchQuery)}`}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    Показать все результаты
+                  </Link>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
   );
-}
+};
+
+export default SearchForm;

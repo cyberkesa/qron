@@ -10,7 +10,6 @@ interface ProductSorterProps {
 
 // Опции сортировки с удобочитаемыми названиями
 const sortOptions = [
-  { value: "RELEVANCE", label: "По релевантности" },
   { value: "NEWEST_FIRST", label: "Сначала новые" },
   { value: "CHEAPEST_FIRST", label: "Сначала дешевые" },
   { value: "EXPENSIVE_FIRST", label: "Сначала дорогие" },

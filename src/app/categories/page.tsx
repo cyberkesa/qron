@@ -11,10 +11,20 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[70vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка категорий...</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="h-10 bg-gray-200 rounded w-56 mb-8 animate-pulse"></div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="p-6 bg-gray-100 rounded-lg animate-pulse"
+            >
+              <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-4"></div>
+              <div className="h-7 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+              <div className="h-5 bg-gray-200 rounded w-full mt-4"></div>
+            </div>
+          ))}
         </div>
       </div>
     );

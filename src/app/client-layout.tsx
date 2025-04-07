@@ -11,7 +11,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
     <Providers>
       <div className="flex flex-col min-h-screen">
         <Header />
-        <main className="flex-grow">{children}</main>
+        <main className="flex-grow no-shift">{children}</main>
         <Footer />
         <RegionSwitchModal />
       </div>

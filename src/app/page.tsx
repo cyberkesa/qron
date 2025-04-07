@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import { useQuery } from "@apollo/client";
 import {
   GET_PRODUCTS,
@@ -11,7 +11,12 @@ import {
 } from "@/lib/queries";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductFilters } from "@/components/ProductFilters";
-import { ProductSortOrder, Category, Product } from "@/types/api";
+import {
+  ProductSortOrder,
+  Product,
+  ProductStockAvailabilityStatus,
+  Category,
+} from "@/types/api";
 import Link from "next/link";
 import {
   ShoppingCartIcon,
@@ -19,7 +24,89 @@ import {
   FireIcon,
   AdjustmentsHorizontalIcon,
 } from "@heroicons/react/24/outline";
-import { ProductSorter } from "@/components/ProductSorter";
+
+import { ProductCarousel } from "@/components/ProductCarousel";
+import Image from "next/image";
+
+// Мемоизированный компонент для списка товаров
+const ProductGrid = memo(({ products }: { products: Product[] }) => {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {products.map((product, index) => (
+        <ProductCard key={`grid-${product.id}-${index}`} product={product} />
+      ))}
+    </div>
+  );
+});
+
+ProductGrid.displayName = "ProductGrid";
+
+// Мемоизированный компонент для лучших предложений
+const BestDeals = memo(({ products }: { products: Product[] }) => {
+  if (!products.length) return null;
+
+  return (
+    <div className="mb-12">
+      <div className="flex items-center mb-6">
+        <FireIcon className="h-6 w-6 text-red-600 mr-2" />
+        <h2 className="text-2xl font-bold text-gray-900">Лучшие предложения</h2>
+      </div>
+      <ProductCarousel products={products} />
+    </div>
+  );
+});
+
+BestDeals.displayName = "BestDeals";
+
+// Мемоизированный компонент для баннера
+const Banner = memo(() => {
+  return (
+    <div className="mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-md flex flex-col">
+          <div className="text-2xl font-bold mb-2">Бесплатная доставка</div>
+          <p className="text-blue-100 text-sm mb-auto">
+            При заказе от 5000 рублей доставим бесплатно в любую точку региона
+          </p>
+          <Link
+            href="/delivery"
+            className="mt-4 text-white bg-blue-600/30 hover:bg-blue-600/50 px-4 py-2 rounded-lg text-sm inline-block w-fit transition-colors"
+          >
+            Подробнее
+          </Link>
+        </div>
+
+        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-md flex flex-col">
+          <div className="text-2xl font-bold mb-2">Скидка 10%</div>
+          <p className="text-green-100 text-sm mb-auto">
+            На все строительные материалы до конца месяца
+          </p>
+          <Link
+            href="/special-offers"
+            className="mt-4 text-white bg-green-600/30 hover:bg-green-600/50 px-4 py-2 rounded-lg text-sm inline-block w-fit transition-colors"
+          >
+            Все акции
+          </Link>
+        </div>
+
+        <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-6 text-white shadow-md flex flex-col">
+          <div className="text-2xl font-bold mb-2">Более 1000+</div>
+          <p className="text-amber-100 text-sm mb-auto">
+            Товаров для строительства и ремонта с возможностью быстрой доставки
+          </p>
+          <Link
+            href="/about"
+            className="mt-4 text-white bg-amber-600/30 hover:bg-amber-600/50 px-4 py-2 rounded-lg text-sm inline-block w-fit transition-colors"
+          >
+            О компании
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+Banner.displayName = "Banner";
 
 export default function Home() {
   // Состояния компонента
@@ -32,6 +119,7 @@ export default function Home() {
     id: string;
     name: string;
   } | null>(null);
+  const [hideOutOfStock, setHideOutOfStock] = useState(true);
 
   // Ref для бесконечной прокрутки
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -73,25 +161,68 @@ export default function Home() {
   // Запрос данных пользователя
   const { data: userData } = useQuery(GET_VIEWER);
 
-  // Подготовка данных для использования в компоненте
-  const user = userData?.viewer;
-  const products =
-    productsData?.products.edges.map((edge: any) => edge.node) || [];
-  const categories = categoriesData?.rootCategories || [];
-  const bestDeals = bestDealsData?.bestDealProducts || [];
-  const hasMoreProducts = productsData?.products.pageInfo.hasNextPage || false;
-  const endCursor = productsData?.products.pageInfo.endCursor || null;
-  const isDataLoading =
-    productsLoading || categoriesLoading || bestDealsLoading;
-  const hasError = productsError || categoriesError || bestDealsError;
-  const errorMessage =
-    productsError?.message ||
-    categoriesError?.message ||
-    bestDealsError?.message;
+  // Подготовка данных для использования в компоненте - мемоизируем эти вычисления
+  const user = useMemo(() => userData?.viewer, [userData]);
+
+  // Мемоизируем обработанные товары
+  const products = useMemo(() => {
+    const allProducts =
+      productsData?.products.edges.map(
+        (edge: { node: Product }) => edge.node
+      ) || [];
+
+    // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
+    if (hideOutOfStock) {
+      return allProducts.filter(
+        (product: Product) =>
+          product.stockAvailabilityStatus !==
+          ProductStockAvailabilityStatus.OUT_OF_STOCK
+      );
+    }
+
+    return allProducts;
+  }, [productsData?.products.edges, hideOutOfStock]);
+
+  const categories = useMemo(
+    () => categoriesData?.rootCategories || [],
+    [categoriesData]
+  );
+  const bestDeals = useMemo(
+    () => bestDealsData?.bestDealProducts || [],
+    [bestDealsData]
+  );
+  const hasMoreProducts = useMemo(
+    () => productsData?.products.pageInfo.hasNextPage || false,
+    [productsData]
+  );
+  const endCursor = useMemo(
+    () => productsData?.products.pageInfo.endCursor || null,
+    [productsData]
+  );
+
+  const isDataLoading = useMemo(
+    () => productsLoading || categoriesLoading || bestDealsLoading,
+    [productsLoading, categoriesLoading, bestDealsLoading]
+  );
+
+  const hasError = useMemo(
+    () => productsError || categoriesError || bestDealsError,
+    [productsError, categoriesError, bestDealsError]
+  );
+
+  const errorMessage = useMemo(
+    () =>
+      productsError?.message ||
+      categoriesError?.message ||
+      bestDealsError?.message,
+    [productsError, categoriesError, bestDealsError]
+  );
 
   // Получаем общее количество товаров
-  const totalProductsCount =
-    productsData?.products?.totalCount || products.length;
+  const totalProductsCount = useMemo(
+    () => productsData?.products?.totalCount || products.length,
+    [productsData?.products?.totalCount, products.length]
+  );
 
   // Проверка авторизации пользователя
   useEffect(() => {
@@ -177,211 +308,136 @@ export default function Home() {
   }, [handleLoadMore, hasMoreProducts]);
 
   // Обработчики событий UI
-  const handleCategoryChange = (categoryId: string) => {
+  const handleCategoryChange = useCallback((categoryId: string) => {
     setSelectedCategory(categoryId);
-    if (window.innerWidth < 768) {
-      setShowMobileFilters(false);
-    }
-  };
+  }, []);
 
-  const toggleMobileFilters = () => {
-    setShowMobileFilters(!showMobileFilters);
-  };
+  const toggleMobileFilters = useCallback(() => {
+    setShowMobileFilters((prev) => !prev);
+  }, []);
 
-  const handleSortChange = (newSortOrder: ProductSortOrder) => {
+  const handleSortChange = useCallback((newSortOrder: ProductSortOrder) => {
     setSortOrder(newSortOrder);
-  };
+  }, []);
 
-  // Рендер состояния загрузки региона
-  if (!currentRegion) {
-    return (
-      <div className="flex justify-center items-center min-h-[70vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Ожидание выбора региона...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleStockFilterChange = useCallback((checked: boolean) => {
+    setHideOutOfStock(checked);
+  }, []);
 
-  // Рендер состояния загрузки данных
-  if (isDataLoading && (!products.length || !categories.length)) {
-    return (
-      <div className="flex justify-center items-center min-h-[70vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка товаров...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Рендер состояния ошибки
-  if (hasError) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h2 className="text-xl font-semibold text-red-600 mb-2">
-          Ошибка загрузки данных
-        </h2>
-        <p className="text-gray-600">{errorMessage}</p>
-      </div>
-    );
-  }
-
-  // Основной рендер компонента
-  return (
-    <main className="container mx-auto px-4 py-6 md:py-8">
-      {/* Заголовок и навигация */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-            Каталог товаров KRON
-          </h1>
-          <p className="text-gray-600">Найдено товаров: {products.length}</p>
-        </div>
-
-        <div className="mt-4 md:mt-0 flex items-center gap-2 md:gap-4 self-end md:self-auto">
-          <Link
-            href="/cart"
-            className="relative text-gray-700 hover:text-blue-600 transition-colors p-2"
-          >
-            <ShoppingCartIcon className="h-6 w-6" />
-          </Link>
-
-          {isAuth ? (
-            <Link
-              href="/profile"
-              className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors p-2"
-            >
-              <UserIcon className="h-6 w-6" />
-              <span className="hidden md:inline">
-                {user?.firstName || "Профиль"}
-              </span>
-            </Link>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/login"
-                className="text-gray-700 hover:text-blue-600 transition-colors p-2 flex items-center gap-1"
-              >
-                <UserIcon className="h-6 w-6" />
-                <span className="hidden md:inline">Войти</span>
-              </Link>
-              <Link
-                href="/register"
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 hidden md:block"
-              >
-                Регистрация
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Раздел лучших предложений */}
-      {bestDeals.length > 0 && (
-        <div className="mb-12">
-          <div className="flex items-center gap-2 mb-6">
-            <FireIcon className="h-6 w-6 text-red-500" />
-            <h2 className="text-2xl font-bold text-gray-900">
-              Лучшие предложения
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {bestDeals.map((product: Product) => (
-              <ProductCard key={product.id} product={product} />
+  // Рендер содержимого в зависимости от состояния загрузки
+  const renderContent = () => {
+    if (isDataLoading && !productsData) {
+      return (
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 rounded-xl mb-8"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div key={index} className="bg-gray-200 h-72 rounded-lg"></div>
             ))}
           </div>
         </div>
-      )}
+      );
+    }
 
-      {/* Мобильные фильтры */}
-      <div className="md:hidden mb-4">
-        <button
-          onClick={toggleMobileFilters}
-          className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-md flex items-center justify-center gap-2"
-        >
-          <AdjustmentsHorizontalIcon className="h-5 w-5" />
-          {showMobileFilters ? "Скрыть фильтры" : "Показать фильтры"}
-        </button>
-      </div>
+    if (hasError) {
+      return (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center my-8">
+          <h2 className="text-lg font-medium text-red-800 mb-2">
+            Произошла ошибка при загрузке данных
+          </h2>
+          <p className="text-red-600 mb-4">{errorMessage}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Обновить страницу
+          </button>
+        </div>
+      );
+    }
 
-      {/* Основной контент */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        {/* Боковая панель с фильтрами */}
-        <div
-          className={`md:col-span-1 ${
-            showMobileFilters ? "block" : "hidden md:block"
-          }`}
-        >
-          <div className="sticky top-4">
-            <ProductFilters
-              categories={categories}
-              selectedCategory={selectedCategory}
-              sortOrder={sortOrder}
-              onCategoryChange={handleCategoryChange}
-              onSortChange={handleSortChange}
-            />
+    if (products.length === 0 && !isDataLoading) {
+      return (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center my-8">
+          <h2 className="text-lg font-medium text-yellow-800 mb-3">
+            Товары не найдены
+          </h2>
+          <p className="text-yellow-700 mb-4">
+            По вашему запросу не найдено товаров. Попробуйте изменить параметры
+            фильтрации или выбрать другую категорию.
+          </p>
+          <button
+            onClick={() => {
+              setSelectedCategory("");
+              setSortOrder("NEWEST_FIRST");
+              setHideOutOfStock(false);
+            }}
+            className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors"
+          >
+            Сбросить фильтры
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <Banner />
+
+        <BestDeals products={bestDeals} />
+
+        <div className="mb-6 flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-gray-900">Каталог товаров</h2>
+          <button
+            onClick={toggleMobileFilters}
+            className="md:hidden flex items-center rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white hover:bg-gray-50"
+          >
+            <AdjustmentsHorizontalIcon className="h-5 w-5 mr-1 text-gray-600" />
+            Фильтры
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8 mb-12">
+          <ProductFilters
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+            sortOrder={sortOrder}
+            onSortChange={handleSortChange}
+            hideOutOfStock={hideOutOfStock}
+            onStockFilterChange={handleStockFilterChange}
+            showMobileFilters={showMobileFilters}
+            onCloseMobileFilters={toggleMobileFilters}
+          />
+
+          <div>
+            <div className="mb-4 flex justify-between items-center">
+              <div className="text-sm text-gray-600">
+                Найдено товаров: {totalProductsCount}
+              </div>
+            </div>
+
+            <ProductGrid products={products} />
+
+            {hasMoreProducts && (
+              <div ref={observerTarget} className="my-8 flex justify-center">
+                {productsLoading || isLoadingMore ? (
+                  <div className="animate-spin h-8 w-8 border-2 border-blue-600 rounded-full border-t-transparent"></div>
+                ) : (
+                  <button
+                    onClick={handleLoadMore}
+                    className="px-5 py-2 text-sm text-blue-600 border border-blue-200 rounded-full hover:bg-blue-50 transition-colors"
+                  >
+                    Загрузить еще
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
+      </>
+    );
+  };
 
-        {/* Список товаров */}
-        <div className="md:col-span-3">
-          {products.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-              <p className="text-xl text-gray-600">Товары не найдены</p>
-              <p className="text-gray-500 mt-2">
-                Попробуйте изменить параметры поиска
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* Информация о количестве товаров */}
-              <div className="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                <p className="text-gray-600">
-                  Всего товаров:{" "}
-                  <span className="font-medium">{totalProductsCount}</span>
-                  {products.length < totalProductsCount &&
-                    ` (загружено ${products.length})`}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map((product: Product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* Индикатор загрузки и триггер для подгрузки */}
-          {(hasMoreProducts || isLoadingMore) && (
-            <div
-              ref={observerTarget}
-              className="w-full h-16 mt-8 flex justify-center items-center"
-            >
-              {isLoadingMore ? (
-                <div className="flex items-center justify-center">
-                  <span className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full mr-2"></span>
-                  <span className="text-gray-600">Загрузка...</span>
-                </div>
-              ) : (
-                <div className="text-gray-500 text-sm">
-                  Прокрутите вниз, чтобы загрузить еще
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Сообщение об окончании списка товаров */}
-          {!hasMoreProducts && products.length >= 16 && (
-            <div className="mt-8 text-center text-gray-500">
-              Загружены все доступные товары ({products.length} из{" "}
-              {totalProductsCount})
-            </div>
-          )}
-        </div>
-      </div>
-    </main>
-  );
+  return <div className="container mx-auto px-4 py-8">{renderContent()}</div>;
 }

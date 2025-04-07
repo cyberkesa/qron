@@ -202,7 +202,7 @@ export default function ContactsPage() {
                 </div>
                 <div>
                   <h3 className="font-medium text-lg">Реквизиты</h3>
-                  <p className="text-gray-700 mb-1">ООО "КРОН"</p>
+                  <p className="text-gray-700 mb-1">ООО &quot;КРОН&quot;</p>
                   <p className="text-gray-700 mb-1">ИНН: 7712345678</p>
                   <p className="text-gray-700">ОГРН: 1157746123456</p>
                 </div>

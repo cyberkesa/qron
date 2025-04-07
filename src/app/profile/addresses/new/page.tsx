@@ -36,18 +36,27 @@ export default function NewAddressPage() {
       const result = await createAddress({
         variables: {
           input: {
-            ...formData,
+            fullName: formData.fullName,
+            phoneNumber: formData.phoneNumber,
+            address: formData.address,
+            city: formData.city,
+            postalCode: formData.postalCode,
+            isDefault: formData.isDefault,
           },
         },
       });
 
-      if (result.data?.createDeliveryAddress?.address) {
+      if (result.data?.createDeliveryAddress?.id) {
         router.push("/profile/addresses");
       } else if (result.data?.createDeliveryAddress?.message) {
         setErrorMessage(result.data.createDeliveryAddress.message);
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || "Произошла ошибка при создании адреса");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Произошла ошибка при создании адреса";
+      setErrorMessage(errorMessage);
     }
   };
 

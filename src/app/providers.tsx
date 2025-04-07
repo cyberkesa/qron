@@ -3,11 +3,17 @@
 import { ReactNode } from "react";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "@/lib/apollo-client";
-import Header from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { NotificationProvider } from "@/lib/providers/NotificationProvider";
+import { CartProvider } from "@/lib/providers/CartProvider";
 
 export function Providers({ children }: { children: ReactNode }) {
-  return <ApolloProvider client={client}>{children}</ApolloProvider>;
+  return (
+    <ApolloProvider client={client}>
+      <NotificationProvider>
+        <CartProvider>{children}</CartProvider>
+      </NotificationProvider>
+    </ApolloProvider>
+  );
 }
 
 // Также добавляем дефолтный экспорт для дополнительной совместимости

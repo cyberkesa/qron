@@ -5,14 +5,12 @@ export const GET_PRODUCTS = gql`
     $after: String, 
     $first: Int!, 
     $sortOrder: ProductSortOrder!,
-    $categoryId: ID,
     $searchQuery: String
   ) {
     products(
       after: $after, 
       first: $first, 
       sortOrder: $sortOrder,
-      categoryId: $categoryId,
       searchQuery: $searchQuery
     ) {
       edges {
@@ -87,7 +85,7 @@ export const GET_CART = gql`
   query GetCart {
     cart {
       id
-      items(first: 20) {
+      items(first: 100) {
         edges {
           node {
             id
@@ -124,38 +122,40 @@ export const GET_CART = gql`
 
 export const ADD_TO_CART = gql`
   mutation AddToCart($productId: ID!, $quantity: Int!) {
-    addToCart(productId: $productId, quantity: $quantity) {
-      cart {
-        id
-        items(first: 20) {
-          edges {
-            node {
-              id
-              product {
+    updateCartItemQuantity(productId: $productId, quantity: $quantity) {
+      ... on UpdateCartItemQuantitySuccessResult {
+        cart {
+          id
+          items(first: 100) {
+            edges {
+              node {
                 id
-                name
-                description
-                price
-                images {
+                product {
                   id
-                  url
-                }
-                slug
-                category {
-                  id
-                  title
+                  name
+                  description
+                  price
+                  images {
+                    id
+                    url
+                  }
                   slug
+                  category {
+                    id
+                    title
+                    slug
+                  }
+                  stockAvailabilityStatus
+                  quantityMultiplicity
                 }
-                stockAvailabilityStatus
-                quantityMultiplicity
+                quantity
               }
-              quantity
             }
-          }
-          decimalTotalPrice
-          pageInfo {
-            hasNextPage
-            endCursor
+            decimalTotalPrice
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
           }
         }
       }
@@ -169,7 +169,7 @@ export const REMOVE_FROM_CART = gql`
       ... on UpdateCartItemQuantitySuccessResult {
         cart {
           id
-          items(first: 20) {
+          items(first: 100) {
             edges {
               node {
                 id
@@ -212,7 +212,7 @@ export const UPDATE_CART_ITEM_QUANTITY = gql`
       ... on UpdateCartItemQuantitySuccessResult {
         cart {
           id
-          items(first: 20) {
+          items(first: 100) {
             edges {
               node {
                 id

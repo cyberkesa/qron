@@ -9,7 +9,6 @@ import {
   EnvelopeIcon,
   MapPinIcon,
   ClockIcon,
-  CreditCardIcon,
 } from "@heroicons/react/24/outline";
 
 export function Footer() {
@@ -19,7 +18,7 @@ export function Footer() {
   const categories = data?.rootCategories || [];
 
   return (
-    <footer className="bg-gray-800 text-white">
+    <footer className="bg-gray-800 text-white min-h-[600px] w-full">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* О компании */}

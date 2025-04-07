@@ -8,12 +8,7 @@ import {
 } from "@/lib/queries";
 import Link from "next/link";
 import { useState } from "react";
-import {
-  MapPinIcon,
-  PlusIcon,
-  TrashIcon,
-  CheckIcon,
-} from "@heroicons/react/24/outline";
+import { DeliveryAddress } from "@/types/api";
 
 export default function DeliveryAddressesPage() {
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -21,7 +16,7 @@ export default function DeliveryAddressesPage() {
   const [deleteMessage, setDeleteMessage] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const { data, loading, error, refetch } = useQuery(GET_DELIVERY_ADDRESSES);
+  const { data, loading, refetch } = useQuery(GET_DELIVERY_ADDRESSES);
   const [deleteAddress] = useMutation(DELETE_DELIVERY_ADDRESS);
   const [setDefaultAddress] = useMutation(SET_DEFAULT_DELIVERY_ADDRESS);
 
@@ -46,8 +41,12 @@ export default function DeliveryAddressesPage() {
       } else if (result.data?.deleteDeliveryAddress?.message) {
         setDeleteMessage(result.data.deleteDeliveryAddress.message);
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || "Произошла ошибка при удалении адреса");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Произошла ошибка при удалении адреса";
+      setErrorMessage(errorMessage);
     } finally {
       setIsDeleting(false);
     }
@@ -70,10 +69,12 @@ export default function DeliveryAddressesPage() {
       } else if (result.data?.setDefaultDeliveryAddress?.message) {
         setErrorMessage(result.data.setDefaultDeliveryAddress.message);
       }
-    } catch (error: any) {
-      setErrorMessage(
-        error.message || "Произошла ошибка при установке адреса по умолчанию"
-      );
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Произошла ошибка при установке адреса по умолчанию";
+      setErrorMessage(errorMessage);
     }
   };
 
@@ -132,7 +133,7 @@ export default function DeliveryAddressesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {addresses.map((address: any) => (
+          {addresses.map((address: DeliveryAddress) => (
             <div
               key={address.id}
               className="bg-white rounded-lg shadow-md p-6 relative"

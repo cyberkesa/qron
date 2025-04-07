@@ -1,79 +1,113 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Product, ProductStockAvailabilityStatus } from "@/types/api";
-import { useMutation } from "@apollo/client";
-import { ADD_TO_CART } from "@/lib/queries";
+import { useMutation, useQuery } from "@apollo/client";
+import { ADD_TO_CART, GET_VIEWER, GET_CART } from "@/lib/queries";
 import { useApolloClient } from "@apollo/client";
-import {
-  ShoppingCartIcon,
-  HeartIcon,
-  StarIcon,
-} from "@heroicons/react/24/outline";
-import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
+import { ShoppingCartIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { useCartContext } from "@/lib/providers/CartProvider";
+import { CartItemUnified } from "@/lib/hooks/useCart";
+import { QuantityCounter } from "./QuantityCounter";
+import { Notification } from "./Notification";
+import React from "react";
 
 interface ProductCardProps {
   product: Product;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+function ProductCardBase({ product }: ProductCardProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [isInWishlist, setIsInWishlist] = useState(false);
-  const [showAddedNotification, setShowAddedNotification] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
   const client = useApolloClient();
+  const { data: userData } = useQuery(GET_VIEWER);
+  const { addToCart: unifiedAddToCart, cart: unifiedCart } = useCartContext();
 
   const [addToCart] = useMutation(ADD_TO_CART, {
-    onCompleted: () => {
-      setIsAddingToCart(false);
-      setShowAddedNotification(true);
-      setTimeout(() => setShowAddedNotification(false), 2000);
-    },
     onError: (error) => {
       console.error("Error adding to cart:", error);
       setIsAddingToCart(false);
     },
   });
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (
-      isAddingToCart ||
-      product.stockAvailabilityStatus ===
-        ProductStockAvailabilityStatus.OUT_OF_STOCK
-    ) {
-      return;
+  // Получаем текущее количество товара в корзине - теперь мемоизировано
+  const getCurrentCartQuantity = useCallback(() => {
+    if (userData?.viewer) {
+      // Для авторизованных пользователей получаем из кэша
+      const cartData = client.readQuery({ query: GET_CART });
+      const cartItem = cartData?.cart?.items?.edges?.find(
+        (edge: any) => edge.node.product.id === product.id
+      );
+      return cartItem?.node?.quantity || 0;
+    } else {
+      // Для гостей получаем из унифицированной корзины
+      const cartItem = unifiedCart.items.find(
+        (item: CartItemUnified) => item.product.id === product.id
+      );
+      return cartItem?.quantity || 0;
     }
+  }, [userData?.viewer, client, product.id, unifiedCart.items]);
 
-    setIsAddingToCart(true);
+  const currentCartQuantity = useMemo(
+    () => getCurrentCartQuantity(),
+    [getCurrentCartQuantity]
+  );
 
-    try {
-      await addToCart({
-        variables: {
-          productId: product.id,
-          quantity: 1,
-        },
-      });
+  const handleUpdateQuantity = useCallback(
+    async (delta: number) => {
+      const step = product.quantityMultiplicity || 1;
+      const newQuantity =
+        currentCartQuantity === 0 ? step : currentCartQuantity + delta * step;
+      const minQuantity = step;
 
-      // Invalidate the cache for the cart query
-      await client.refetchQueries({
-        include: ["GetCart"],
-      });
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      setIsAddingToCart(false);
-    }
-  };
+      if (newQuantity < minQuantity) {
+        return;
+      }
 
-  const toggleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsInWishlist(!isInWishlist);
-    // Здесь должна быть логика добавления/удаления из избранного
-  };
+      try {
+        setIsAddingToCart(true);
 
-  const getStockStatusBadge = () => {
+        if (userData?.viewer) {
+          const result = await addToCart({
+            variables: {
+              productId: product.id,
+              quantity: newQuantity,
+            },
+          });
+
+          if (result.data?.addToCart?.cart) {
+            client.writeQuery({
+              query: GET_CART,
+              data: { cart: result.data.addToCart.cart },
+            });
+          }
+
+          await client.refetchQueries({
+            include: ["GetCart"],
+          });
+        } else {
+          await unifiedAddToCart(product, newQuantity);
+        }
+
+        setShowNotification(true);
+      } catch (error) {
+        console.error("Error updating cart:", error);
+        setShowNotification(true);
+      } finally {
+        setIsAddingToCart(false);
+      }
+    },
+    [
+      product,
+      currentCartQuantity,
+      userData?.viewer,
+      addToCart,
+      client,
+      unifiedAddToCart,
+    ]
+  );
+
+  const getStockStatusBadge = useCallback(() => {
     switch (product.stockAvailabilityStatus) {
       case ProductStockAvailabilityStatus.IN_STOCK:
         return (
@@ -86,59 +120,70 @@ export function ProductCard({ product }: ProductCardProps) {
         return (
           <span className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded-full z-10 flex items-center">
             <span className="w-1.5 h-1.5 bg-white rounded-full mr-1 inline-block"></span>
-            Скоро в наличии
+            Ожидается поступление
           </span>
         );
       case ProductStockAvailabilityStatus.OUT_OF_STOCK:
         return (
-          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full z-10 flex items-center">
-            <span className="w-1.5 h-1.5 bg-white rounded-full mr-1 inline-block"></span>
-            Нет в наличии
-          </span>
+          <div className="absolute top-2 left-2 z-10">
+            <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center">
+              <span className="w-1.5 h-1.5 bg-white rounded-full mr-1 inline-block"></span>
+              Нет в наличии
+            </span>
+            <div className="mt-1 bg-white/90 border border-gray-200 shadow-sm text-xs text-gray-700 px-2 py-1 rounded-full">
+              Проверьте другие регионы
+            </div>
+          </div>
         );
       default:
         return null;
     }
-  };
+  }, [product.stockAvailabilityStatus]);
 
-  // Форматирование цены
-  const formattedPrice =
-    typeof product.price === "number"
-      ? new Intl.NumberFormat("ru-RU", {
-          style: "currency",
-          currency: "RUB",
-          maximumFractionDigits: 0,
-        }).format(product.price)
-      : "Цена по запросу";
+  // Форматирование цены - теперь мемоизировано
+  const formattedPrice = useMemo(
+    () =>
+      typeof product.price === "number"
+        ? new Intl.NumberFormat("ru-RU", {
+            style: "currency",
+            currency: "RUB",
+            maximumFractionDigits: 0,
+          }).format(product.price)
+        : "Цена по запросу",
+    [product.price]
+  );
+
+  // Форматированная старая цена - тоже мемоизирована
+  const formattedOldPrice = useMemo(
+    () =>
+      typeof product.oldPrice === "number"
+        ? new Intl.NumberFormat("ru-RU", {
+            style: "currency",
+            currency: "RUB",
+            maximumFractionDigits: 0,
+          }).format(product.oldPrice)
+        : null,
+    [product.oldPrice]
+  );
+
+  const isOutOfStock =
+    product.stockAvailabilityStatus ===
+    ProductStockAvailabilityStatus.OUT_OF_STOCK;
 
   return (
     <div className="group bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl relative h-full flex flex-col">
       {getStockStatusBadge()}
 
-      {/* Кнопка добавления в избранное */}
-      <button
-        onClick={toggleWishlist}
-        className="absolute top-2 right-2 z-10 p-1.5 bg-white rounded-full shadow-sm hover:shadow-md transition-all duration-300"
-        aria-label={
-          isInWishlist ? "Удалить из избранного" : "Добавить в избранное"
-        }
-      >
-        {isInWishlist ? (
-          <HeartIconSolid className="h-5 w-5 text-red-500" />
-        ) : (
-          <HeartIcon className="h-5 w-5 text-gray-400 hover:text-red-500" />
-        )}
-      </button>
-
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="h-48 overflow-hidden relative flex items-center justify-center p-4">
+        <div className="h-48 overflow-hidden relative flex items-center justify-center p-4 bg-gray-50">
           {product.images && product.images.length > 0 ? (
             <Image
               src={product.images[0].url}
               alt={product.name}
-              fill
+              className="object-contain transition-transform duration-500 group-hover:scale-110 p-3"
+              width={400}
+              height={400}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-contain transition-transform duration-300 group-hover:scale-105 p-3"
             />
           ) : (
             <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -148,90 +193,86 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </Link>
 
-      <div className="p-4 flex flex-col flex-grow">
+      <div className="p-4 flex flex-col flex-grow bg-white z-10">
         {product.category && (
           <Link
             href={`/categories/${product.category.slug}`}
-            className="text-xs text-gray-500 hover:text-blue-600 transition-colors mb-1"
+            className="text-xs text-gray-500 hover:text-blue-600 transition-colors mb-1 inline-block"
             onClick={(e) => e.stopPropagation()}
           >
             {product.category.title}
           </Link>
         )}
 
-        <Link href={`/product/${product.slug}`} className="no-underline">
-          <h3 className="text-base font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 mb-2 min-h-[2.5rem]">
+        <Link
+          href={`/product/${product.slug}`}
+          className="no-underline group-hover:text-blue-600 transition-colors"
+        >
+          <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mb-2 min-h-[2.5rem]">
             {product.name}
           </h3>
         </Link>
-
-        {/* Оценки товара, если есть */}
-        {product.rating && (
-          <div className="flex items-center mb-2">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <StarIcon
-                  key={i}
-                  className={`h-4 w-4 ${
-                    i < Math.floor(product.rating)
-                      ? "text-yellow-400 fill-yellow-400"
-                      : "text-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-xs text-gray-500 ml-1">
-              ({product.reviewCount || 0} отзывов)
-            </span>
-          </div>
-        )}
 
         <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-100">
           <div className="flex flex-col">
             <span className="text-lg font-bold text-gray-900">
               {formattedPrice}
             </span>
-            {product.oldPrice && (
+            {formattedOldPrice && (
               <span className="text-sm text-gray-500 line-through">
-                {new Intl.NumberFormat("ru-RU", {
-                  style: "currency",
-                  currency: "RUB",
-                  maximumFractionDigits: 0,
-                }).format(product.oldPrice)}
+                {formattedOldPrice}
               </span>
             )}
+            {product.quantityMultiplicity &&
+              product.quantityMultiplicity > 1 && (
+                <span className="text-xs text-blue-600">
+                  Упаковка: {product.quantityMultiplicity} шт.
+                </span>
+              )}
           </div>
 
-          <button
-            onClick={handleAddToCart}
-            disabled={
-              isAddingToCart ||
-              product.stockAvailabilityStatus ===
-                ProductStockAvailabilityStatus.OUT_OF_STOCK
-            }
-            className={`p-2 rounded-full transition-colors ${
-              product.stockAvailabilityStatus ===
-              ProductStockAvailabilityStatus.OUT_OF_STOCK
-                ? "bg-gray-200 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 transform transition-transform"
-            }`}
-            aria-label="Добавить в корзину"
-          >
-            {isAddingToCart ? (
-              <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
-            ) : (
-              <ShoppingCartIcon className="h-5 w-5" />
-            )}
-          </button>
+          {currentCartQuantity > 0 ? (
+            <QuantityCounter
+              quantity={currentCartQuantity}
+              minQuantity={product.quantityMultiplicity || 1}
+              onIncrement={() => handleUpdateQuantity(1)}
+              onDecrement={() => handleUpdateQuantity(-1)}
+              isLoading={isAddingToCart}
+            />
+          ) : (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleUpdateQuantity(1);
+              }}
+              disabled={isAddingToCart || isOutOfStock}
+              className={`p-3 rounded-full transition-all ${
+                isOutOfStock
+                  ? "bg-gray-200 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg active:scale-95 transform"
+              }`}
+              aria-label="Добавить в корзину"
+            >
+              {isAddingToCart ? (
+                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+              ) : (
+                <ShoppingCartIcon className="h-5 w-5" />
+              )}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Всплывающее уведомление о добавлении в корзину */}
-      {showAddedNotification && (
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs py-1 px-3 rounded-full z-20 shadow-md animate-fade-in-up">
-          Добавлено в корзину
-        </div>
-      )}
+      <Notification
+        message="Товар добавлен в корзину"
+        type="success"
+        isVisible={showNotification}
+        onClose={() => setShowNotification(false)}
+      />
     </div>
   );
 }
+
+// Оборачиваем компонент в React.memo для предотвращения ненужных ререндеров
+export const ProductCard = React.memo(ProductCardBase);

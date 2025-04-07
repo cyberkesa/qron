@@ -1,11 +1,14 @@
-import {ApolloClient, ApolloLink, HttpLink, InMemoryCache, Observable} from '@apollo/client';
+import {ApolloClient, ApolloLink, FetchResult, HttpLink, InMemoryCache, Observable} from '@apollo/client';
 import {setContext} from '@apollo/client/link/context';
 import {onError} from '@apollo/client/link/error';
 
-import {GET_REGIONS, LOGIN_AS_GUEST, REFRESH_TOKEN} from './queries';
-
 // Определяем, что мы в браузере
 const isBrowser = typeof window !== 'undefined';
+
+interface ApiRegion {
+  id: string;
+  name: string;
+}
 
 // Получение токенов на клиенте
 const getTokens = () => {
@@ -20,19 +23,11 @@ const getTokens = () => {
 };
 
 // Получение текущего региона
-const getCurrentRegion = () => {
+const getCurrentRegion = (): ApiRegion|null => {
   if (!isBrowser) return null;
 
   const savedRegion = localStorage.getItem('selectedRegion');
   return savedRegion ? JSON.parse(savedRegion) : null;
-};
-
-// Сохранение выбранного региона
-const saveRegion = (region: {id: string, name: string}) => {
-  if (isBrowser && region) {
-    console.log('Сохраняем регион:', region.name);
-    localStorage.setItem('selectedRegion', JSON.stringify(region));
-  }
 };
 
 // Функция для получения гостевого токена
@@ -41,7 +36,7 @@ const getGuestToken = async () => {
     console.log('Запрашиваем гостевой токен...');
 
     // Получаем сохраненный регион или запрашиваем список регионов
-    let regionId = getCurrentRegion()?.id;
+    const regionId = getCurrentRegion()?.id;
 
     console.log('Текущий регион:', regionId ? 'ID: ' + regionId : 'не задан');
 
@@ -252,11 +247,15 @@ const refreshAccessToken = async () => {
       localStorage.removeItem('refreshToken');
       return null;
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error refreshing token:', error);
-    console.error(
-        'Error details:',
-        {name: error.name, message: error.message, stack: error.stack});
+    if (error && typeof error === 'object' && 'message' in error) {
+      console.error('Error details:', {
+        name: (error as Error).name,
+        message: (error as Error).message,
+        stack: (error as Error).stack
+      });
+    }
     // При ошибке тоже очищаем
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -270,30 +269,41 @@ const httpLink = new HttpLink({
 
 // Добавляем логирование для отладки запросов
 const loggerLink = new ApolloLink((operation, forward) => {
-  console.log(`[GraphQL Request] Operation: ${operation.operationName}`);
+  const operationName = operation.operationName;
+  const isCartOperation = operationName === 'RemoveFromCart' ||
+      operationName === 'UpdateCartItemQuantity' ||
+      operationName === 'AddToCart';
+
+  if (isCartOperation) {
+    console.log(
+        `[Cart Operation] ${operationName} started with variables:`,
+        operation.variables);
+  } else {
+    console.log(`[GraphQL Request] Operation: ${operationName}`);
+  }
 
   return forward(operation).map(response => {
-    console.log(
-        `[GraphQL Response] Operation: ${operation.operationName}`, response);
-
-    // Логирование ошибок для корзины
-    if (operation.operationName === 'RemoveFromCart' ||
-        operation.operationName === 'UpdateCartItemQuantity' ||
-        operation.operationName === 'AddToCart') {
+    if (isCartOperation) {
       if (response.errors && response.errors.length > 0) {
-        console.error(
-            `[GraphQL Cart Error] ${operation.operationName}:`,
-            response.errors);
+        console.error(`[Cart Error] ${operationName} failed:`, response.errors);
       } else if (response.data) {
         console.log(
-            `[GraphQL Cart Success] ${operation.operationName}:`,
-            response.data);
+            `[Cart Success] ${operationName} completed:`, response.data);
       }
+    } else {
+      console.log(`[GraphQL Response] Operation: ${operationName}`, response);
     }
 
     return response;
   });
 });
+
+// Тип для наблюдателя Observable
+interface ObserverInterface {
+  next: (value: FetchResult) => void;
+  error: (error: unknown) => void;
+  complete: () => void;
+}
 
 // Обработка ошибок
 const errorLink = onError(({
@@ -303,8 +313,8 @@ const errorLink = onError(({
                             forward
                           }) => {
   if (graphQLErrors) {
-    for (let err of graphQLErrors) {
-      console.log(`[GraphQL error]: Message: ${err.message}`);
+    graphQLErrors.forEach((err) => {
+      console.error(`[GraphQL error]: Message: ${err.message}`);
 
       // Проверяем на ошибки аутентификации
       const isAuthError = err.message.includes('401') ||
@@ -316,7 +326,7 @@ const errorLink = onError(({
         console.log('Обнаружена ошибка аутентификации, пробуем обновить токен');
         // Сначала пробуем обновить токен
         if (localStorage.getItem('refreshToken')) {
-          return new Observable((observer: any) => {
+          return new Observable((observer: ObserverInterface) => {
             refreshAccessToken()
                 .then(newToken => {
                   if (newToken) {
@@ -374,7 +384,7 @@ const errorLink = onError(({
           localStorage.removeItem('accessToken');
           localStorage.removeItem('guestToken');
 
-          return new Observable((observer: any) => {
+          return new Observable((observer: ObserverInterface) => {
             // Получаем новый токен и повторяем запрос
             getGuestToken()
                 .then(token => {
@@ -405,11 +415,11 @@ const errorLink = onError(({
           });
         }
       }
-    }
+    });
   }
 
   if (networkError) {
-    console.log(`[Network error]:`, networkError);
+    console.error(`[Network error]:`, networkError);
 
     // Проверяем на ошибку авторизации
     const isUnauthorized =
@@ -421,7 +431,7 @@ const errorLink = onError(({
       console.log('Обнаружена ошибка сети с кодом 401, пробуем обновить токен');
       // Сначала пробуем обновить токен
       if (localStorage.getItem('refreshToken')) {
-        return new Observable((observer: any) => {
+        return new Observable((observer: ObserverInterface) => {
           refreshAccessToken()
               .then(newToken => {
                 if (newToken) {
@@ -483,7 +493,7 @@ const errorLink = onError(({
         localStorage.removeItem('accessToken');
         localStorage.removeItem('guestToken');
 
-        return new Observable((observer: any) => {
+        return new Observable((observer: ObserverInterface) => {
           getGuestToken()
               .then(token => {
                 if (token) {
@@ -512,6 +522,8 @@ const errorLink = onError(({
       }
     }
   }
+
+  return forward(operation);
 });
 
 // Аутентификация запросов

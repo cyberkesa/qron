@@ -36,8 +36,10 @@ export default function LoginPage() {
       } else if (result.data?.logIn?.message) {
         setErrorMessage(result.data.logIn.message);
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || "Произошла ошибка при входе");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Произошла ошибка при входе";
+      setErrorMessage(errorMessage);
     }
   };
 

@@ -1,10 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_CART, GET_DELIVERY_ADDRESSES, CHECK_OUT } from "@/lib/queries";
-import { DeliveryMethod, PaymentMethod } from "@/types/api";
+import {
+  DeliveryMethod,
+  PaymentMethod,
+  DeliveryAddress,
+  CartItem,
+} from "@/types/api";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -31,14 +36,22 @@ export default function CheckoutPage() {
   );
   const [checkout, { loading: checkoutLoading }] = useMutation(CHECK_OUT);
 
-  const addresses = addressesData?.viewer?.deliveryAddresses || [];
+  // Оборачиваем в useMemo для исправления предупреждения exhaustive-deps
+  const addresses = useMemo(() => {
+    return addressesData?.viewer?.deliveryAddresses || [];
+  }, [addressesData]);
+
   const cartItems =
-    cartData?.cart?.items?.edges?.map((edge: any) => edge.node) || [];
+    cartData?.cart?.items?.edges?.map(
+      (edge: { node: CartItem }) => edge.node
+    ) || [];
   const cartTotal = cartData?.cart?.items?.decimalTotalPrice || "0";
 
   // Если есть адрес по умолчанию, выбираем его
   useEffect(() => {
-    const defaultAddress = addresses.find((address: any) => address.isDefault);
+    const defaultAddress = addresses.find(
+      (address: DeliveryAddress) => address.isDefault
+    );
     if (defaultAddress) {
       setSelectedAddressId(defaultAddress.id);
     } else if (addresses.length > 0) {
@@ -70,10 +83,12 @@ export default function CheckoutPage() {
       } else if (result.data?.checkOut?.message) {
         setErrorMessage(result.data.checkOut.message);
       }
-    } catch (error: any) {
-      setErrorMessage(
-        error.message || "Произошла ошибка при оформлении заказа"
-      );
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Произошла ошибка при оформлении заказа";
+      setErrorMessage(errorMessage);
     }
   };
 
@@ -160,7 +175,7 @@ export default function CheckoutPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {addresses.map((address: any) => (
+                  {addresses.map((address: DeliveryAddress) => (
                     <label
                       key={address.id}
                       className={`block border p-4 rounded-md cursor-pointer transition-all ${
@@ -355,7 +370,7 @@ export default function CheckoutPage() {
               Ваш заказ
             </h2>
             <div className="divide-y divide-gray-100 mb-6">
-              {cartItems.map((item: any) => (
+              {cartItems.map((item: CartItem) => (
                 <div key={item.id} className="flex items-center gap-4 py-3">
                   <div className="relative w-16 h-16 flex-shrink-0">
                     <Image

@@ -1,6 +1,5 @@
 export type ProductSortOrder =
-    'ALPHABETICALLY'|'CHEAPEST_FIRST'|'EXPENSIVE_FIRST'|'NEWEST_FIRST'|
-    'RELEVANCE'|'PRICE_LOW_TO_HIGH'|'PRICE_HIGH_TO_LOW';
+    'ALPHABETICALLY'|'CHEAPEST_FIRST'|'EXPENSIVE_FIRST'|'NEWEST_FIRST';
 
 export enum ProductStockAvailabilityStatus {
   IN_STOCK = 'IN_STOCK',
@@ -32,6 +31,7 @@ export interface Product {
   stockAvailabilityStatus: ProductStockAvailabilityStatus;
   rating?: number;
   reviewCount?: number;
+  quantityMultiplicity?: number;
 }
 
 export interface Region {

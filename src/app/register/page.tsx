@@ -73,27 +73,30 @@ export default function RegisterPage() {
           input: {
             firstName: formData.firstName,
             lastName: formData.lastName,
+            regionId: selectedRegion?.id || "",
             email: formData.email,
             phoneNumber: formData.phoneNumber,
             password: formData.password,
-            regionId: selectedRegion.id,
           },
         },
       });
 
       if (result.data?.register?.accessToken) {
-        // Сохраняем токены и регион в localStorage
+        // Сохраняем токены в localStorage
         localStorage.setItem("accessToken", result.data.register.accessToken);
         localStorage.setItem("refreshToken", result.data.register.refreshToken);
-        localStorage.setItem("selectedRegion", JSON.stringify(selectedRegion));
 
         // Перенаправляем на главную страницу
         router.push("/");
       } else if (result.data?.register?.message) {
         setErrorMessage(result.data.register.message);
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || "Произошла ошибка при регистрации");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Произошла ошибка при регистрации";
+      setErrorMessage(errorMessage);
     }
   };
 
