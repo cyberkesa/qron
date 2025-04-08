@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -56,3 +57,15 @@ export const getOrderStatusClass = (status: string): string => {
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+=======
+export function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ru-RU', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+>>>>>>> 5ea25d4373053d38791cda8a10cf487bf24e1e7c

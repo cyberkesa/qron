@@ -22,6 +22,7 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
   const [regionsOpen, setRegionsOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -53,17 +54,57 @@ export default function RegisterPage() {
     setRegionsOpen(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage("");
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
 
-    if (formData.password !== formData.confirmPassword) {
-      setErrorMessage("Пароли не совпадают");
-      return;
+    if (!formData.firstName.trim()) {
+      errors.firstName = "Имя обязательно для заполнения";
+    }
+
+    if (!formData.lastName.trim()) {
+      errors.lastName = "Фамилия обязательна для заполнения";
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = "Email обязателен для заполнения";
+    } else if (!emailRegex.test(formData.email)) {
+      errors.email = "Введите корректный email";
+    }
+
+    if (!formData.phoneNumber.trim()) {
+      errors.phoneNumber = "Телефон обязателен для заполнения";
+    } else if (!phoneRegex.test(formData.phoneNumber)) {
+      errors.phoneNumber = "Введите телефон в формате +7 (999) 123-45-67";
+    }
+
+    if (!formData.password) {
+      errors.password = "Пароль обязателен для заполнения";
+    } else if (formData.password.length < 6) {
+      errors.password = "Пароль должен содержать минимум 6 символов";
+    }
+
+    if (!formData.confirmPassword) {
+      errors.confirmPassword = "Подтверждение пароля обязательно";
+    } else if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Пароли не совпадают";
     }
 
     if (!selectedRegion) {
-      setErrorMessage("Выберите регион");
+      errors.region = "Выберите регион";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setFormErrors({});
+
+    if (!validateForm()) {
       return;
     }
 
@@ -73,10 +114,10 @@ export default function RegisterPage() {
           input: {
             firstName: formData.firstName,
             lastName: formData.lastName,
-            regionId: selectedRegion?.id || "",
             email: formData.email,
             phoneNumber: formData.phoneNumber,
             password: formData.password,
+            regionId: selectedRegion?.id,
           },
         },
       });
@@ -108,8 +149,26 @@ export default function RegisterPage() {
         </h1>
 
         {errorMessage && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-            {errorMessage}
+          <div className="bg-red-50 border border-red-200 rounded-md p-4 flex items-start mb-6">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-red-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">
+                Ошибка регистрации
+              </h3>
+              <p className="text-sm text-red-700 mt-1">{errorMessage}</p>
+            </div>
           </div>
         )}
 
@@ -129,9 +188,16 @@ export default function RegisterPage() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-4 py-2 border ${
+                    formErrors.firstName ? "border-red-300" : "border-gray-300"
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                 />
+                {formErrors.firstName && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {formErrors.firstName}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -147,71 +213,15 @@ export default function RegisterPage() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-4 py-2 border ${
+                    formErrors.lastName ? "border-red-300" : "border-gray-300"
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                 />
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="region"
-                className="block text-gray-700 font-medium mb-2"
-              >
-                Регион *
-              </label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setRegionsOpen(!regionsOpen)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-left flex items-center justify-between"
-                >
-                  <span className="flex items-center">
-                    <MapPinIcon className="w-5 h-5 mr-2 text-gray-500" />
-                    {selectedRegion?.name || "Выберите регион"}
-                  </span>
-                  <svg
-                    className={`w-5 h-5 text-gray-500 transition-transform ${
-                      regionsOpen ? "rotate-180" : ""
-                    }`}
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-
-                {regionsOpen && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                    {regionsLoading ? (
-                      <div className="px-4 py-2 text-gray-500">
-                        Загрузка регионов...
-                      </div>
-                    ) : regionsData?.regions?.length > 0 ? (
-                      regionsData.regions.map((region: Region) => (
-                        <button
-                          key={region.id}
-                          type="button"
-                          onClick={() => handleRegionSelect(region)}
-                          className={`w-full px-4 py-2 text-left hover:bg-gray-100 ${
-                            selectedRegion?.id === region.id
-                              ? "bg-blue-50 text-blue-600 font-medium"
-                              : "text-gray-700"
-                          }`}
-                        >
-                          {region.name}
-                        </button>
-                      ))
-                    ) : (
-                      <div className="px-4 py-2 text-gray-500">
-                        Нет доступных регионов
-                      </div>
-                    )}
-                  </div>
+                {formErrors.lastName && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {formErrors.lastName}
+                  </p>
                 )}
               </div>
             </div>
@@ -229,9 +239,14 @@ export default function RegisterPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-4 py-2 border ${
+                  formErrors.email ? "border-red-300" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 required
               />
+              {formErrors.email && (
+                <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
+              )}
             </div>
 
             <div className="mb-4">
@@ -247,10 +262,17 @@ export default function RegisterPage() {
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-4 py-2 border ${
+                  formErrors.phoneNumber ? "border-red-300" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 required
                 placeholder="+7 (999) 123-45-67"
               />
+              {formErrors.phoneNumber && (
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.phoneNumber}
+                </p>
+              )}
             </div>
 
             <div className="mb-4">
@@ -266,14 +288,22 @@ export default function RegisterPage() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-4 py-2 border ${
+                  formErrors.password ? "border-red-300" : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 required
                 minLength={6}
               />
-              <p className="text-sm text-gray-500 mt-1">Минимум 6 символов</p>
+              {formErrors.password ? (
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.password}
+                </p>
+              ) : (
+                <p className="text-sm text-gray-500 mt-1">Минимум 6 символов</p>
+              )}
             </div>
 
-            <div className="mb-6">
+            <div className="mb-4">
               <label
                 htmlFor="confirmPassword"
                 className="block text-gray-700 font-medium mb-2"
@@ -286,9 +316,55 @@ export default function RegisterPage() {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-4 py-2 border ${
+                  formErrors.confirmPassword
+                    ? "border-red-300"
+                    : "border-gray-300"
+                } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 required
               />
+              {formErrors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.confirmPassword}
+                </p>
+              )}
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-gray-700 font-medium mb-2">
+                Регион *
+              </label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setRegionsOpen(!regionsOpen)}
+                  className={`w-full px-4 py-2 border ${
+                    formErrors.region ? "border-red-300" : "border-gray-300"
+                  } rounded-md text-left focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                >
+                  {selectedRegion ? selectedRegion.name : "Выберите регион"}
+                </button>
+                {formErrors.region && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {formErrors.region}
+                  </p>
+                )}
+                {regionsOpen && (
+                  <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg">
+                    <ul className="max-h-60 overflow-auto">
+                      {regionsData?.regions.map((region: Region) => (
+                        <li
+                          key={region.id}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleRegionSelect(region)}
+                        >
+                          {region.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
 
             <button
