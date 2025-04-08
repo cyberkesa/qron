@@ -1,10 +1,11 @@
 "use client";
 
 import { useQuery, useMutation } from "@apollo/client";
-import { GET_VIEWER, LOGOUT } from "@/lib/queries";
+import { GET_VIEWER, LOGOUT, GET_ORDERS } from "@/lib/queries";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import { OrderStatus } from "@/types/api";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -12,6 +13,21 @@ export default function ProfilePage() {
 
   const { data, loading, error } = useQuery(GET_VIEWER);
   const [logout, { loading: logoutLoading }] = useMutation(LOGOUT);
+  const { data: ordersData } = useQuery(GET_ORDERS, {
+    variables: {
+      first: 100, // Устанавливаем максимально допустимое значение
+    },
+  });
+
+  // Подсчет статистики заказов
+  const orders =
+    ordersData?.orders?.edges?.map((edge: { node: any }) => edge.node) || [];
+  const totalOrders = orders.length;
+  const activeOrders = orders.filter((order: { status: OrderStatus }) =>
+    [OrderStatus.PENDING, OrderStatus.PROCESSING, OrderStatus.SHIPPED].includes(
+      order.status
+    )
+  ).length;
 
   const handleLogout = async () => {
     try {
@@ -185,11 +201,15 @@ export default function ProfilePage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-blue-50 rounded-lg p-4">
                 <p className="text-sm text-gray-600">Всего заказов</p>
-                <p className="text-2xl font-bold text-blue-700">0</p>
+                <p className="text-2xl font-bold text-blue-700">
+                  {totalOrders}
+                </p>
               </div>
               <div className="bg-green-50 rounded-lg p-4">
                 <p className="text-sm text-gray-600">Активных заказов</p>
-                <p className="text-2xl font-bold text-green-700">0</p>
+                <p className="text-2xl font-bold text-green-700">
+                  {activeOrders}
+                </p>
               </div>
             </div>
           </div>

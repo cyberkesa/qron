@@ -251,32 +251,40 @@ export const UPDATE_CART_ITEM_QUANTITY = gql`
 
 // Запросы для получения истории заказов
 export const GET_ORDERS = gql`
-  query GetOrders {
-    orders {
+  query GetOrders($first: Int, $after: String) {
+    orders(first: $first, after: $after) {
       edges {
         cursor
         node {
           id
           status
-          createdAt
-          decimalTotalPrice
+          creationDatetime
           items {
+            edges {
+              node {
+                id
+                quantity
+                decimalUnitPrice
+                product {
+                  id
+                  name
+                  images {
+                    id
+                    url
+                  }
+                }
+              }
+            }
+            totalQuantity
+            decimalTotalPrice
+          }
+          deliveryFullAddress
+          number
+          phoneNumber
+          region {
             id
-            quantity
             name
-            decimalUnitPrice
-            imageUrl
           }
-          deliveryAddress {
-            id
-            fullName
-            phoneNumber
-            address
-            city
-            postalCode
-          }
-          paymentMethod
-          deliveryMethod
         }
       }
       pageInfo {
@@ -293,30 +301,34 @@ export const GET_ORDER = gql`
     order(id: $id) {
       id
       status
-      createdAt
-      decimalTotalPrice
+      creationDatetime
       items {
-        id
-        quantity
-        name
-        decimalUnitPrice
-        imageUrl
-        product {
-          id
-          name
-          slug
+        edges {
+          node {
+            id
+            quantity
+            decimalUnitPrice
+            product {
+              id
+              name
+              images {
+                id
+                url
+              }
+              slug
+            }
+          }
         }
+        totalQuantity
+        decimalTotalPrice
       }
-      deliveryAddress {
+      deliveryFullAddress
+      number
+      phoneNumber
+      region {
         id
-        fullName
-        phoneNumber
-        address
-        city
-        postalCode
+        name
       }
-      paymentMethod
-      deliveryMethod
     }
   }
 `;
@@ -326,12 +338,7 @@ export const GET_DELIVERY_ADDRESSES = gql`
   query GetDeliveryAddresses {
     deliveryAddresses {
       id
-      fullName
-      phoneNumber
-      address
-      city
-      postalCode
-      isDefault
+      fullAddress
     }
   }
 `;
@@ -344,25 +351,33 @@ export const CHECK_OUT = gql`
         order {
           id
           status
-          createdAt
-          decimalTotalPrice
+          creationDatetime
           items {
+            edges {
+              node {
+                id
+                quantity
+                decimalUnitPrice
+                product {
+                  id
+                  name
+                  images {
+                    id
+                    url
+                  }
+                }
+              }
+            }
+            totalQuantity
+            decimalTotalPrice
+          }
+          deliveryFullAddress
+          number
+          phoneNumber
+          region {
             id
-            quantity
             name
-            decimalUnitPrice
-            imageUrl
           }
-          deliveryAddress {
-            id
-            fullName
-            phoneNumber
-            address
-            city
-            postalCode
-          }
-          paymentMethod
-          deliveryMethod
         }
       }
       ... on UnexpectedError {
@@ -374,17 +389,12 @@ export const CHECK_OUT = gql`
 
 // Мутация для создания адреса доставки
 export const CREATE_DELIVERY_ADDRESS = gql`
-  mutation CreateDeliveryAddress($input: CreateDeliveryAddressInput!) {
-    createDeliveryAddress(input: $input) {
-      ... on CreateDeliveryAddressSuccessResult {
+  mutation CreateDeliveryAddress($fullAddress: String!) {
+    addDeliveryAddress(fullAddress: $fullAddress) {
+      ... on AddDeliveryAddressSuccessResult {
         deliveryAddress {
           id
-          fullName
-          phoneNumber
-          address
-          city
-          postalCode
-          isDefault
+          fullAddress
         }
       }
       ... on UnexpectedError {
@@ -399,24 +409,7 @@ export const DELETE_DELIVERY_ADDRESS = gql`
   mutation DeleteDeliveryAddress($id: ID!) {
     deleteDeliveryAddress(id: $id) {
       ... on DeleteDeliveryAddressSuccessResult {
-        success
-      }
-      ... on UnexpectedError {
-        message
-      }
-    }
-  }
-`;
-
-// Мутация для установки адреса доставки по умолчанию
-export const SET_DEFAULT_DELIVERY_ADDRESS = gql`
-  mutation SetDefaultDeliveryAddress($id: ID!) {
-    setDefaultDeliveryAddress(id: $id) {
-      ... on SetDefaultDeliveryAddressSuccessResult {
-        deliveryAddress {
-          id
-          isDefault
-        }
+        nothing
       }
       ... on UnexpectedError {
         message
@@ -450,11 +443,7 @@ export const REGISTER = gql`
   mutation Register($input: RegisterInput!) {
     register(input: $input) {
       ... on RegisterSuccessResult {
-        accessToken
-        refreshToken
-      }
-      ... on RegisterFailedResult {
-        message
+        nothing
       }
       ... on UnexpectedError {
         message
@@ -467,7 +456,7 @@ export const LOGOUT = gql`
   mutation LogOut {
     logOut {
       ... on LogOutSuccessResult {
-        success
+        nothing
       }
       ... on UnexpectedError {
         message
@@ -478,12 +467,12 @@ export const LOGOUT = gql`
 
 export const REFRESH_TOKEN = gql`
   mutation RefreshToken($refreshToken: String!) {
-    refreshToken(refreshToken: $refreshToken) {
-      ... on RefreshTokenSuccessResult {
+    refreshAccessToken(refreshToken: $refreshToken) {
+      ... on RefreshAccessTokenSuccessResult {
         accessToken
         refreshToken
       }
-      ... on RefreshTokenFailedResult {
+      ... on RefreshAccessTokenError {
         message
       }
       ... on UnexpectedError {
@@ -497,8 +486,8 @@ export const REFRESH_TOKEN = gql`
 export const GET_VIEWER = gql`
   query GetViewer {
     viewer {
-      id
       ... on RegisteredViewer {
+        id
         emailAddress
         name
         phoneNumber
@@ -508,6 +497,7 @@ export const GET_VIEWER = gql`
         }
       }
       ... on AnonymousViewer {
+        id
         region {
           id
           name
@@ -629,6 +619,33 @@ export const GET_CATEGORY_BY_SLUG = gql`
           slug
         }
       }
+    }
+  }
+`;
+
+// Мутация для редактирования адреса доставки
+export const EDIT_DELIVERY_ADDRESS = gql`
+  mutation EditDeliveryAddress($id: ID!, $fullAddress: String!) {
+    editDeliveryAddress(id: $id, fullAddress: $fullAddress) {
+      ... on EditDeliveryAddressSuccessResult {
+        deliveryAddress {
+          id
+          fullAddress
+        }
+      }
+      ... on UnexpectedError {
+        message
+      }
+    }
+  }
+`;
+
+// Запрос для получения адреса доставки по ID
+export const GET_DELIVERY_ADDRESS = gql`
+  query GetDeliveryAddress($id: ID!) {
+    deliveryAddress(id: $id) {
+      id
+      fullAddress
     }
   }
 `;

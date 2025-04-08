@@ -35,21 +35,14 @@ export default function NewAddressPage() {
     try {
       const result = await createAddress({
         variables: {
-          input: {
-            fullName: formData.fullName,
-            phoneNumber: formData.phoneNumber,
-            address: formData.address,
-            city: formData.city,
-            postalCode: formData.postalCode,
-            isDefault: formData.isDefault,
-          },
+          fullAddress: `${formData.fullName}, ${formData.phoneNumber}, ${formData.address}, ${formData.city}, ${formData.postalCode}`,
         },
       });
 
-      if (result.data?.createDeliveryAddress?.id) {
+      if (result.data?.addDeliveryAddress?.deliveryAddress?.id) {
         router.push("/profile/addresses");
-      } else if (result.data?.createDeliveryAddress?.message) {
-        setErrorMessage(result.data.createDeliveryAddress.message);
+      } else if (result.data?.addDeliveryAddress?.message) {
+        setErrorMessage(result.data.addDeliveryAddress.message);
       }
     } catch (error: unknown) {
       const errorMessage =

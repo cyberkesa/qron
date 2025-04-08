@@ -6,13 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "validate-queries": "node --loader ts-node/esm src/scripts/validateQueries.ts",
+    "validate-pagination": "node --loader ts-node/esm src/scripts/validatePagination.ts",
+    "validate-pagination-usage": "node --loader ts-node/esm src/scripts/validatePaginationUsage.ts"
   },
   "dependencies": {
     "@apollo/client": "^3.13.5",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "clsx": "^2.1.1",
+    "glob": "^11.0.1",
     "graphql": "^16.10.0",
     "next": "15.2.4",
     "node-fetch": "^3.3.2",
@@ -21,6 +25,7 @@
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
+    "@types/glob": "^8.1.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -29,6 +34,7 @@
     "eslint-config-next": "15.2.4",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
