@@ -9,8 +9,8 @@ import {
   GET_BEST_DEAL_PRODUCTS,
   GET_CURRENT_REGION,
 } from "@/lib/queries";
-import { ProductCard } from "@/components/ProductCard";
-import { ProductFilters } from "@/components/ProductFilters";
+import { ProductCard } from "@/components/product/ProductCard";
+import { ProductFilters } from "@/components/product-list/ProductFilters";
 import {
   ProductSortOrder,
   Product,
@@ -23,10 +23,13 @@ import {
   UserIcon,
   FireIcon,
   AdjustmentsHorizontalIcon,
+  ArrowRightIcon,
+  BuildingStorefrontIcon,
 } from "@heroicons/react/24/outline";
 
-import { ProductCarousel } from "@/components/ProductCarousel";
+import { ProductCarousel } from "@/components/product/ProductCarousel";
 import Image from "next/image";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 // Мемоизированный компонент для списка товаров
 const ProductGrid = memo(({ products }: { products: Product[] }) => {
@@ -113,7 +116,6 @@ export default function Home() {
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isAuth, setIsAuth] = useState<boolean>(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [currentRegion, setCurrentRegion] = useState<{
     id: string;
@@ -132,7 +134,7 @@ export default function Home() {
       onError: (error) => {
         console.error("Ошибка при получении региона:", error);
       },
-    }
+    },
   );
 
   // Запрос товаров с использованием выбранных фильтров
@@ -195,7 +197,7 @@ export default function Home() {
     try {
       const allProducts =
         productsData?.products?.edges?.map(
-          (edge: { node: Product }) => edge.node
+          (edge: { node: Product }) => edge.node,
         ) || [];
 
       // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
@@ -203,7 +205,7 @@ export default function Home() {
         return allProducts.filter(
           (product: Product) =>
             product.stockAvailabilityStatus !==
-            ProductStockAvailabilityStatus.OUT_OF_STOCK
+            ProductStockAvailabilityStatus.OUT_OF_STOCK,
         );
       }
 
@@ -216,29 +218,29 @@ export default function Home() {
 
   const categories = useMemo(
     () => categoriesData?.rootCategories || [],
-    [categoriesData]
+    [categoriesData],
   );
   const bestDeals = useMemo(
     () => bestDealsData?.bestDealProducts || [],
-    [bestDealsData]
+    [bestDealsData],
   );
   const hasMoreProducts = useMemo(
     () => productsData?.products?.pageInfo?.hasNextPage || false,
-    [productsData]
+    [productsData],
   );
   const endCursor = useMemo(
     () => productsData?.products?.pageInfo?.endCursor || null,
-    [productsData]
+    [productsData],
   );
 
   const isDataLoading = useMemo(
     () => productsLoading || categoriesLoading || bestDealsLoading,
-    [productsLoading, categoriesLoading, bestDealsLoading]
+    [productsLoading, categoriesLoading, bestDealsLoading],
   );
 
   const hasError = useMemo(
     () => productsError || categoriesError || bestDealsError || regionError,
-    [productsError, categoriesError, bestDealsError, regionError]
+    [productsError, categoriesError, bestDealsError, regionError],
   );
 
   const errorMessage = useMemo(
@@ -247,22 +249,14 @@ export default function Home() {
       categoriesError?.message ||
       bestDealsError?.message ||
       regionError?.message,
-    [productsError, categoriesError, bestDealsError, regionError]
+    [productsError, categoriesError, bestDealsError, regionError],
   );
 
   // Получаем общее количество товаров
   const totalProductsCount = useMemo(
     () => productsData?.products?.totalCount || products.length,
-    [productsData?.products?.totalCount, products.length]
+    [productsData?.products?.totalCount, products.length],
   );
-
-  // Проверка авторизации пользователя - безопасно для SSR
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("accessToken");
-      setIsAuth(!!token);
-    }
-  }, [userData]);
 
   // Получение/установка региона - безопасно для SSR
   useEffect(() => {
@@ -273,7 +267,7 @@ export default function Home() {
         try {
           localStorage.setItem(
             "selectedRegion",
-            JSON.stringify(regionData.viewer.region)
+            JSON.stringify(regionData.viewer.region),
           );
         } catch (error) {
           console.error("Ошибка при сохранении региона:", error);
@@ -342,7 +336,7 @@ export default function Home() {
           handleLoadMore();
         }
       },
-      { threshold: 0.1, rootMargin: "100px" }
+      { threshold: 0.1, rootMargin: "100px" },
     );
 
     observer.observe(currentObserverTarget);

@@ -2,9 +2,9 @@
 
 import React, { ReactNode } from "react";
 import { Providers } from "./providers";
-import RegionSwitchModal from "@/components/RegionSwitchModal";
-import Header from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import RegionSwitchModal from "@/components/region/RegionSwitchModal";
+import Header from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (

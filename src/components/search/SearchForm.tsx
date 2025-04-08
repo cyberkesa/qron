@@ -44,9 +44,9 @@ const SearchForm = () => {
   const searchResults = useMemo(
     () =>
       searchData?.products?.edges?.map(
-        (edge: { node: Product }) => edge.node
+        (edge: { node: Product }) => edge.node,
       ) || [],
-    [searchData]
+    [searchData],
   );
 
   // Обработчик изменения поля поиска
@@ -69,7 +69,7 @@ const SearchForm = () => {
         }
       }, 300);
     },
-    []
+    [],
   );
 
   // Обработчик отправки формы
@@ -81,7 +81,7 @@ const SearchForm = () => {
         setIsResultsOpen(false);
       }
     },
-    [searchQuery, router]
+    [searchQuery, router],
   );
 
   // Закрываем результаты при клике вне компонента

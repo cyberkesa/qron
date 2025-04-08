@@ -1,7 +1,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import ClientLayout from "./client-layout";
-import { AccessibilitySettings } from "@/components/AccessibilitySettings";
+import { AccessibilitySettings } from "@/components/ui/AccessibilitySettings";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],

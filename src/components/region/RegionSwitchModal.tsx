@@ -36,7 +36,7 @@ export default function RegionSwitchModal() {
       // Сохраняем регион из API
       localStorage.setItem(
         "selectedRegion",
-        JSON.stringify(viewerData.viewer.region)
+        JSON.stringify(viewerData.viewer.region),
       );
     }
     // Если нет ни сохраненного выбора, ни данных от сервера - открываем модальное окно
@@ -63,7 +63,7 @@ export default function RegionSwitchModal() {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("tokenRegionId");
     console.log(
-      "RegionSwitchModal: токены авторизации очищены для принудительного обновления"
+      "RegionSwitchModal: токены авторизации очищены для принудительного обновления",
     );
 
     setIsOpen(false);

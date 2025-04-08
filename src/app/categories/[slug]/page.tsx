@@ -11,9 +11,9 @@ import {
   ProductStockAvailabilityStatus,
 } from "@/types/api";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { ProductCard } from "@/components/ProductCard";
-import { ProductSorter } from "@/components/ProductSorter";
-import { StockFilter } from "@/components/StockFilter";
+import { ProductCard } from "@/components/product/ProductCard";
+import { ProductSorter } from "@/components/product-list/ProductSorter";
+import { StockFilter } from "@/components/product-list/StockFilter";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -63,7 +63,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const category = categoryData?.categoryBySlug || null;
   let products =
     productsData?.products?.edges?.map(
-      (edge: { node: Product; cursor: string }) => edge.node
+      (edge: { node: Product; cursor: string }) => edge.node,
     ) || [];
 
   // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
@@ -71,7 +71,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     products = products.filter(
       (product: Product) =>
         product.stockAvailabilityStatus !==
-        ProductStockAvailabilityStatus.OUT_OF_STOCK
+        ProductStockAvailabilityStatus.OUT_OF_STOCK,
     );
   }
 
@@ -130,7 +130,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           handleLoadMore();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(currentObserverTarget);
@@ -376,7 +376,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                     </h3>
                   </div>
                 </Link>
-              )
+              ),
             )}
           </div>
         </div>

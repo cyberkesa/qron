@@ -1,17 +1,19 @@
-import {gql} from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const GET_PRODUCTS = gql`
   query GetProducts(
-    $after: String, 
-    $first: Int!, 
-    $sortOrder: ProductSortOrder!,
+    $after: String
+    $first: Int!
+    $sortOrder: ProductSortOrder!
     $searchQuery: String
+    $categoryId: ID
   ) {
     products(
-      after: $after, 
-      first: $first, 
-      sortOrder: $sortOrder,
+      after: $after
+      first: $first
+      sortOrder: $sortOrder
       searchQuery: $searchQuery
+      categoryId: $categoryId
     ) {
       edges {
         cursor
@@ -345,8 +347,16 @@ export const GET_DELIVERY_ADDRESSES = gql`
 
 // Мутация для оформления заказа
 export const CHECK_OUT = gql`
-  mutation CheckOut($deliveryAddressId: ID!, $paymentMethod: PaymentMethod!, $deliveryMethod: DeliveryMethod!) {
-    checkOut(deliveryAddressId: $deliveryAddressId, paymentMethod: $paymentMethod, deliveryMethod: $deliveryMethod) {
+  mutation CheckOut(
+    $deliveryAddressId: ID!
+    $paymentMethod: PaymentMethod!
+    $deliveryMethod: DeliveryMethod!
+  ) {
+    checkOut(
+      deliveryAddressId: $deliveryAddressId
+      paymentMethod: $paymentMethod
+      deliveryMethod: $deliveryMethod
+    ) {
       ... on CheckOutSuccessResult {
         order {
           id

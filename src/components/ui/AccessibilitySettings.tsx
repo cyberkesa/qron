@@ -32,10 +32,10 @@ const setLocalStorage = (key: string, value: string): void => {
 
 export function AccessibilitySettings(): JSX.Element {
   const [isHighContrast, setIsHighContrast] = useState<boolean>(() =>
-    getInitialValue(CONTRAST_KEY)
+    getInitialValue(CONTRAST_KEY),
   );
   const [isKeyboardNav, setIsKeyboardNav] = useState<boolean>(() =>
-    getInitialValue(KEYBOARD_NAV_KEY)
+    getInitialValue(KEYBOARD_NAV_KEY),
   );
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -61,7 +61,7 @@ export function AccessibilitySettings(): JSX.Element {
     setLocalStorage(KEYBOARD_NAV_KEY, String(newValue));
     document.documentElement.setAttribute(
       "data-keyboard-nav",
-      String(newValue)
+      String(newValue),
     );
   };
 

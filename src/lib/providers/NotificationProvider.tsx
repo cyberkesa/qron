@@ -4,7 +4,7 @@ import {
   Notification,
   NotificationType,
 } from "@/lib/hooks/useNotifications";
-import NotificationSystem from "@/components/NotificationSystem";
+import NotificationSystem from "@/components/ui/NotificationSystem";
 
 // Создаем контекст для уведомлений
 interface NotificationContextType {
@@ -12,7 +12,7 @@ interface NotificationContextType {
   showNotification: (
     message: string,
     type?: NotificationType,
-    timeout?: number
+    timeout?: number,
   ) => string;
   dismissNotification: (id: string) => void;
   showSuccess: (message: string, timeout?: number) => string;
@@ -29,7 +29,7 @@ export const useNotificationContext = () => {
   const context = useContext(NotificationContext);
   if (!context) {
     throw new Error(
-      "useNotificationContext must be used within a NotificationProvider"
+      "useNotificationContext must be used within a NotificationProvider",
     );
   }
   return context;

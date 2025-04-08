@@ -1,5 +1,6 @@
 import { Product } from "@/types/api";
-import { ProductCard } from "./ProductCard";
+import React from "react";
+import { ProductCard } from "../product/ProductCard";
 import { useViewHistory } from "@/lib/hooks/useViewHistory";
 import { useEffect, useState, useMemo } from "react";
 

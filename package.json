@@ -2,19 +2,31 @@
   "name": "qron",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
+    "dev:clean": "npx kill-port 3000 && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "validate-queries": "node --loader ts-node/esm src/scripts/validateQueries.ts",
     "validate-pagination": "node --loader ts-node/esm src/scripts/validatePagination.ts",
-    "validate-pagination-usage": "node --loader ts-node/esm src/scripts/validatePaginationUsage.ts"
+    "validate-pagination-usage": "node --loader ts-node/esm src/scripts/validatePaginationUsage.ts",
+    "check-imports": "node --loader ts-node/esm src/scripts/checkImports.ts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@apollo/client": "^3.13.5",
+    "@apollo/experimental-nextjs-app-support": "^0.12.1",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@types/next": "^9.0.0",
     "clsx": "^2.1.1",
     "glob": "^11.0.1",
     "graphql": "^16.10.0",
@@ -22,19 +34,28 @@
     "node-fetch": "^3.3.2",
     "react": "^18",
     "react-dom": "^18",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "tailwind-merge": "^3.2.0"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^8.29.1",
+    "@typescript-eslint/parser": "^8.29.1",
     "autoprefixer": "^10.4.21",
     "eslint": "^8",
     "eslint-config-next": "15.2.4",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
     "postcss": "^8.5.3",
+    "prettier": "^3.5.3",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5"
   }
 }

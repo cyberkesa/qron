@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_PRODUCTS } from "@/lib/queries";
-import { ProductCard } from "@/components/ProductCard";
+import { ProductCard } from "@/components/product/ProductCard";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   ProductSortOrder,
@@ -15,8 +15,8 @@ import {
   AdjustmentsHorizontalIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { ProductSorter } from "@/components/ProductSorter";
-import { StockFilter } from "@/components/StockFilter";
+import { ProductSorter } from "@/components/product-list/ProductSorter";
+import { StockFilter } from "@/components/product-list/StockFilter";
 
 // Create a client component that uses useSearchParams
 function SearchPageContent() {
@@ -53,7 +53,7 @@ function SearchPageContent() {
   // Подготовка данных для использования в компоненте
   let products =
     productsData?.products?.edges?.map(
-      (edge: { node: Product }) => edge.node
+      (edge: { node: Product }) => edge.node,
     ) || [];
   const hasMoreProducts =
     productsData?.products?.pageInfo?.hasNextPage || false;
@@ -69,7 +69,7 @@ function SearchPageContent() {
     products = products.filter(
       (product: Product) =>
         product.stockAvailabilityStatus !==
-        ProductStockAvailabilityStatus.OUT_OF_STOCK
+        ProductStockAvailabilityStatus.OUT_OF_STOCK,
     );
   }
 
@@ -97,7 +97,7 @@ function SearchPageContent() {
     e.preventDefault();
     if (searchInputValue.trim()) {
       router.push(
-        `/search?q=${encodeURIComponent(searchInputValue)}&sort=${sortOrder}`
+        `/search?q=${encodeURIComponent(searchInputValue)}&sort=${sortOrder}`,
       );
     }
   };

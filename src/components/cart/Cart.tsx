@@ -5,8 +5,16 @@ import {
   ArrowRightIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import { QuantityCounter } from "./QuantityCounter";
+import { useState } from "react";
+import { useQuery, useMutation } from "@apollo/client";
+import {
+  GET_CART,
+  REMOVE_FROM_CART,
+  UPDATE_CART_ITEM_QUANTITY,
+} from "@/lib/queries";
+import { CartItemUnified } from "@/lib/hooks/useCart";
 import { useCartContext } from "@/lib/providers/CartProvider";
+import { QuantityCounter } from "@/components/ui/QuantityCounter";
 
 export function Cart() {
   const { cart, isLoading, updateQuantity, removeFromCart } = useCartContext();
@@ -129,13 +137,13 @@ export function Cart() {
                   onIncrement={() =>
                     updateQuantity(
                       item.product.id,
-                      item.quantity + (item.product.quantityMultiplicity || 1)
+                      item.quantity + (item.product.quantityMultiplicity || 1),
                     )
                   }
                   onDecrement={() =>
                     updateQuantity(
                       item.product.id,
-                      item.quantity - (item.product.quantityMultiplicity || 1)
+                      item.quantity - (item.product.quantityMultiplicity || 1),
                     )
                   }
                 />

@@ -1,10 +1,10 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['files.tovari-kron.ru'],
-    formats: ['image/webp'],
+    domains: ["files.tovari-kron.ru"],
+    formats: ["image/webp"],
     minimumCacheTTL: 60,
   },
   // Улучшение производительности и совместимости с Vercel

@@ -3,11 +3,13 @@
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useQuery } from "@apollo/client";
-import { GET_CART, GET_VIEWER, GET_CATEGORIES } from "@/lib/queries";
-import SearchForm from "./SearchForm";
-import RegionSelector, { REGION_CONTACTS } from "./RegionSelector";
+import { usePathname, useRouter } from "next/navigation";
+import { useQuery, useMutation } from "@apollo/client";
+import { GET_CART, GET_VIEWER, GET_CATEGORIES, LOGOUT } from "@/lib/queries";
+import SearchForm from "@/components/search/SearchForm";
+import RegionSelector, {
+  REGION_CONTACTS,
+} from "@/components/region/RegionSelector";
 import {
   ShoppingCartIcon,
   UserIcon,
@@ -20,6 +22,7 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import { Category } from "@/types/api";
+import { useCartContext } from "@/lib/providers/CartProvider";
 
 // Мемоизированные компоненты для уменьшения ре-рендеров
 const TopBar = memo(
@@ -62,7 +65,7 @@ const TopBar = memo(
         </div>
       </div>
     </div>
-  )
+  ),
 );
 
 TopBar.displayName = "TopBar";
@@ -91,7 +94,7 @@ const MobileNavLink = memo(
         {children}
       </Link>
     </li>
-  )
+  ),
 );
 
 MobileNavLink.displayName = "MobileNavLink";
@@ -138,10 +141,12 @@ const UserMenu = memo(
     isOpen,
     userInfo,
     onClose,
+    onLogout,
   }: {
     isOpen: boolean;
     userInfo: { name: string | undefined; email: string | undefined };
     onClose: () => void;
+    onLogout: () => void;
   }) => {
     if (!isOpen) return null;
 
@@ -168,44 +173,44 @@ const UserMenu = memo(
           Мои заказы
         </Link>
         <div className="border-t border-gray-100 my-1"></div>
-        <Link
-          href="/profile"
-          className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
-          onClick={onClose}
+        <button
+          onClick={onLogout}
+          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
         >
           <XMarkIcon className="h-4 w-4 mr-2" />
           Выйти
-        </Link>
+        </button>
       </div>
     );
-  }
+  },
 );
 
 UserMenu.displayName = "UserMenu";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [regionContacts, setRegionContacts] = useState(REGION_CONTACTS.MOSCOW);
-  const pathname = usePathname();
   const profileMenuRef = useRef<HTMLDivElement>(null);
-
+  const router = useRouter();
+  const pathname = usePathname();
   const { data: cartData } = useQuery(GET_CART, {
     fetchPolicy: "cache-and-network",
   });
   const { data: userData } = useQuery(GET_VIEWER);
   const { data: categoriesData } = useQuery(GET_CATEGORIES);
+  const [logout] = useMutation(LOGOUT);
 
   // Мемоизация данных для предотвращения ненужных рендеров
   const categories = useMemo(
     () => categoriesData?.rootCategories || [],
-    [categoriesData]
+    [categoriesData],
   );
 
   const cartItemsCount = useMemo(
     () => cartData?.cart?.items?.edges?.length || 0,
-    [cartData]
+    [cartData],
   );
 
   const userInfo = useMemo(
@@ -213,7 +218,7 @@ export default function Header() {
       name: userData?.viewer?.name,
       email: userData?.viewer?.emailAddress,
     }),
-    [userData]
+    [userData],
   );
 
   // Функции обработчиков событий
@@ -229,6 +234,26 @@ export default function Header() {
     setIsMenuOpen(false);
     setIsUserMenuOpen(false);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      const result = await logout();
+      if (result.data?.logOut?.__typename === "LogOutSuccessResult") {
+        // Очищаем все токены и данные
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("selectedRegion");
+        localStorage.removeItem("guestToken");
+        localStorage.removeItem("tokenRegionId");
+
+        // Закрываем меню и перенаправляем на страницу входа
+        handleCloseMenus();
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
 
   // Проверка авторизации и загрузка региона при монтировании
   useEffect(() => {
@@ -256,7 +281,7 @@ export default function Header() {
             setRegionContacts(
               parsedRegion.name.includes("Ставрополь")
                 ? REGION_CONTACTS.STAVROPOL
-                : REGION_CONTACTS.MOSCOW
+                : REGION_CONTACTS.MOSCOW,
             );
           } catch (e) {
             console.error("Ошибка при разборе сохраненного региона:", e);
@@ -306,6 +331,7 @@ export default function Header() {
             isOpen={isUserMenuOpen}
             userInfo={userInfo}
             onClose={handleCloseMenus}
+            onLogout={handleLogout}
           />
         </div>
       );
@@ -331,7 +357,14 @@ export default function Header() {
         </Link>
       </div>
     );
-  }, [isLoggedIn, isUserMenuOpen, userInfo, toggleUserMenu, handleCloseMenus]);
+  }, [
+    isLoggedIn,
+    isUserMenuOpen,
+    userInfo,
+    toggleUserMenu,
+    handleCloseMenus,
+    handleLogout,
+  ]);
 
   const mobileMenu = useMemo(() => {
     if (!isMenuOpen) return null;

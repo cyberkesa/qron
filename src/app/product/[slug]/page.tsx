@@ -32,11 +32,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { useViewHistory } from "@/lib/hooks/useViewHistory";
-import { SimilarProducts } from "@/components/SimilarProducts";
+import { SimilarProducts } from "@/components/product-list/SimilarProducts";
 import { useCartContext } from "@/lib/providers/CartProvider";
-import { QuantityCounter } from "@/components/QuantityCounter";
-import { Notification } from "@/components/Notification";
-import { RecentlyViewed } from "@/components/RecentlyViewed";
+import { QuantityCounter } from "@/components/ui/QuantityCounter";
+import { Notification } from "@/components/ui/Notification";
+import { RecentlyViewed } from "@/components/product-list/RecentlyViewed";
 
 // Типы для компонента страницы продукта
 interface ProductPageProps {
@@ -127,7 +127,7 @@ const ProductImageGallery = React.memo(
                 className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none group"
                 onClick={() =>
                   handleImageChange(
-                    (selectedImageIndex - 1 + images.length) % images.length
+                    (selectedImageIndex - 1 + images.length) % images.length,
                   )
                 }
                 aria-label="Предыдущее изображение"
@@ -203,7 +203,8 @@ const ProductImageGallery = React.memo(
                     className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 transition-colors p-3 rounded-full text-white"
                     onClick={() =>
                       handleImageChange(
-                        (selectedImageIndex - 1 + images.length) % images.length
+                        (selectedImageIndex - 1 + images.length) %
+                          images.length,
                       )
                     }
                     aria-label="Предыдущее изображение"
@@ -214,7 +215,7 @@ const ProductImageGallery = React.memo(
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 transition-colors p-3 rounded-full text-white"
                     onClick={() =>
                       handleImageChange(
-                        (selectedImageIndex + 1) % images.length
+                        (selectedImageIndex + 1) % images.length,
                       )
                     }
                     aria-label="Следующее изображение"
@@ -257,7 +258,7 @@ const ProductImageGallery = React.memo(
         )}
       </div>
     );
-  }
+  },
 );
 
 ProductImageGallery.displayName = "ProductImageGallery";
@@ -358,12 +359,12 @@ export default function ProductPage({ params }: ProductPageProps) {
     if (userData?.viewer) {
       const cartData = client.readQuery({ query: GET_CART });
       const cartItem = cartData?.cart?.items?.edges?.find(
-        (edge: any) => edge.node.product.id === data.productBySlug.id
+        (edge: any) => edge.node.product.id === data.productBySlug.id,
       );
       return cartItem?.node?.quantity || 0;
     } else {
       const cartItem = unifiedCart.items.find(
-        (item) => item.product.id === data.productBySlug.id
+        (item) => item.product.id === data.productBySlug.id,
       );
       return cartItem?.quantity || 0;
     }
@@ -371,7 +372,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   const currentCartQuantity = useMemo(
     () => getCurrentCartQuantity(),
-    [getCurrentCartQuantity]
+    [getCurrentCartQuantity],
   );
 
   const showNotificationWithMessage = useCallback(
@@ -380,7 +381,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       setNotificationType(type);
       setShowNotification(true);
     },
-    []
+    [],
   );
 
   const handleAddToCart = useCallback(async () => {
@@ -416,7 +417,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       console.error("Error adding to cart:", error);
       showNotificationWithMessage(
         "Не удалось добавить товар в корзину",
-        "error"
+        "error",
       );
     } finally {
       setIsAddingToCart(false);
@@ -473,7 +474,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       addToCart,
       client,
       unifiedAddToCart,
-    ]
+    ],
   );
 
   if (loading) {
@@ -549,12 +550,12 @@ export default function ProductPage({ params }: ProductPageProps) {
           value={currentRegion?.id || ""}
           onChange={(e) => {
             const selectedRegion = regionsData?.regions.find(
-              (r: Region) => r.id === e.target.value
+              (r: Region) => r.id === e.target.value,
             );
             if (selectedRegion) {
               localStorage.setItem(
                 "selectedRegion",
-                JSON.stringify(selectedRegion)
+                JSON.stringify(selectedRegion),
               );
               setCurrentRegion(selectedRegion);
               window.location.reload(); // Перезагрузка для применения нового региона
@@ -915,7 +916,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                             {attr.value}
                           </span>
                         </div>
-                      )
+                      ),
                     )}
                   </div>
                 ) : (

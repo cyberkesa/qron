@@ -45,7 +45,7 @@ const RegionButton = memo(
     >
       {name}
     </button>
-  )
+  ),
 );
 
 RegionButton.displayName = "RegionButton";
@@ -84,7 +84,7 @@ export default function RegionSelector() {
       if (typeof window !== "undefined") {
         localStorage.setItem(
           "selectedRegion",
-          JSON.stringify(viewerData.viewer.region)
+          JSON.stringify(viewerData.viewer.region),
         );
       }
     }

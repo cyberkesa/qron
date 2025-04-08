@@ -1,30 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_DELIVERY_ADDRESS, EDIT_DELIVERY_ADDRESS } from "@/lib/queries";
-import { DeliveryAddress } from "@/types/api";
-import { use } from "react";
 
-export default function EditAddressPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function EditAddressPage() {
   const router = useRouter();
+  const params = useParams();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [fullAddress, setFullAddress] = useState("");
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phoneNumber: "",
-    address: "",
-    city: "",
-    postalCode: "",
-  });
 
-  const id = use(Promise.resolve(params.id));
+  // Get ID from params and decode it if it's base64 encoded
+  const id = params?.id ? decodeURIComponent(params.id as string) : null;
 
   const {
     loading,
@@ -32,15 +21,10 @@ export default function EditAddressPage({
     data,
   } = useQuery(GET_DELIVERY_ADDRESS, {
     variables: { id },
+    skip: !id,
     onCompleted: (data) => {
-      if (data?.deliveryAddress) {
-        setFormData({
-          fullName: data.deliveryAddress.fullName,
-          phoneNumber: data.deliveryAddress.phoneNumber,
-          address: data.deliveryAddress.address,
-          city: data.deliveryAddress.city,
-          postalCode: data.deliveryAddress.postalCode,
-        });
+      if (data?.deliveryAddress?.fullAddress) {
+        setFullAddress(data.deliveryAddress.fullAddress);
       }
     },
   });
@@ -63,12 +47,20 @@ export default function EditAddressPage({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await editAddress({
-      variables: {
-        id,
-        fullAddress,
-      },
-    });
+    if (!id) {
+      setError("ID адреса не найден");
+      return;
+    }
+    try {
+      await editAddress({
+        variables: {
+          id,
+          fullAddress,
+        },
+      });
+    } catch (error) {
+      setError("Ошибка при обновлении адреса");
+    }
   };
 
   if (loading) {
@@ -76,6 +68,18 @@ export default function EditAddressPage({
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">Загрузка...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (queryError) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center text-red-600">
+            Ошибка загрузки адреса: {queryError.message}
+          </div>
         </div>
       </div>
     );

@@ -9,7 +9,7 @@ import {
   ClockIcon,
   BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
-import { REGION_CONTACTS } from "@/components/RegionSelector";
+import { REGION_CONTACTS } from "@/components/region/RegionSelector";
 
 // Тип ключа для региона
 type RegionKey = keyof typeof REGION_CONTACTS;
@@ -33,7 +33,7 @@ export default function ContactsPage() {
         try {
           const parsedRegion = JSON.parse(savedRegion);
           setSelectedRegion(
-            parsedRegion.name.includes("Ставрополь") ? "STAVROPOL" : "MOSCOW"
+            parsedRegion.name.includes("Ставрополь") ? "STAVROPOL" : "MOSCOW",
           );
         } catch (e) {
           console.error("Ошибка при разборе сохраненного региона:", e);
@@ -43,7 +43,7 @@ export default function ContactsPage() {
   }, []);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormState((prev) => ({

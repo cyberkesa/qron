@@ -19,42 +19,54 @@ import {
   TruckIcon,
 } from "@heroicons/react/24/outline";
 
+// Функция для форматирования цены
+const formatPrice = (price: string) => {
+  return new Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "RUB",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(parseFloat(price));
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
-    PaymentMethod.CARD
+    PaymentMethod.CARD,
   );
-  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>(
-    DeliveryMethod.DELIVERY
-  );
+  const [selectedDeliveryMethod, setSelectedDeliveryMethod] =
+    useState<DeliveryMethod>(DeliveryMethod.DELIVERY);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const { data: cartData, loading: cartLoading } = useQuery(GET_CART);
   const { data: addressesData, loading: addressesLoading } = useQuery(
-    GET_DELIVERY_ADDRESSES
+    GET_DELIVERY_ADDRESSES,
   );
   const [checkout, { loading: checkoutLoading }] = useMutation(CHECK_OUT);
 
-  // Оборачиваем в useMemo для исправления предупреждения exhaustive-deps
+  // Получаем адреса доставки
   const addresses = useMemo(() => {
-    return addressesData?.viewer?.deliveryAddresses || [];
+    return addressesData?.deliveryAddresses || [];
   }, [addressesData]);
 
-  const cartItems =
-    cartData?.cart?.items?.edges?.map(
-      (edge: { node: CartItem }) => edge.node
-    ) || [];
-  const cartTotal = cartData?.cart?.items?.decimalTotalPrice || "0";
+  // Получаем товары в корзине
+  const cartItems = useMemo(() => {
+    return (
+      cartData?.cart?.items?.edges?.map(
+        (edge: { node: CartItem }) => edge.node,
+      ) || []
+    );
+  }, [cartData]);
+
+  // Получаем общую сумму
+  const cartTotal = useMemo(() => {
+    return cartData?.cart?.items?.decimalTotalPrice || "0";
+  }, [cartData]);
 
   // Если есть адрес по умолчанию, выбираем его
   useEffect(() => {
-    const defaultAddress = addresses.find(
-      (address: DeliveryAddress) => address.isDefault
-    );
-    if (defaultAddress) {
-      setSelectedAddressId(defaultAddress.id);
-    } else if (addresses.length > 0) {
+    if (addresses.length > 0) {
       setSelectedAddressId(addresses[0].id);
     }
   }, [addresses]);
@@ -63,8 +75,22 @@ export default function CheckoutPage() {
     e.preventDefault();
     setErrorMessage("");
 
+    // Валидация
+    if (cartItems.length === 0) {
+      setErrorMessage("Ваша корзина пуста");
+      return;
+    }
+
     if (!selectedAddressId) {
       setErrorMessage("Пожалуйста, выберите адрес доставки");
+      return;
+    }
+
+    if (
+      selectedDeliveryMethod === DeliveryMethod.DELIVERY &&
+      !selectedAddressId
+    ) {
+      setErrorMessage("Для доставки необходимо выбрать адрес");
       return;
     }
 
@@ -73,12 +99,11 @@ export default function CheckoutPage() {
         variables: {
           deliveryAddressId: selectedAddressId,
           paymentMethod,
-          deliveryMethod,
+          deliveryMethod: selectedDeliveryMethod,
         },
       });
 
       if (result.data?.checkOut?.order) {
-        // При успешном оформлении заказа, перенаправляем на страницу заказа
         router.push(`/orders/${result.data.checkOut.order.id}`);
       } else if (result.data?.checkOut?.message) {
         setErrorMessage(result.data.checkOut.message);
@@ -194,17 +219,7 @@ export default function CheckoutPage() {
                           className="mt-1 mr-3"
                         />
                         <div>
-                          <p className="font-semibold">{address.fullName}</p>
-                          <p className="text-gray-700">
-                            {address.address}, {address.city},{" "}
-                            {address.postalCode}
-                          </p>
-                          <p className="text-gray-700">{address.phoneNumber}</p>
-                          {address.isDefault && (
-                            <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 mt-2 rounded">
-                              По умолчанию
-                            </span>
-                          )}
+                          <p className="text-gray-700">{address.fullAddress}</p>
                         </div>
                       </div>
                     </label>
@@ -244,7 +259,7 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 <label
                   className={`block border p-4 rounded-md cursor-pointer transition-all ${
-                    deliveryMethod === DeliveryMethod.DELIVERY
+                    selectedDeliveryMethod === DeliveryMethod.DELIVERY
                       ? "border-blue-500 bg-blue-50 shadow-sm"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
@@ -254,9 +269,11 @@ export default function CheckoutPage() {
                       type="radio"
                       name="deliveryMethod"
                       value={DeliveryMethod.DELIVERY}
-                      checked={deliveryMethod === DeliveryMethod.DELIVERY}
+                      checked={
+                        selectedDeliveryMethod === DeliveryMethod.DELIVERY
+                      }
                       onChange={() =>
-                        setDeliveryMethod(DeliveryMethod.DELIVERY)
+                        setSelectedDeliveryMethod(DeliveryMethod.DELIVERY)
                       }
                       className="mt-1 mr-3"
                     />
@@ -270,7 +287,7 @@ export default function CheckoutPage() {
                 </label>
                 <label
                   className={`block border p-4 rounded-md cursor-pointer transition-all ${
-                    deliveryMethod === DeliveryMethod.PICKUP
+                    selectedDeliveryMethod === DeliveryMethod.PICKUP
                       ? "border-blue-500 bg-blue-50 shadow-sm"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
@@ -280,8 +297,10 @@ export default function CheckoutPage() {
                       type="radio"
                       name="deliveryMethod"
                       value={DeliveryMethod.PICKUP}
-                      checked={deliveryMethod === DeliveryMethod.PICKUP}
-                      onChange={() => setDeliveryMethod(DeliveryMethod.PICKUP)}
+                      checked={selectedDeliveryMethod === DeliveryMethod.PICKUP}
+                      onChange={() =>
+                        setSelectedDeliveryMethod(DeliveryMethod.PICKUP)
+                      }
                       className="mt-1 mr-3"
                     />
                     <div>
@@ -389,7 +408,7 @@ export default function CheckoutPage() {
                         {item.quantity} шт.
                       </p>
                       <p className="font-medium">
-                        {item.product.price.toLocaleString()} ₽
+                        {formatPrice(item.product.price.toString())}
                       </p>
                     </div>
                   </div>
@@ -399,7 +418,7 @@ export default function CheckoutPage() {
             <div className="border-t border-gray-200 pt-4 space-y-2">
               <div className="flex justify-between text-gray-600">
                 <span>Товары ({cartItems.length}):</span>
-                <span>{cartTotal} ₽</span>
+                <span>{formatPrice(cartTotal)}</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Доставка:</span>
@@ -407,7 +426,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between font-semibold text-lg pt-2 border-t">
                 <span>Итого:</span>
-                <span className="text-blue-600">{cartTotal} ₽</span>
+                <span className="text-blue-600">{formatPrice(cartTotal)}</span>
               </div>
             </div>
           </div>

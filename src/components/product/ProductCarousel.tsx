@@ -37,14 +37,14 @@ export const ProductCarousel = ({ products }: ProductCarouselProps) => {
   // Переход к следующему товару
   const nextSlide = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex + 1 >= products.length ? 0 : prevIndex + 1
+      prevIndex + 1 >= products.length ? 0 : prevIndex + 1,
     );
   };
 
   // Переход к предыдущему товару
   const prevSlide = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? products.length - 1 : prevIndex - 1
+      prevIndex === 0 ? products.length - 1 : prevIndex - 1,
     );
   };
 

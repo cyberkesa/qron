@@ -10,8 +10,8 @@ export interface Product {
   description: string;
   images: ProductImage[];
   slug: string;
-  category?: {id: string; title: string; slug: string;};
-  stockAvailabilityStatus: 'IN_STOCK'|'OUT_OF_STOCK'|'COMING_SOON';
+  category?: { id: string; title: string; slug: string };
+  stockAvailabilityStatus: "IN_STOCK" | "OUT_OF_STOCK" | "COMING_SOON";
 }
 
 export interface ProductEdge {
@@ -21,7 +21,7 @@ export interface ProductEdge {
 
 export interface ProductConnection {
   edges: ProductEdge[];
-  pageInfo: {hasNextPage: boolean; endCursor: string;};
+  pageInfo: { hasNextPage: boolean; endCursor: string };
 }
 
 export interface ProductsData {

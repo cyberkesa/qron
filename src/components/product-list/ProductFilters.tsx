@@ -1,7 +1,7 @@
 import { ProductSortOrder, Category } from "@/types/api";
 import Image from "next/image";
-import { ProductSorter } from "@/components/ProductSorter";
-import { StockFilter } from "@/components/StockFilter";
+import { ProductSorter } from "@/components/product-list/ProductSorter";
+import { StockFilter } from "@/components/product-list/StockFilter";
 import { XMarkIcon, FunnelIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 

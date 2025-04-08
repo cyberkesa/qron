@@ -5,18 +5,19 @@ import { Product, ProductStockAvailabilityStatus } from "@/types/api";
 import { useMutation, useQuery } from "@apollo/client";
 import { ADD_TO_CART, GET_VIEWER, GET_CART } from "@/lib/queries";
 import { useApolloClient } from "@apollo/client";
-import { ShoppingCartIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import { useCartContext } from "@/lib/providers/CartProvider";
 import { CartItemUnified } from "@/lib/hooks/useCart";
-import { QuantityCounter } from "./QuantityCounter";
-import { Notification } from "./Notification";
+import { QuantityCounter } from "@/components/ui/QuantityCounter";
+import { Notification } from "@/components/ui/Notification";
 import React from "react";
 
 interface ProductCardProps {
   product: Product;
+  onAddToCart?: (product: Product) => Promise<void>;
 }
 
-function ProductCardBase({ product }: ProductCardProps) {
+function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const client = useApolloClient();
@@ -36,13 +37,13 @@ function ProductCardBase({ product }: ProductCardProps) {
       // Для авторизованных пользователей получаем из кэша
       const cartData = client.readQuery({ query: GET_CART });
       const cartItem = cartData?.cart?.items?.edges?.find(
-        (edge: any) => edge.node.product.id === product.id
+        (edge: any) => edge.node.product.id === product.id,
       );
       return cartItem?.node?.quantity || 0;
     } else {
       // Для гостей получаем из унифицированной корзины
       const cartItem = unifiedCart.items.find(
-        (item: CartItemUnified) => item.product.id === product.id
+        (item: CartItemUnified) => item.product.id === product.id,
       );
       return cartItem?.quantity || 0;
     }
@@ -50,7 +51,7 @@ function ProductCardBase({ product }: ProductCardProps) {
 
   const currentCartQuantity = useMemo(
     () => getCurrentCartQuantity(),
-    [getCurrentCartQuantity]
+    [getCurrentCartQuantity],
   );
 
   const handleUpdateQuantity = useCallback(
@@ -104,7 +105,7 @@ function ProductCardBase({ product }: ProductCardProps) {
       addToCart,
       client,
       unifiedAddToCart,
-    ]
+    ],
   );
 
   const getStockStatusBadge = useCallback(() => {
@@ -150,7 +151,7 @@ function ProductCardBase({ product }: ProductCardProps) {
             maximumFractionDigits: 0,
           }).format(product.price)
         : "Цена по запросу",
-    [product.price]
+    [product.price],
   );
 
   // Форматированная старая цена - тоже мемоизирована
@@ -163,7 +164,7 @@ function ProductCardBase({ product }: ProductCardProps) {
             maximumFractionDigits: 0,
           }).format(product.oldPrice)
         : null,
-    [product.oldPrice]
+    [product.oldPrice],
   );
 
   const isOutOfStock =

@@ -25,18 +25,22 @@ export default function ProfilePage() {
   const totalOrders = orders.length;
   const activeOrders = orders.filter((order: { status: OrderStatus }) =>
     [OrderStatus.PENDING, OrderStatus.PROCESSING, OrderStatus.SHIPPED].includes(
-      order.status
-    )
+      order.status,
+    ),
   ).length;
 
   const handleLogout = async () => {
     try {
       const result = await logout();
 
-      if (result.data?.logOut?.success) {
+      if (result.data?.logOut?.__typename === "LogOutSuccessResult") {
+        // Очищаем все токены и данные
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("selectedRegion");
+        localStorage.removeItem("guestToken");
+        localStorage.removeItem("tokenRegionId");
+
         setLogoutMessage("Вы успешно вышли из аккаунта. Перенаправление...");
         setTimeout(() => {
           router.push("/login");

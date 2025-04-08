@@ -1,7 +1,7 @@
-import {Product} from '@/types/api';
-import {useCallback, useEffect, useState} from 'react';
+import { Product } from "@/types/api";
+import { useCallback, useEffect, useState } from "react";
 
-const VIEW_HISTORY_KEY = 'kron_view_history';
+const VIEW_HISTORY_KEY = "kron_view_history";
 const MAX_HISTORY_ITEMS = 20;
 
 interface ViewHistoryItem {
@@ -19,7 +19,7 @@ export function useViewHistory() {
       try {
         setHistory(JSON.parse(savedHistory));
       } catch (error) {
-        console.error('Error loading view history:', error);
+        console.error("Error loading view history:", error);
         localStorage.removeItem(VIEW_HISTORY_KEY);
       }
     }
@@ -29,21 +29,23 @@ export function useViewHistory() {
   const addToHistory = useCallback((product: Product) => {
     if (!product || !product.id) return;
 
-    setHistory(prevHistory => {
+    setHistory((prevHistory) => {
       // Проверяем, есть ли уже такой товар в истории
-      const exists = prevHistory.some(item => item.product.id === product.id);
+      const exists = prevHistory.some((item) => item.product.id === product.id);
 
       // Если товар уже есть в истории, возвращаем историю без изменений
       if (exists) return prevHistory;
 
       // Удаляем дубликаты
-      const filteredHistory =
-          prevHistory.filter(item => item.product.id !== product.id);
+      const filteredHistory = prevHistory.filter(
+        (item) => item.product.id !== product.id,
+      );
 
       // Добавляем новый товар в начало
-      const newHistory =
-          [{product, timestamp: Date.now()}, ...filteredHistory].slice(
-              0, MAX_HISTORY_ITEMS);
+      const newHistory = [
+        { product, timestamp: Date.now() },
+        ...filteredHistory,
+      ].slice(0, MAX_HISTORY_ITEMS);
 
       // Сохраняем в localStorage
       localStorage.setItem(VIEW_HISTORY_KEY, JSON.stringify(newHistory));
@@ -57,32 +59,40 @@ export function useViewHistory() {
     localStorage.removeItem(VIEW_HISTORY_KEY);
   }, []);
 
-  const getRecentProducts = useCallback((count: number = 5) => {
-    return history.slice(0, count).map(item => item.product);
-  }, [history]);
+  const getRecentProducts = useCallback(
+    (count: number = 5) => {
+      return history.slice(0, count).map((item) => item.product);
+    },
+    [history],
+  );
 
-  const getSimilarProducts =
-      useCallback((currentProduct: Product, count: number = 5) => {
-        if (!currentProduct || !currentProduct.category) {
-          return [];
-        }
+  const getSimilarProducts = useCallback(
+    (currentProduct: Product, count: number = 5) => {
+      if (!currentProduct || !currentProduct.category) {
+        return [];
+      }
 
-        // Находим товары из той же категории
-        const sameCategoryProducts = history.filter(
-            item => item.product.category?.id === currentProduct.category?.id &&
-                item.product.id !== currentProduct.id);
+      // Находим товары из той же категории
+      const sameCategoryProducts = history.filter(
+        (item) =>
+          item.product.category?.id === currentProduct.category?.id &&
+          item.product.id !== currentProduct.id,
+      );
 
-        // Сортируем по времени просмотра
-        return sameCategoryProducts.sort((a, b) => b.timestamp - a.timestamp)
-            .slice(0, count)
-            .map(item => item.product);
-      }, [history]);
+      // Сортируем по времени просмотра
+      return sameCategoryProducts
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .slice(0, count)
+        .map((item) => item.product);
+    },
+    [history],
+  );
 
   return {
     history,
     addToHistory,
     clearHistory,
     getRecentProducts,
-    getSimilarProducts
+    getSimilarProducts,
   };
 }
