@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import { GET_ORDER } from "@/lib/queries";
 import Link from "next/link";
 import Image from "next/image";
-import { OrderItem } from "@/types/api";
+import { OrderItem, OrderStatus } from "@/types/api";
 
 export default function OrderDetailsPage({
   params,
@@ -35,32 +35,32 @@ export default function OrderDetailsPage({
   };
 
   // Отображение статуса заказа
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status: OrderStatus) => {
     if (!status)
       return { text: "Неизвестно", className: "bg-gray-100 text-gray-800" };
 
     switch (status) {
-      case "PENDING":
+      case OrderStatus.PENDING:
         return {
           text: "В обработке",
           className: "bg-yellow-100 text-yellow-800",
         };
-      case "PROCESSING":
+      case OrderStatus.PROCESSING:
         return {
           text: "Комплектуется",
           className: "bg-blue-100 text-blue-800",
         };
-      case "SHIPPED":
+      case OrderStatus.SHIPPED:
         return {
           text: "Отправлен",
           className: "bg-purple-100 text-purple-800",
         };
-      case "DELIVERED":
+      case OrderStatus.DELIVERED:
         return { text: "Доставлен", className: "bg-green-100 text-green-800" };
-      case "CANCELLED":
+      case OrderStatus.CANCELLED:
         return { text: "Отменен", className: "bg-red-100 text-red-800" };
       default:
-        return { text: status, className: "bg-gray-100 text-gray-800" };
+        return { text: String(status), className: "bg-gray-100 text-gray-800" };
     }
   };
 
@@ -168,7 +168,9 @@ export default function OrderDetailsPage({
           <div className="space-y-3">
             <div>
               <p className="text-sm text-gray-500">Дата заказа</p>
-              <p className="font-medium">{formatDate(order.createdAt)}</p>
+              <p className="font-medium">
+                {formatDate(order.creationDatetime)}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Сумма заказа</p>
@@ -308,7 +310,7 @@ export default function OrderDetailsPage({
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
-                        {item.product.name}
+                        {item.product?.name}
                       </p>
                       <p className="text-sm text-gray-500">
                         Количество: {item.quantity}

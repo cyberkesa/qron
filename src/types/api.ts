@@ -85,6 +85,12 @@ export interface ProductResponse {
 export interface DeliveryAddress {
   id: string;
   fullAddress: string;
+  fullName: string;
+  phoneNumber: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  isDefault: boolean;
 }
 
 export enum PaymentMethod {
@@ -100,10 +106,11 @@ export enum DeliveryMethod {
 export interface OrderItem {
   id: string;
   quantity: number;
-  name: string;
   decimalUnitPrice: string;
-  imageUrl: string;
-  product?: {id: string; name: string; slug: string;};
+  product?: {
+    id: string; name: string; slug: string;
+    images: {id: string; url: string;}[];
+  };
 }
 
 export interface OrderItemConnection {

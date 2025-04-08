@@ -153,7 +153,7 @@ const UserMenu = memo(
         </div>
         <Link
           href="/profile"
-          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
           onClick={onClose}
         >
           <UserIcon className="h-4 w-4 mr-2 text-gray-500" />
@@ -161,7 +161,7 @@ const UserMenu = memo(
         </Link>
         <Link
           href="/orders"
-          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
           onClick={onClose}
         >
           <TruckIcon className="h-4 w-4 mr-2 text-gray-500" />
@@ -170,7 +170,7 @@ const UserMenu = memo(
         <div className="border-t border-gray-100 my-1"></div>
         <Link
           href="/profile"
-          className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+          className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
           onClick={onClose}
         >
           <XMarkIcon className="h-4 w-4 mr-2" />

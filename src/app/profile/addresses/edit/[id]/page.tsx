@@ -1,46 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_DELIVERY_ADDRESS, EDIT_DELIVERY_ADDRESS } from "@/lib/queries";
-import { DeliveryAddress } from "@/types/api";
 import { use } from "react";
 
 export default function EditAddressPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [fullAddress, setFullAddress] = useState("");
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phoneNumber: "",
-    address: "",
-    city: "",
-    postalCode: "",
-  });
 
-  const id = use(Promise.resolve(params.id));
+  const id = use(params).id;
 
-  const {
-    loading,
-    error: queryError,
-    data,
-  } = useQuery(GET_DELIVERY_ADDRESS, {
+  const { loading, data } = useQuery(GET_DELIVERY_ADDRESS, {
     variables: { id },
     onCompleted: (data) => {
-      if (data?.deliveryAddress) {
-        setFormData({
-          fullName: data.deliveryAddress.fullName,
-          phoneNumber: data.deliveryAddress.phoneNumber,
-          address: data.deliveryAddress.address,
-          city: data.deliveryAddress.city,
-          postalCode: data.deliveryAddress.postalCode,
-        });
+      if (data?.deliveryAddress?.fullAddress) {
+        setFullAddress(data.deliveryAddress.fullAddress);
       }
     },
   });
