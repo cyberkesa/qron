@@ -1,39 +1,25 @@
 "use client";
 
-<<<<<<< HEAD
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_DELIVERY_ADDRESS, EDIT_DELIVERY_ADDRESS } from "@/lib/queries";
 
 export default function EditAddressPage() {
-=======
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useQuery, useMutation } from "@apollo/client";
-import { GET_DELIVERY_ADDRESS, EDIT_DELIVERY_ADDRESS } from "@/lib/queries";
-import { use } from "react";
-
-export default function EditAddressPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
->>>>>>> 5ea25d4373053d38791cda8a10cf487bf24e1e7c
   const router = useRouter();
   const params = useParams();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [fullAddress, setFullAddress] = useState("");
 
-<<<<<<< HEAD
   // Get ID from params and decode it if it's base64 encoded
   const id = params?.id ? decodeURIComponent(params.id as string) : null;
-=======
-  const id = use(params).id;
->>>>>>> 5ea25d4373053d38791cda8a10cf487bf24e1e7c
 
-  const { loading, data } = useQuery(GET_DELIVERY_ADDRESS, {
+  const {
+    loading,
+    error: queryError,
+    data,
+  } = useQuery(GET_DELIVERY_ADDRESS, {
     variables: { id },
     skip: !id,
     onCompleted: (data) => {
