@@ -14,6 +14,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductSorter } from "@/components/product-list/ProductSorter";
 import { StockFilter } from "@/components/product-list/StockFilter";
+import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -25,10 +26,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const router = useRouter();
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
   const [hideOutOfStock, setHideOutOfStock] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-
-  // Ref для бесконечной прокрутки
-  const observerTarget = useRef<HTMLDivElement>(null);
 
   // Извлекаем slug из params с помощью React.use()
   const { slug } = React.use(params);
@@ -87,60 +84,21 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   // Определяем общее состояние загрузки
   const isLoading = categoryLoading || productsLoading;
 
-  // Функция загрузки дополнительных товаров
-  const handleLoadMore = useCallback(() => {
-    if (hasMoreProducts && !isLoadingMore && fetchMore) {
-      setIsLoadingMore(true);
-      fetchMore({
-        variables: {
-          after: endCursor,
-          first: 16,
-          categoryId: categoryData?.categoryBySlug?.id,
-          sortOrder,
-        },
-      })
-        .then(() => {
-          setIsLoadingMore(false);
-        })
-        .catch((error) => {
-          console.error("Error loading more products:", error);
-          setIsLoadingMore(false);
+  const { observerTarget, isLoadingMore } = useInfiniteScroll({
+    hasMore: productsData?.products?.pageInfo?.hasNextPage || false,
+    isLoading: isLoading,
+    onLoadMore: async () => {
+      if (productsData?.products?.pageInfo?.endCursor) {
+        await fetchMore({
+          variables: {
+            after: productsData.products.pageInfo.endCursor,
+            categoryId: categoryData?.categoryBySlug?.id,
+            sortOrder,
+          },
         });
-    }
-  }, [
-    fetchMore,
-    hasMoreProducts,
-    isLoadingMore,
-    endCursor,
-    categoryData?.categoryBySlug?.id,
-    sortOrder,
-  ]);
-
-  // Настройка Intersection Observer для бесконечной прокрутки
-  useEffect(() => {
-    const currentObserverTarget = observerTarget.current;
-
-    if (!currentObserverTarget || !hasMoreProducts) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          handleLoadMore();
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    observer.observe(currentObserverTarget);
-
-    return () => {
-      if (currentObserverTarget) {
-        observer.unobserve(currentObserverTarget);
       }
-    };
-  }, [handleLoadMore, hasMoreProducts]);
+    },
+  });
 
   // Обработчик изменения сортировки
   const handleSortChange = (newSortOrder: ProductSortOrder) => {
@@ -412,21 +370,9 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           </div>
 
           {/* Индикатор загрузки и триггер для подгрузки */}
-          {(hasMoreProducts || isLoadingMore) && (
-            <div
-              ref={observerTarget}
-              className="w-full h-16 mt-8 flex justify-center items-center"
-            >
-              {isLoadingMore ? (
-                <div className="flex items-center justify-center">
-                  <span className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full mr-2"></span>
-                  <span className="text-gray-600">Загрузка...</span>
-                </div>
-              ) : (
-                <div className="text-gray-500 text-sm">
-                  Прокрутите вниз, чтобы загрузить еще
-                </div>
-              )}
+          {isLoadingMore && (
+            <div className="flex justify-center mt-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
             </div>
           )}
 
@@ -437,6 +383,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
               {totalProductsCount})
             </div>
           )}
+
+          <div ref={observerTarget} className="h-1" />
         </>
       )}
     </div>

@@ -17,6 +17,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { ProductSorter } from "@/components/product-list/ProductSorter";
 import { StockFilter } from "@/components/product-list/StockFilter";
+import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
 
 // Create a client component that uses useSearchParams
 function SearchPageContent() {
@@ -106,35 +107,25 @@ function SearchPageContent() {
     setShowMobileFilters(!showMobileFilters);
   };
 
-  // Функция загрузки дополнительных товаров
-  const handleLoadMore = useCallback(() => {
-    if (hasMoreProducts && !productsLoading && !isLoadingMore) {
-      setIsLoadingMore(true);
-      fetchMore({
-        variables: {
-          after: endCursor,
-          first: 16,
-          sortOrder,
-          searchQuery,
-        },
-      })
-        .then(() => {
-          setIsLoadingMore(false);
-        })
-        .catch((error) => {
-          console.error("Error loading more products:", error);
-          setIsLoadingMore(false);
+  const {
+    observerTarget: infiniteObserverTarget,
+    isLoadingMore: infiniteIsLoadingMore,
+  } = useInfiniteScroll({
+    hasMore: productsData?.products?.pageInfo?.hasNextPage || false,
+    isLoading: productsLoading,
+    onLoadMore: async () => {
+      if (productsData?.products?.pageInfo?.endCursor) {
+        await fetchMore({
+          variables: {
+            after: productsData.products.pageInfo.endCursor,
+            first: 16,
+            sortOrder,
+            searchQuery,
+          },
         });
-    }
-  }, [
-    hasMoreProducts,
-    productsLoading,
-    isLoadingMore,
-    fetchMore,
-    endCursor,
-    sortOrder,
-    searchQuery,
-  ]);
+      }
+    },
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -222,21 +213,9 @@ function SearchPageContent() {
           </div>
 
           {/* Индикатор загрузки и триггер для подгрузки */}
-          {(hasMoreProducts || isLoadingMore) && (
-            <div
-              ref={observerTarget}
-              className="w-full h-16 mt-8 flex justify-center items-center"
-            >
-              {isLoadingMore ? (
-                <div className="flex items-center justify-center">
-                  <span className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full mr-2"></span>
-                  <span className="text-gray-600">Загрузка...</span>
-                </div>
-              ) : (
-                <div className="text-gray-500 text-sm">
-                  Прокрутите вниз, чтобы загрузить еще
-                </div>
-              )}
+          {infiniteIsLoadingMore && (
+            <div className="flex justify-center mt-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
             </div>
           )}
 
@@ -249,6 +228,7 @@ function SearchPageContent() {
           )}
         </div>
       </div>
+      <div ref={infiniteObserverTarget} className="h-1" />
     </div>
   );
 }

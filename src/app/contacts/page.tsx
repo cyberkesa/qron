@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useQuery } from "@apollo/client";
+import { GET_CURRENT_REGION } from "@/lib/queries";
 import {
   PhoneIcon,
   EnvelopeIcon,
@@ -9,13 +11,42 @@ import {
   ClockIcon,
   BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
-import { REGION_CONTACTS } from "@/components/region/RegionSelector";
+import { Map } from "@/components/contacts/Map";
 
-// Тип ключа для региона
-type RegionKey = keyof typeof REGION_CONTACTS;
+// Контактная информация для разных регионов
+const regionContacts = {
+  moscow: {
+    address: "Домодедовское шоссе, 4-й километр, 15Б",
+    phone: "+7 (495) 799-26-66",
+    phoneLink: "tel:+74957992666",
+    email: "info@tovari-kron.ru",
+    workingHours: "Пн-Пт: 9:00 - 18:00",
+    coordinates: {
+      lat: 55.6122,
+      lng: 37.7153,
+    },
+  },
+  stavropol: {
+    address: "с. Надежда, ул. Орджоникидзе 79",
+    phone: "+7 (903) 418-16-66",
+    phoneLink: "tel:+79034181666",
+    email: "ug@tovari-kron.ru",
+    workingHours: "Пн-Пт: 8:00 - 17:00",
+    coordinates: {
+      lat: 45.0428,
+      lng: 41.9734,
+    },
+  },
+};
 
 export default function ContactsPage() {
-  const [selectedRegion, setSelectedRegion] = useState<RegionKey>("MOSCOW");
+  const { data: regionData } = useQuery(GET_CURRENT_REGION);
+  const currentRegion =
+    regionData?.viewer?.region?.name?.toLowerCase() || "moscow";
+  const contacts =
+    regionContacts[currentRegion as keyof typeof regionContacts] ||
+    regionContacts.moscow;
+
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -24,23 +55,6 @@ export default function ContactsPage() {
     submitted: false,
     error: false,
   });
-
-  // Проверяем выбранный регион при загрузке
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedRegion = localStorage.getItem("selectedRegion");
-      if (savedRegion) {
-        try {
-          const parsedRegion = JSON.parse(savedRegion);
-          setSelectedRegion(
-            parsedRegion.name.includes("Ставрополь") ? "STAVROPOL" : "MOSCOW",
-          );
-        } catch (e) {
-          console.error("Ошибка при разборе сохраненного региона:", e);
-        }
-      }
-    }
-  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -54,9 +68,6 @@ export default function ContactsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Здесь в реальном приложении был бы код для отправки формы на сервер
-    // Имитируем успешную отправку
     setTimeout(() => {
       setFormState((prev) => ({
         ...prev,
@@ -67,10 +78,6 @@ export default function ContactsPage() {
         message: "",
       }));
     }, 1000);
-  };
-
-  const handleRegionChange = (region: RegionKey) => {
-    setSelectedRegion(region);
   };
 
   return (
@@ -86,22 +93,7 @@ export default function ContactsPage() {
             </li>
             <li>
               <div className="flex items-center">
-                <span className="mx-2 text-gray-400">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </span>
+                <span className="mx-2 text-gray-400">/</span>
                 <span className="text-gray-500">Контакты</span>
               </div>
             </li>
@@ -114,30 +106,6 @@ export default function ContactsPage() {
           <div className="bg-white rounded-lg shadow-md p-8 mb-8">
             <h2 className="text-2xl font-bold mb-6">Наши контакты</h2>
 
-            {/* Переключатель регионов */}
-            <div className="flex mb-6 border-b border-gray-200 pb-4">
-              <button
-                onClick={() => handleRegionChange("MOSCOW")}
-                className={`px-4 py-2 rounded-md mr-2 ${
-                  selectedRegion === "MOSCOW"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                Москва
-              </button>
-              <button
-                onClick={() => handleRegionChange("STAVROPOL")}
-                className={`px-4 py-2 rounded-md ${
-                  selectedRegion === "STAVROPOL"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                Ставропольский край
-              </button>
-            </div>
-
             <div className="space-y-6">
               <div className="flex items-start">
                 <div className="p-2 rounded-full bg-blue-100 mr-4">
@@ -147,10 +115,10 @@ export default function ContactsPage() {
                   <h3 className="font-medium text-lg">Телефон</h3>
                   <p className="text-gray-700 mb-1">
                     <a
-                      href={REGION_CONTACTS[selectedRegion].phoneLink}
+                      href={contacts.phoneLink}
                       className="hover:text-blue-600"
                     >
-                      {REGION_CONTACTS[selectedRegion].phone}
+                      {contacts.phone}
                     </a>
                   </p>
                 </div>
@@ -164,10 +132,10 @@ export default function ContactsPage() {
                   <h3 className="font-medium text-lg">Email</h3>
                   <p className="text-gray-700 mb-1">
                     <a
-                      href={`mailto:${REGION_CONTACTS[selectedRegion].email}`}
+                      href={`mailto:${contacts.email}`}
                       className="hover:text-blue-600"
                     >
-                      {REGION_CONTACTS[selectedRegion].email}
+                      {contacts.email}
                     </a>
                   </p>
                 </div>
@@ -179,9 +147,7 @@ export default function ContactsPage() {
                 </div>
                 <div>
                   <h3 className="font-medium text-lg">Адрес</h3>
-                  <p className="text-gray-700 mb-1">
-                    {REGION_CONTACTS[selectedRegion].address}
-                  </p>
+                  <p className="text-gray-700 mb-1">{contacts.address}</p>
                 </div>
               </div>
 
@@ -191,7 +157,7 @@ export default function ContactsPage() {
                 </div>
                 <div>
                   <h3 className="font-medium text-lg">Режим работы</h3>
-                  <p className="text-gray-700 mb-1">Пн-Пт: 9:00 - 18:00</p>
+                  <p className="text-gray-700 mb-1">{contacts.workingHours}</p>
                   <p className="text-gray-700">Сб-Вс: Выходной</p>
                 </div>
               </div>
@@ -202,7 +168,7 @@ export default function ContactsPage() {
                 </div>
                 <div>
                   <h3 className="font-medium text-lg">Реквизиты</h3>
-                  <p className="text-gray-700 mb-1">ООО &quot;КРОН&quot;</p>
+                  <p className="text-gray-700 mb-1">ООО "КРОН"</p>
                   <p className="text-gray-700 mb-1">ИНН: 7712345678</p>
                   <p className="text-gray-700">ОГРН: 1157746123456</p>
                 </div>
@@ -369,16 +335,8 @@ export default function ContactsPage() {
 
           <div className="bg-white rounded-lg shadow-md p-8">
             <h2 className="text-2xl font-bold mb-6">Как нас найти</h2>
-            <div className="rounded-lg overflow-hidden shadow-md h-64">
-              {/* В реальном проекте здесь была бы интеграция с Google Maps или Яндекс.Картами */}
-              <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-600">
-                  Карта с расположением офиса в{" "}
-                  {selectedRegion === "MOSCOW"
-                    ? "Москве"
-                    : "Ставропольском крае"}
-                </span>
-              </div>
+            <div className="rounded-lg overflow-hidden shadow-md h-[400px]">
+              <Map center={contacts.coordinates} zoom={15} />
             </div>
           </div>
         </div>
@@ -394,14 +352,14 @@ export default function ContactsPage() {
         </p>
         <div className="inline-flex space-x-4">
           <a
-            href={REGION_CONTACTS[selectedRegion].phoneLink}
+            href={contacts.phoneLink}
             className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors flex items-center"
           >
             <PhoneIcon className="w-5 h-5 mr-2" />
             Позвонить нам
           </a>
           <a
-            href={`mailto:${REGION_CONTACTS[selectedRegion].email}`}
+            href={`mailto:${contacts.email}`}
             className="bg-white text-blue-600 border border-blue-600 px-6 py-3 rounded-md hover:bg-blue-50 transition-colors flex items-center"
           >
             <EnvelopeIcon className="w-5 h-5 mr-2" />

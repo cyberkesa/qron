@@ -36,6 +36,8 @@ const NODE_MODULES = [
   "react-dom",
   "clsx",
   "graphql",
+  "tailwind-merge", // Добавлен пакет tailwind-merge
+  "rxjs",
 ];
 
 const NODE_BUILT_IN_MODULES = ["fs", "path", "url", "module", "process"];

@@ -30,6 +30,7 @@ import {
 import { ProductCarousel } from "@/components/product/ProductCarousel";
 import Image from "next/image";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
 
 // Мемоизированный компонент для списка товаров
 const ProductGrid = memo(({ products }: { products: Product[] }) => {
@@ -286,67 +287,22 @@ export default function Home() {
     }
   }, [regionData]);
 
-  // Функция загрузки дополнительных товаров с обработкой ошибок
-  const handleLoadMore = useCallback(() => {
-    if (hasMoreProducts && !productsLoading && !isLoadingMore && endCursor) {
-      setIsLoadingMore(true);
-      fetchMore({
-        variables: {
-          after: endCursor,
-          first: 16,
-          sortOrder,
-          categoryId: selectedCategory || undefined,
-        },
-      })
-        .then(() => {
-          setIsLoadingMore(false);
-        })
-        .catch((error) => {
-          console.error("Error loading more products:", error);
-          setIsLoadingMore(false);
+  const {
+    observerTarget: infiniteScrollObserverTarget,
+    isLoadingMore: infiniteScrollIsLoadingMore,
+  } = useInfiniteScroll({
+    hasMore: productsData?.products?.pageInfo?.hasNextPage || false,
+    isLoading: productsLoading,
+    onLoadMore: async () => {
+      if (productsData?.products?.pageInfo?.endCursor) {
+        await fetchMore({
+          variables: {
+            after: productsData.products.pageInfo.endCursor,
+          },
         });
-    }
-  }, [
-    fetchMore,
-    hasMoreProducts,
-    productsLoading,
-    sortOrder,
-    selectedCategory,
-    isLoadingMore,
-    endCursor,
-  ]);
-
-  // Оптимизированная настройка Intersection Observer для бесконечной прокрутки
-  useEffect(() => {
-    // Проверяем, что мы в браузере
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const currentObserverTarget = observerTarget.current;
-
-    if (!currentObserverTarget || !hasMoreProducts) {
-      return;
-    }
-
-    // Используем IntersectionObserver
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          handleLoadMore();
-        }
-      },
-      { threshold: 0.1, rootMargin: "100px" },
-    );
-
-    observer.observe(currentObserverTarget);
-
-    return () => {
-      if (currentObserverTarget) {
-        observer.unobserve(currentObserverTarget);
       }
-    };
-  }, [handleLoadMore, hasMoreProducts]);
+    },
+  });
 
   // Обработчики событий UI
   const handleCategoryChange = useCallback((categoryId: string) => {
@@ -460,20 +416,12 @@ export default function Home() {
 
             <ProductGrid products={products} />
 
-            {hasMoreProducts && (
-              <div ref={observerTarget} className="my-8 flex justify-center">
-                {productsLoading || isLoadingMore ? (
-                  <div className="animate-spin h-8 w-8 border-2 border-blue-600 rounded-full border-t-transparent"></div>
-                ) : (
-                  <button
-                    onClick={handleLoadMore}
-                    className="px-5 py-2 text-sm text-blue-600 border border-blue-200 rounded-full hover:bg-blue-50 transition-colors"
-                  >
-                    Загрузить еще
-                  </button>
-                )}
+            {infiniteScrollIsLoadingMore && (
+              <div className="flex justify-center mt-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
               </div>
             )}
+            <div ref={infiniteScrollObserverTarget} className="h-1" />
           </div>
         </div>
       </>

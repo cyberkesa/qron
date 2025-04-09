@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "dev:clean": "npx kill-port 3000 && next dev",
+    "dev:clean": "lsof -ti :3000 | xargs kill -9 2>/dev/null || true && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -13,6 +13,7 @@
     "validate-pagination": "node --loader ts-node/esm src/scripts/validatePagination.ts",
     "validate-pagination-usage": "node --loader ts-node/esm src/scripts/validatePaginationUsage.ts",
     "check-imports": "node --loader ts-node/esm src/scripts/checkImports.ts",
+    "validate-all": "npm run validate-queries && npm run validate-pagination && npm run validate-pagination-usage && npm run check-imports",
     "prepare": "husky"
   },
   "lint-staged": {
