@@ -336,21 +336,20 @@ export default function ProductPage({ params }: ProductPageProps) {
         ProductStockAvailabilityStatus.OUT_OF_STOCK;
       setNotAvailableInRegion(isOutOfStock);
     }
-  }, [data?.productBySlug?.stockAvailabilityStatus, currentRegion]);
+  }, [data?.productBySlug, currentRegion]); // Include the full product object
 
   // Устанавливаем начальное количество только при первой загрузке товара
   useEffect(() => {
     if (data?.productBySlug?.quantityMultiplicity && quantity === 1) {
       setQuantity(data.productBySlug.quantityMultiplicity);
     }
-  }, [data?.productBySlug?.quantityMultiplicity]);
+  }, [data?.productBySlug?.quantityMultiplicity, quantity, setQuantity]);
 
-  // Добавляем товар в историю просмотров только один раз при загрузке
   useEffect(() => {
     if (data?.productBySlug) {
       addToHistory(data.productBySlug);
     }
-  }, [data?.productBySlug?.id, addToHistory]); // Зависим только от ID товара
+  }, [data?.productBySlug, addToHistory]); // Use the full object as dependency
 
   // Получаем текущее количество товара в корзине
   const getCurrentCartQuantity = useCallback(() => {
@@ -801,11 +800,21 @@ export default function ProductPage({ params }: ProductPageProps) {
               {product.quantityMultiplicity &&
                 product.quantityMultiplicity > 1 && (
                   <div className="mt-3 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-800">
-                    <span className="flex items-center">
-                      <ExclamationTriangleIcon className="h-4 w-4 mr-1.5 shrink-0" />
-                      Товар продается упаковками по{" "}
-                      {product.quantityMultiplicity} шт.
-                    </span>
+<span className="flex flex-col items-start gap-1.5">
+  <span className="flex items-start">
+    <ExclamationTriangleIcon className="h-4 w-4 mt-0.5 mr-1.5 shrink-0 text-amber-500" />
+    <div className="flex flex-col gap-1">
+      <span className="font-medium">
+        Фасовка: <b className="text-gray-900">{product.quantityMultiplicity} шт. в упаковке</b>
+      </span>
+      <span className="text-sm text-gray-600">
+        ◉ Цена указана за 1 штуку
+        <br />
+        ◉ В корзине считается количеством штук
+      </span>
+    </div>
+  </span>
+</span>
                   </div>
                 )}
             </div>
@@ -869,7 +878,7 @@ export default function ProductPage({ params }: ProductPageProps) {
             >
               Описание
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab("specs")}
               className={`py-4 px-6 text-sm font-medium whitespace-nowrap transition-colors ${
                 activeTab === "specs"
@@ -878,7 +887,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               }`}
             >
               Характеристики
-            </button>
+            </button> */}
             <button
               onClick={() => setActiveTab("delivery")}
               className={`py-4 px-6 text-sm font-medium whitespace-nowrap transition-colors ${
@@ -983,10 +992,6 @@ export default function ProductPage({ params }: ProductPageProps) {
                     Доступны следующие способы оплаты:
                   </p>
                   <ul className="space-y-2">
-                    <li className="flex items-center bg-gray-50 p-3 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                      <span>Оплата онлайн картой на сайте</span>
-                    </li>
                     <li className="flex items-center bg-gray-50 p-3 rounded-lg">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
                       <span>Оплата наличными или картой при получении</span>

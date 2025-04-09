@@ -227,7 +227,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
             {product.quantityMultiplicity &&
               product.quantityMultiplicity > 1 && (
                 <span className="text-xs text-blue-600">
-                  Упаковка: {product.quantityMultiplicity} шт.
+                  Продается по: {product.quantityMultiplicity} шт.
                 </span>
               )}
           </div>

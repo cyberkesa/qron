@@ -1,10 +1,13 @@
 export type ProductSortOrder =
-    |'ALPHABETICALLY'|'CHEAPEST_FIRST'|'EXPENSIVE_FIRST'|'NEWEST_FIRST';
+  | "ALPHABETICALLY"
+  | "CHEAPEST_FIRST"
+  | "EXPENSIVE_FIRST"
+  | "NEWEST_FIRST";
 
 export enum ProductStockAvailabilityStatus {
-  IN_STOCK = 'IN_STOCK',
-  IN_STOCK_SOON = 'IN_STOCK_SOON',
-  OUT_OF_STOCK = 'OUT_OF_STOCK',
+  IN_STOCK = "IN_STOCK",
+  IN_STOCK_SOON = "IN_STOCK_SOON",
+  OUT_OF_STOCK = "OUT_OF_STOCK",
 }
 
 export interface ProductImage {
@@ -65,8 +68,8 @@ export interface Cart {
 
 export interface ProductsResponse {
   products: {
-    edges: {cursor: string; node: Product}[];
-    pageInfo: {hasNextPage: boolean; endCursor: string};
+    edges: { cursor: string; node: Product }[];
+    pageInfo: { hasNextPage: boolean; endCursor: string };
   };
 }
 
@@ -94,13 +97,13 @@ export interface DeliveryAddress {
 }
 
 export enum PaymentMethod {
-  CARD = 'CARD',
-  CASH = 'CASH',
+  CARD = "CARD",
+  CASH = "CASH",
 }
 
 export enum DeliveryMethod {
-  PICKUP = 'PICKUP',
-  DELIVERY = 'DELIVERY',
+  PICKUP = "PICKUP",
+  DELIVERY = "DELIVERY",
 }
 
 export interface OrderItem {
@@ -108,23 +111,25 @@ export interface OrderItem {
   quantity: number;
   decimalUnitPrice: string;
   product?: {
-    id: string; name: string; slug: string;
-    images: {id: string; url: string;}[];
+    id: string;
+    name: string;
+    slug: string;
+    images: { id: string; url: string }[];
   };
 }
 
 export interface OrderItemConnection {
-  edges: {node: OrderItem}[];
+  edges: { node: OrderItem }[];
   totalQuantity: number;
   decimalTotalPrice: string;
 }
 
 export enum OrderStatus {
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  SHIPPED = 'SHIPPED',
-  DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED',
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  SHIPPED = "SHIPPED",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
 }
 
 export interface Order {
@@ -135,13 +140,13 @@ export interface Order {
   deliveryFullAddress: string;
   number: string;
   phoneNumber: string;
-  region: {id: string; name: string};
+  region: { id: string; name: string };
 }
 
 export interface OrdersResponse {
   orders: {
-    edges: {cursor: string; node: Order}[];
-    pageInfo: {hasNextPage: boolean; endCursor: string};
+    edges: { cursor: string; node: Order }[];
+    pageInfo: { hasNextPage: boolean; endCursor: string };
   };
 }
 

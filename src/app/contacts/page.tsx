@@ -168,45 +168,11 @@ export default function ContactsPage() {
                 </div>
                 <div>
                   <h3 className="font-medium text-lg">Реквизиты</h3>
-                  <p className="text-gray-700 mb-1">ООО "КРОН"</p>
+                  <p className="text-gray-700 mb-1">ООО &laquo;КРОН&raquo;</p>
                   <p className="text-gray-700 mb-1">ИНН: 7712345678</p>
                   <p className="text-gray-700">ОГРН: 1157746123456</p>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <h2 className="text-2xl font-bold mb-6">Мы в социальных сетях</h2>
-            <div className="flex space-x-4">
-              <a
-                href="https://vk.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-              >
-                <svg
-                  className="w-6 h-6"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M21.547 7h-3.29a.743.743 0 0 0-.655.392s-1.312 2.416-1.734 3.23c-.42.814-1.407 2.47-1.407 2.47-.12.186-.323.298-.54.298-.217 0-.42-.112-.54-.298V7.72c0-.275-.23-.5-.516-.5h-1.953C11.46 7.22 11.224 7 11 7c-.224 0-.46.22-.46.5v7.96c0 .278.236.5.515.5h1.953c.286 0 .516-.223.516-.5v-2.96c0-.275.224-.5.5-.5s.5.225.5.5v2.96c0 .278.224.5.5.5h1.962c.286 0 .538-.223.538-.5v-5.96c0-.275.224-.5.5-.5s.5.225.5.5v5.96c0 .278.252.5.538.5h1.962c.276 0 .5-.223.5-.5V7.72c0-.275-.224-.5-.5-.5z" />
-                </svg>
-              </a>
-              <a
-                href="https://telegram.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-400 text-white hover:bg-blue-500 transition-colors"
-              >
-                <svg
-                  className="w-6 h-6"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M9.417 15.181L9.237 18.29c.248 0 .354-.102.483-.224l1.164-1.08 2.408 1.709c.443.245.765.118.881-.396l1.593-7.435c.143-.67-.243-.975-.66-.781L5.563 13.667c-.65.245-.645.625-.118.788l2.409.751 5.595-3.396c.262-.161.505-.075.306.102l-4.338 3.76z" />
-                </svg>
-              </a>
             </div>
           </div>
         </div>

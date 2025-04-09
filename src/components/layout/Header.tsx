@@ -158,7 +158,7 @@ const UserMenu = memo(
         </div>
         <Link
           href="/profile"
-          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
           onClick={onClose}
         >
           <UserIcon className="h-4 w-4 mr-2 text-gray-500" />
@@ -166,7 +166,7 @@ const UserMenu = memo(
         </Link>
         <Link
           href="/orders"
-          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
           onClick={onClose}
         >
           <TruckIcon className="h-4 w-4 mr-2 text-gray-500" />
@@ -235,7 +235,7 @@ export default function Header() {
     setIsUserMenuOpen(false);
   }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       const result = await logout();
       if (result.data?.logOut?.__typename === "LogOutSuccessResult") {
@@ -253,7 +253,7 @@ export default function Header() {
     } catch (error) {
       console.error("Error during logout:", error);
     }
-  };
+  }, [logout, handleCloseMenus, router]); // Add all dependencies used inside the callback
 
   // Проверка авторизации и загрузка региона при монтировании
   useEffect(() => {

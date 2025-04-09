@@ -12,6 +12,13 @@ export interface Notification {
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
+  // Удаление уведомления по ID
+  const dismissNotification = useCallback((id: string) => {
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id),
+    );
+  }, []);
+
   // Добавление нового уведомления
   const showNotification = useCallback(
     (
@@ -33,15 +40,8 @@ export function useNotifications() {
 
       return id;
     },
-    [],
+    [dismissNotification], // Added dependency here
   );
-
-  // Удаление уведомления по ID
-  const dismissNotification = useCallback((id: string) => {
-    setNotifications((prev) =>
-      prev.filter((notification) => notification.id !== id),
-    );
-  }, []);
 
   // Специализированные методы для разных типов уведомлений
   const showSuccess = useCallback(
@@ -88,3 +88,5 @@ export function useNotifications() {
     clearAllNotifications,
   };
 }
+
+export default useNotifications;

@@ -6,6 +6,23 @@ import { GET_ORDERS } from "@/lib/queries";
 import { OrdersList } from "@/components/order/OrdersList";
 import { OrderStatus } from "@/types/api";
 
+type StatusOption = {
+  value: OrderStatus | null;
+  label: string;
+};
+
+const STATUS_OPTIONS: StatusOption[] = [
+  { value: null, label: "Все" },
+  { value: OrderStatus.PENDING, label: "Ожидает обработки" },
+  { value: OrderStatus.PROCESSING, label: "В обработке" },
+  { value: OrderStatus.SHIPPED, label: "Отправлен" },
+  { value: OrderStatus.DELIVERED, label: "Доставлен" },
+  { value: OrderStatus.CANCELLED, label: "Отменен" },
+];
+
+const ACTIVE_BUTTON_STYLE = "bg-blue-600 text-white";
+const INACTIVE_BUTTON_STYLE = "bg-gray-100 text-gray-700 hover:bg-gray-200";
+
 export default function OrdersPage() {
   const [activeStatus, setActiveStatus] = useState<OrderStatus | null>(null);
 
@@ -18,7 +35,7 @@ export default function OrdersPage() {
   });
 
   const handleLoadMore = () => {
-    if (data?.orders?.pageInfo?.hasNextPage) {
+    if (!loading && data?.orders?.pageInfo?.hasNextPage) {
       fetchMore({
         variables: {
           after: data.orders.pageInfo.endCursor,
@@ -28,28 +45,24 @@ export default function OrdersPage() {
     }
   };
 
-  const statuses: Array<{ value: OrderStatus | null; label: string }> = [
-    { value: null, label: "Все" },
-    { value: OrderStatus.PENDING, label: "Ожидает обработки" },
-    { value: OrderStatus.PROCESSING, label: "В обработке" },
-    { value: OrderStatus.SHIPPED, label: "Отправлен" },
-    { value: OrderStatus.DELIVERED, label: "Доставлен" },
-    { value: OrderStatus.CANCELLED, label: "Отменен" },
-  ];
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">Мои заказы</h1>
 
-      <div className="mb-6 flex space-x-2 overflow-x-auto pb-2">
-        {statuses.map((status) => (
+      <div 
+        role="tablist"
+        className="mb-6 flex space-x-2 overflow-x-auto pb-2"
+      >
+        {STATUS_OPTIONS.map((status) => (
           <button
             key={status.value || "all"}
+            role="tab"
+            aria-selected={activeStatus === status.value}
             onClick={() => setActiveStatus(status.value)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
               activeStatus === status.value
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                ? ACTIVE_BUTTON_STYLE
+                : INACTIVE_BUTTON_STYLE
             }`}
           >
             {status.label}

@@ -150,7 +150,7 @@ export function Cart() {
                 {item.product.quantityMultiplicity &&
                   item.product.quantityMultiplicity > 1 && (
                     <div className="text-xs text-gray-500 mt-1">
-                      Упаковка: {item.product.quantityMultiplicity} шт.
+                      Продается по: {item.product.quantityMultiplicity} шт.
                     </div>
                   )}
               </div>

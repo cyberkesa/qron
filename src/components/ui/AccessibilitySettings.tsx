@@ -42,11 +42,16 @@ export function AccessibilitySettings(): JSX.Element {
   useEffect(() => {
     if (isHighContrast) {
       document.documentElement.classList.add("high-contrast");
+    } else {
+      document.documentElement.classList.remove("high-contrast");
     }
+
     if (isKeyboardNav) {
       document.documentElement.setAttribute("data-keyboard-nav", "true");
+    } else {
+      document.documentElement.removeAttribute("data-keyboard-nav");
     }
-  }, []);
+  }, [isHighContrast, isKeyboardNav]); // Added dependencies here
 
   const toggleContrast = (): void => {
     const newValue = !isHighContrast;
