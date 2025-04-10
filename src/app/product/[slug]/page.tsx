@@ -23,11 +23,14 @@ import {
   ChevronRightIcon,
   PlusIcon,
   MinusIcon,
+  CreditCardIcon,
   TruckIcon,
   ShieldCheckIcon,
   ArrowsPointingOutIcon,
+  CheckBadgeIcon,
   PhotoIcon,
   CurrencyRupeeIcon,
+  StarIcon,
   ChevronLeftIcon,
 } from "@heroicons/react/24/outline";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
@@ -94,7 +97,7 @@ const ProductImageGallery = React.memo(
 
     return (
       <div className="flex flex-col space-y-4 relative md:sticky md:top-4 sm:pb-6">
-        <div className="bg-gray-50 rounded-xl overflow-hidden aspect-square relative">
+        <div className="rounded-xl overflow-hidden aspect-square relative">
           {currentImage ? (
             <>
               <Image
@@ -800,68 +803,81 @@ export default function ProductPage({ params }: ProductPageProps) {
               {product.quantityMultiplicity &&
                 product.quantityMultiplicity > 1 && (
                   <div className="mt-3 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-800">
-<span className="flex flex-col items-start gap-1.5">
-  <span className="flex items-start">
-    <ExclamationTriangleIcon className="h-4 w-4 mt-0.5 mr-1.5 shrink-0 text-amber-500" />
-    <div className="flex flex-col gap-1">
-      <span className="font-medium">
-        Фасовка: <b className="text-gray-900">{product.quantityMultiplicity} шт. в упаковке</b>
-      </span>
-      <span className="text-sm text-gray-600">
-        ◉ Цена указана за 1 штуку
-        <br />
-        ◉ В корзине считается количеством штук
-      </span>
-    </div>
-  </span>
-</span>
+                    <span className="flex flex-col items-start gap-1.5">
+                      <span className="flex items-start">
+                        <ExclamationTriangleIcon className="h-4 w-4 mt-0.5 mr-1.5 shrink-0 text-amber-500" />
+                        <div className="flex flex-col gap-1">
+                          <span className="font-medium">
+                            Фасовка:{" "}
+                            <b className="text-gray-900">
+                              {product.quantityMultiplicity} шт. в упаковке
+                            </b>
+                          </span>
+                          <span className="text-sm text-gray-600">
+                            ◉ Цена указана за 1 шт.
+                            <br />◉ В корзине считается количеством шт.
+                          </span>
+                        </div>
+                      </span>
+                    </span>
                   </div>
                 )}
             </div>
 
             {/* Блок с преимуществами */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-                <TruckIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-900 text-sm">
-                    Быстрая доставка
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    От 1 дня по всей России
-                  </p>
-                </div>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-                <ShieldCheckIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-900 text-sm">
-                    Гарантия качества
-                  </h3>
-                  <p className="text-xs text-gray-500">На все товары</p>
-                </div>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-                <CurrencyRupeeIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-900 text-sm">
-                    Удобная оплата
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    Онлайн или при получении
-                  </p>
-                </div>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-                <ArrowsPointingOutIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-900 text-sm">
-                    Возврат товара
-                  </h3>
-                  <p className="text-xs text-gray-500">В течение 14 дней</p>
-                </div>
-              </div>
-            </div>
+  {/* <!-- 1 --> */}
+  <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
+    <ShieldCheckIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
+    <div>
+      <h3 className="font-medium text-gray-900 text-sm">
+        Original products only
+      </h3>
+      <p className="text-xs text-gray-500">
+        Direct from manufacturers
+      </p>
+    </div>
+  </div>
+
+  {/* <!-- 2 --> */}
+  <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
+    <StarIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
+    <div>
+      <h3 className="font-medium text-gray-900 text-sm">
+        Certified quality
+      </h3>
+      <p className="text-xs text-gray-500">
+        Warranty included
+      </p>
+    </div>
+  </div>
+
+  {/* <!-- 3 --> */}
+  <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
+    <CreditCardIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
+    <div>
+      <h3 className="font-medium text-gray-900 text-sm">
+        Secure payment
+      </h3>
+      <p className="text-xs text-gray-500">
+        Cards, crypto, wire transfer
+      </p>
+    </div>
+  </div>
+
+  {/* <!-- 4 --> */}
+  <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
+    <CheckBadgeIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
+    <div>
+      <h3 className="font-medium text-gray-900 text-sm">
+        Official dealer
+      </h3>
+      <p className="text-xs text-gray-500">
+        No intermediaries
+      </p>
+    </div>
+  </div>
+</div>
           </div>
         </div>
 

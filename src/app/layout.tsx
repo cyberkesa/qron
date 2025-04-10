@@ -1,7 +1,6 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import ClientLayout from "./client-layout";
-import { AccessibilitySettings } from "@/components/ui/AccessibilitySettings";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import Script from "next/script";
 
@@ -41,7 +40,6 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ClientLayout>{children}</ClientLayout>
-        <AccessibilitySettings />
         <ScrollToTop />
         <Script
           src="https://api-maps.yandex.ru/2.1/?apikey=0a1aee5c-636b-4e86-8a79-fcaece99de92&lang=ru_RU"

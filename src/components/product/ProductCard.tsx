@@ -131,9 +131,9 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
               <span className="w-1.5 h-1.5 bg-white rounded-full mr-1 inline-block"></span>
               Нет в наличии
             </span>
-            <div className="mt-1 bg-white/90 border border-gray-200 shadow-sm text-xs text-gray-700 px-2 py-1 rounded-full">
+            {/* <div className="mt-1 bg-white/90 border border-gray-200 shadow-sm text-xs text-gray-700 px-2 py-1 rounded-full">
               Проверьте другие регионы
-            </div>
+            </div> */}
           </div>
         );
       default:
@@ -176,7 +176,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
       {getStockStatusBadge()}
 
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="h-48 overflow-hidden relative flex items-center justify-center p-4 bg-gray-50">
+        <div className="h-48 overflow-hidden relative flex items-center justify-center p-4">
           {product.images && product.images.length > 0 ? (
             <Image
               src={product.images[0].url}

@@ -138,7 +138,9 @@ export function Footer() {
               <li className="flex items-start">
                 <MapPinIcon className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
                 <div>
-                  <p className="text-white">г. Москва, Домодедовское шоссе, 4-й километр, 15Б</p>
+                  <p className="text-white">
+                    г. Москва, Домодедовское шоссе, 4-й километр, 15Б
+                  </p>
                   <p className="text-gray-400 text-xs">Офис и пункт выдачи</p>
                 </div>
               </li>

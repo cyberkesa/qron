@@ -49,10 +49,7 @@ export default function OrdersPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">Мои заказы</h1>
 
-      <div 
-        role="tablist"
-        className="mb-6 flex space-x-2 overflow-x-auto pb-2"
-      >
+      <div role="tablist" className="mb-6 flex space-x-2 overflow-x-auto pb-2">
         {STATUS_OPTIONS.map((status) => (
           <button
             key={status.value || "all"}
