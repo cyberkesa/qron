@@ -18,8 +18,8 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
+      "prettier --write",
+      "next lint --fix --file"
     ]
   },
   "dependencies": {
@@ -31,7 +31,7 @@
     "clsx": "^2.1.1",
     "glob": "^11.0.1",
     "graphql": "^16.10.0",
-    "next": "15.2.4",
+    "next": "^15.2.5",
     "node-fetch": "^3.3.2",
     "react": "^18",
     "react-dom": "^18",
@@ -40,9 +40,9 @@
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
-    "@types/node": "^20",
+    "@types/node": "^22.14.0",
     "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react-dom": "^19.1.2",
     "@typescript-eslint/eslint-plugin": "^8.29.1",
     "@typescript-eslint/parser": "^8.29.1",
     "autoprefixer": "^10.4.21",

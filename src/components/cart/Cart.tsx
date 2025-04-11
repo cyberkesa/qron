@@ -4,6 +4,7 @@ import {
   ShoppingBagIcon,
   ArrowRightIcon,
   TrashIcon,
+  ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
@@ -15,9 +16,62 @@ import {
 import { CartItemUnified } from "@/lib/hooks/useCart";
 import { useCartContext } from "@/lib/providers/CartProvider";
 import { QuantityCounter } from "@/components/ui/QuantityCounter";
+import { ConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 
 export function Cart() {
-  const { cart, isLoading, updateQuantity, removeFromCart } = useCartContext();
+  const { cart, isLoading, updateQuantity, removeFromCart, clearCart, error } =
+    useCartContext();
+
+  // State for confirmation dialogs
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isClearCartDialogOpen, setIsClearCartDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
+  // Локальное состояние для отслеживания операций
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+  const [operationError, setOperationError] = useState<string | null>(null);
+
+  // Handler for opening the delete item confirmation dialog
+  const handleDeleteItem = (productId: string) => {
+    setItemToDelete(productId);
+    setIsDeleteDialogOpen(true);
+    // Сбрасываем ошибку при новой операции
+    setOperationError(null);
+  };
+
+  // Handler for confirming item deletion
+  const confirmDeleteItem = async () => {
+    if (itemToDelete) {
+      try {
+        setIsRemoving(true);
+        await removeFromCart(itemToDelete);
+        setItemToDelete(null);
+      } catch (error) {
+        console.error("Error when removing item:", error);
+        setOperationError(
+          "Не удалось удалить товар. Попробуйте еще раз позже.",
+        );
+      } finally {
+        setIsRemoving(false);
+      }
+    }
+  };
+
+  // Handler for confirming cart clearing
+  const confirmClearCart = async () => {
+    try {
+      setIsClearing(true);
+      await clearCart();
+    } catch (error) {
+      console.error("Error when clearing cart:", error);
+      setOperationError(
+        "Не удалось очистить корзину. Попробуйте еще раз позже.",
+      );
+    } finally {
+      setIsClearing(false);
+    }
+  };
 
   // Показываем индикатор загрузки, пока данные корзины не загружены
   if (isLoading) {
@@ -56,11 +110,47 @@ export function Cart() {
 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      {/* Отображение ошибок */}
+      {(operationError || error) && (
+        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <ExclamationCircleIcon
+                className="h-5 w-5 text-red-400"
+                aria-hidden="true"
+              />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">
+                {operationError ||
+                  "Произошла ошибка при работе с корзиной. Попробуйте позже."}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-white">
-        <h2 className="text-2xl font-bold text-gray-900">Корзина</h2>
-        <p className="text-gray-600 mt-1">
-          Товаров в корзине: {cart.totalItems}
-        </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Корзина</h2>
+            <p className="text-gray-600 mt-1">
+              Товаров в корзине: {cart.totalItems}
+            </p>
+          </div>
+          <button
+            onClick={() => setIsClearCartDialogOpen(true)}
+            className="px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-md hover:bg-red-50 transition-colors flex items-center"
+            disabled={isClearing}
+          >
+            {isClearing ? (
+              <div className="h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+            ) : (
+              <TrashIcon className="h-4 w-4 mr-2" />
+            )}
+            Очистить корзину
+          </button>
+        </div>
       </div>
 
       {/* Заголовок таблицы товаров */}
@@ -105,11 +195,16 @@ export function Cart() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    removeFromCart(item.product.id);
+                    handleDeleteItem(item.product.id);
                   }}
                   className="mt-2 inline-flex items-center text-sm text-red-600 hover:text-red-800 transition-colors"
+                  disabled={isRemoving && itemToDelete === item.product.id}
                 >
-                  <TrashIcon className="h-4 w-4 mr-1" />
+                  {isRemoving && itemToDelete === item.product.id ? (
+                    <div className="h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-1"></div>
+                  ) : (
+                    <TrashIcon className="h-4 w-4 mr-1" />
+                  )}
                   <span>Удалить</span>
                 </button>
               </div>
@@ -199,6 +294,30 @@ export function Cart() {
           </Link>
         </div>
       </div>
+
+      {/* Delete item confirmation dialog */}
+      <ConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={confirmDeleteItem}
+        title="Удаление товара"
+        message="Вы уверены, что хотите удалить этот товар из корзины?"
+        confirmText="Удалить"
+        cancelText="Отмена"
+        isDanger={true}
+      />
+
+      {/* Clear cart confirmation dialog */}
+      <ConfirmationDialog
+        isOpen={isClearCartDialogOpen}
+        onClose={() => setIsClearCartDialogOpen(false)}
+        onConfirm={confirmClearCart}
+        title="Очистка корзины"
+        message="Вы уверены, что хотите удалить все товары из корзины? Это действие нельзя будет отменить."
+        confirmText="Очистить корзину"
+        cancelText="Отмена"
+        isDanger={true}
+      />
     </div>
   );
 }

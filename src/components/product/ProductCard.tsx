@@ -112,29 +112,24 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
     switch (product.stockAvailabilityStatus) {
       case ProductStockAvailabilityStatus.IN_STOCK:
         return (
-          <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full z-10 flex items-center">
-            <span className="w-1.5 h-1.5 bg-white rounded-full mr-1 inline-block"></span>
+          <span className="absolute top-2 right-2 bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded z-10 flex items-center">
+            <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 inline-block"></span>
             В наличии
           </span>
         );
       case ProductStockAvailabilityStatus.IN_STOCK_SOON:
         return (
-          <span className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded-full z-10 flex items-center">
-            <span className="w-1.5 h-1.5 bg-white rounded-full mr-1 inline-block"></span>
-            Ожидается поступление
+          <span className="absolute top-2 right-2 bg-yellow-100 text-amber-700 text-xs font-medium px-2 py-0.5 rounded z-10 flex items-center">
+            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mr-1 inline-block"></span>
+            Скоро в наличии
           </span>
         );
       case ProductStockAvailabilityStatus.OUT_OF_STOCK:
         return (
-          <div className="absolute top-2 left-2 z-10">
-            <span className="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center">
-              <span className="w-1.5 h-1.5 bg-white rounded-full mr-1 inline-block"></span>
-              Нет в наличии
-            </span>
-            {/* <div className="mt-1 bg-white/90 border border-gray-200 shadow-sm text-xs text-gray-700 px-2 py-1 rounded-full">
-              Проверьте другие регионы
-            </div> */}
-          </div>
+          <span className="absolute top-2 right-2 bg-gray-100 text-gray-700 text-xs font-medium px-2 py-0.5 rounded z-10 flex items-center">
+            <span className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1 inline-block"></span>
+            Нет в наличии
+          </span>
         );
       default:
         return null;
@@ -171,30 +166,74 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
     product.stockAvailabilityStatus ===
     ProductStockAvailabilityStatus.OUT_OF_STOCK;
 
+  // Стили для карточки на основе доступности товара
+  const cardClassName = useMemo(() => {
+    const baseClasses =
+      "group rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-md relative h-full flex flex-col";
+
+    if (isOutOfStock) {
+      return `${baseClasses} bg-gray-50 opacity-80`;
+    }
+
+    return `${baseClasses} bg-white`;
+  }, [isOutOfStock]);
+
+  const contentClassName = useMemo(() => {
+    const baseClasses = "p-4 flex flex-col flex-grow z-10";
+
+    if (isOutOfStock) {
+      return `${baseClasses} bg-gray-50`;
+    }
+
+    return `${baseClasses} bg-white`;
+  }, [isOutOfStock]);
+
+  const titleClassName = useMemo(() => {
+    const baseClasses =
+      "text-base font-medium line-clamp-2 mb-2 min-h-[2.5rem] group-hover:text-blue-600 transition-colors";
+
+    if (isOutOfStock) {
+      return `${baseClasses} text-gray-600`;
+    }
+
+    return `${baseClasses} text-gray-800`;
+  }, [isOutOfStock]);
+
+  const priceClassName = useMemo(() => {
+    const baseClasses = "text-lg font-semibold";
+
+    if (isOutOfStock) {
+      return `${baseClasses} text-gray-600`;
+    }
+
+    return `${baseClasses} text-gray-900`;
+  }, [isOutOfStock]);
+
   return (
-    <div className="group bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl relative h-full flex flex-col">
+    <div className={cardClassName}>
       {getStockStatusBadge()}
 
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="h-48 overflow-hidden relative flex items-center justify-center p-4">
+        <div className="h-48 overflow-hidden relative flex items-center justify-center p-4 bg-white">
           {product.images && product.images.length > 0 ? (
             <Image
               src={product.images[0].url}
               alt={product.name}
-              className="object-contain transition-transform duration-500 group-hover:scale-110 p-3"
-              width={400}
-              height={400}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className={`object-contain w-full h-full transition-transform duration-300 group-hover:scale-105 ${isOutOfStock ? "filter grayscale opacity-70" : ""}`}
+              width={200}
+              height={200}
+              priority={false}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
             />
           ) : (
-            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-              <span className="text-gray-400">Нет изображения</span>
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
+              <span className="text-gray-400 text-sm">Нет изображения</span>
             </div>
           )}
         </div>
       </Link>
 
-      <div className="p-4 flex flex-col flex-grow bg-white z-10">
+      <div className={contentClassName}>
         {product.category && (
           <Link
             href={`/categories/${product.category.slug}`}
@@ -205,72 +244,66 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
           </Link>
         )}
 
-        <Link
-          href={`/product/${product.slug}`}
-          className="no-underline group-hover:text-blue-600 transition-colors"
-        >
-          <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mb-2 min-h-[2.5rem]">
-            {product.name}
-          </h3>
+        <Link href={`/product/${product.slug}`} className="flex-grow">
+          <h3 className={titleClassName}>{product.name}</h3>
         </Link>
 
-        <div className="flex justify-between items-center mt-auto pt-3 border-t border-gray-100">
-          <div className="flex flex-col">
-            <span className="text-lg font-bold text-gray-900">
-              {formattedPrice}
-            </span>
-            {formattedOldPrice && (
-              <span className="text-sm text-gray-500 line-through">
-                {formattedOldPrice}
-              </span>
-            )}
-            {product.quantityMultiplicity &&
-              product.quantityMultiplicity > 1 && (
-                <span className="text-xs text-blue-600">
-                  Продается по: {product.quantityMultiplicity} шт.
-                </span>
-              )}
+        {product.quantityMultiplicity && product.quantityMultiplicity > 1 && (
+          <div className="mt-1 text-xs text-gray-500">
+            Продается по {product.quantityMultiplicity} шт
           </div>
+        )}
 
-          {currentCartQuantity > 0 ? (
-            <QuantityCounter
-              quantity={currentCartQuantity}
-              minQuantity={product.quantityMultiplicity || 1}
-              onIncrement={() => handleUpdateQuantity(1)}
-              onDecrement={() => handleUpdateQuantity(-1)}
-              isLoading={isAddingToCart}
-            />
-          ) : (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleUpdateQuantity(1);
-              }}
-              disabled={isAddingToCart || isOutOfStock}
-              className={`p-3 rounded-full transition-all ${
-                isOutOfStock
-                  ? "bg-gray-200 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg active:scale-95 transform"
-              }`}
-              aria-label="Добавить в корзину"
-            >
-              {isAddingToCart ? (
-                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
-              ) : (
-                <ShoppingCartIcon className="h-5 w-5" />
+        <div className="mt-auto">
+          <div className="flex justify-between items-end mt-2">
+            <div>
+              {formattedOldPrice && (
+                <div className="text-xs text-gray-500 line-through">
+                  {formattedOldPrice}
+                </div>
               )}
-            </button>
-          )}
+              <div className={priceClassName}>{formattedPrice}</div>
+            </div>
+
+            {!isOutOfStock && currentCartQuantity > 0 ? (
+              <QuantityCounter
+                quantity={currentCartQuantity}
+                minQuantity={product.quantityMultiplicity || 1}
+                onIncrement={() => handleUpdateQuantity(1)}
+                onDecrement={() => handleUpdateQuantity(-1)}
+                isLoading={isAddingToCart}
+              />
+            ) : (
+              <button
+                onClick={() => handleUpdateQuantity(1)}
+                disabled={isAddingToCart || isOutOfStock}
+                className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
+                  isOutOfStock
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                }`}
+                aria-label="Добавить в корзину"
+              >
+                {isAddingToCart ? (
+                  <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <ShoppingCartIcon className="h-5 w-5" />
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      <Notification
-        message="Товар добавлен в корзину"
-        type="success"
-        isVisible={showNotification}
-        onClose={() => setShowNotification(false)}
-      />
+      {showNotification && (
+        <Notification
+          type="success"
+          message="Товар добавлен в корзину"
+          isVisible={showNotification}
+          onClose={() => setShowNotification(false)}
+          duration={2000}
+        />
+      )}
     </div>
   );
 }

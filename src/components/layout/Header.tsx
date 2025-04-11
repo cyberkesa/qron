@@ -105,6 +105,12 @@ const CategoryNav = memo(({ categories }: { categories: Category[] }) => (
     <div className="container mx-auto px-4">
       <nav className="flex space-x-6 text-sm py-2 overflow-x-auto">
         <Link
+          href="/catalog"
+          className="text-gray-700 hover:text-blue-600 py-2 whitespace-nowrap font-medium"
+        >
+          Каталог
+        </Link>
+        <Link
           href="/categories"
           className="text-gray-700 hover:text-blue-600 py-2 whitespace-nowrap"
         >
@@ -186,6 +192,65 @@ const UserMenu = memo(
 );
 
 UserMenu.displayName = "UserMenu";
+
+// Компонент для главной части хедера с логотипом, поиском и корзиной
+const MainHeader = memo(
+  ({
+    isLoggedIn,
+    cartItemsCount,
+    onToggleUserMenu,
+    userInfo,
+    authLinks,
+  }: {
+    isLoggedIn: boolean;
+    cartItemsCount: number;
+    onToggleUserMenu: () => void;
+    userInfo: { name: string | undefined; email: string | undefined };
+    authLinks: React.ReactNode;
+  }) => (
+    <div className="py-4 border-b border-gray-200 bg-white">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between">
+          {/* Логотип */}
+          <Link href="/" className="flex-shrink-0">
+            <h1 className="text-2xl font-bold text-blue-600">Qron Shop</h1>
+          </Link>
+
+          {/* Строка поиска - расширяется на всю доступную ширину */}
+          <div className="flex-grow mx-6 max-w-2xl hidden md:block">
+            <SearchForm />
+          </div>
+
+          {/* Иконки корзины и профиля */}
+          <div className="flex items-center space-x-4">
+            {/* Иконка корзины */}
+            <Link
+              href="/cart"
+              className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors"
+            >
+              <ShoppingCartIcon className="h-6 w-6" />
+              {cartItemsCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  {cartItemsCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Кнопки авторизации */}
+            {authLinks}
+          </div>
+        </div>
+
+        {/* Мобильная строка поиска (видна только на мобильных) */}
+        <div className="mt-4 md:hidden">
+          <SearchForm />
+        </div>
+      </div>
+    </div>
+  ),
+);
+
+MainHeader.displayName = "MainHeader";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -381,6 +446,13 @@ export default function Header() {
               Главная
             </MobileNavLink>
             <MobileNavLink
+              href="/catalog"
+              active={pathname === "/catalog"}
+              onClick={handleCloseMenus}
+            >
+              Каталог товаров
+            </MobileNavLink>
+            <MobileNavLink
               href="/categories"
               active={pathname === "/categories"}
               onClick={handleCloseMenus}
@@ -454,75 +526,101 @@ export default function Header() {
   }, [isMenuOpen, pathname, isLoggedIn, handleCloseMenus]);
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-30">
-      {/* Верхняя полоса с контактами */}
+    <header className="sticky top-0 z-40 bg-white shadow-sm">
+      {/* Верхняя плашка с регионом и контактами */}
       <TopBar regionContacts={regionContacts} />
 
-      {/* Основной хедер */}
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          {/* Логотип */}
-          <div className="flex items-center">
-            <Link
-              href="/"
-              className="text-2xl font-bold text-blue-600 mr-2 flex items-center"
-              onClick={handleCloseMenus}
-            >
-              <span className="bg-blue-600 text-white p-1 rounded mr-1">
-                КРОН
-              </span>
-              <span className="text-gray-700">Маркет</span>
-            </Link>
-          </div>
-
-          {/* Поиск на десктопе */}
-          <div className="hidden md:block flex-grow mx-8 max-w-2xl">
-            <SearchForm />
-          </div>
-
-          {/* Кнопки пользователя */}
-          <div className="flex items-center space-x-1 md:space-x-4">
-            {authLinks}
-
-            <Link
-              href="/cart"
-              className="relative flex items-center text-gray-700 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
-              onClick={handleCloseMenus}
-            >
-              <ShoppingCartIcon className="h-6 w-6" />
-              {cartItemsCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartItemsCount}
-                </span>
-              )}
-              <span className="ml-1 hidden md:inline">Корзина</span>
-            </Link>
-
-            <button
-              onClick={toggleMenu}
-              className="md:hidden text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors focus:outline-none"
-              aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"}
-            >
-              {isMenuOpen ? (
-                <XMarkIcon className="h-6 w-6" />
-              ) : (
-                <Bars3Icon className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Поиск на мобильных */}
-        <div className={`mt-4 md:hidden ${isMenuOpen ? "block" : "hidden"}`}>
-          <SearchForm />
-        </div>
-      </div>
-
-      {/* Мобильное меню */}
-      {mobileMenu}
+      {/* Основная часть с логотипом, поиском, корзиной */}
+      <MainHeader
+        isLoggedIn={isLoggedIn}
+        cartItemsCount={cartItemsCount}
+        onToggleUserMenu={toggleUserMenu}
+        userInfo={userInfo}
+        authLinks={authLinks}
+      />
 
       {/* Навигация по категориям */}
       <CategoryNav categories={categories} />
+
+      {/* Мобильное меню (отображается при открытии) */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50"
+          onClick={handleCloseMenus}
+        >
+          <div
+            className="absolute top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white overflow-auto p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-4">
+              <h2 className="text-lg font-medium">Меню</h2>
+              <button
+                onClick={handleCloseMenus}
+                className="p-2 text-gray-500 hover:text-gray-700"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+
+            <nav>
+              <ul className="space-y-2">
+                <MobileNavLink
+                  href="/catalog"
+                  active={pathname === "/catalog"}
+                  onClick={handleCloseMenus}
+                >
+                  Каталог
+                </MobileNavLink>
+                <MobileNavLink
+                  href="/profile"
+                  active={pathname === "/profile"}
+                  onClick={handleCloseMenus}
+                >
+                  Мой профиль
+                </MobileNavLink>
+                <MobileNavLink
+                  href="/orders"
+                  active={pathname === "/orders"}
+                  onClick={handleCloseMenus}
+                >
+                  Мои заказы
+                </MobileNavLink>
+                <MobileNavLink
+                  href="/delivery"
+                  active={pathname === "/delivery"}
+                  onClick={handleCloseMenus}
+                >
+                  Доставка
+                </MobileNavLink>
+                <MobileNavLink
+                  href="/about"
+                  active={pathname === "/about"}
+                  onClick={handleCloseMenus}
+                >
+                  О компании
+                </MobileNavLink>
+                <MobileNavLink
+                  href="/contacts"
+                  active={pathname === "/contacts"}
+                  onClick={handleCloseMenus}
+                >
+                  Контакты
+                </MobileNavLink>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      )}
+
+      {/* Меню пользователя */}
+      <div ref={profileMenuRef} className="relative">
+        <UserMenu
+          isOpen={isUserMenuOpen}
+          userInfo={userInfo}
+          onClose={handleCloseMenus}
+          onLogout={handleLogout}
+        />
+      </div>
     </header>
   );
 }

@@ -72,7 +72,7 @@ export const ProductSorter = ({
 
       {/* Выпадающий список для опций сортировки */}
       {isOpen && (
-        <div className="absolute mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 py-1 max-h-60 overflow-auto">
+        <div className="absolute mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1 max-h-60 overflow-auto">
           {sortOptions.map((option) => (
             <button
               key={option.value}

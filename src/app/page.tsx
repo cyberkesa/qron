@@ -25,6 +25,7 @@ import {
   AdjustmentsHorizontalIcon,
   ArrowRightIcon,
   BuildingStorefrontIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 
 import { ProductCarousel } from "@/components/product/ProductCarousel";
@@ -37,7 +38,10 @@ const ProductGrid = memo(({ products }: { products: Product[] }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {products.map((product, index) => (
-        <ProductCard key={`grid-${product.id}-${index}`} product={product} />
+        <ProductCard
+          key={`home-${product.id}-${index}-${Math.random().toString(36).substring(2, 9)}`}
+          product={product}
+        />
       ))}
     </div>
   );
@@ -96,7 +100,8 @@ const Banner = memo(() => {
         <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-6 text-white shadow-md flex flex-col">
           <div className="text-2xl font-bold mb-2">Более 1000+</div>
           <p className="text-amber-100 text-sm mb-auto">
-            Товаров для строительства и ремонта с возможностью быстрой доставки
+            Единиц оборудования и инвентаря для строительства, садоводства и
+            домашнего хозяйства
           </p>
           <Link
             href="/about"
@@ -146,7 +151,7 @@ export default function Home() {
     fetchMore,
   } = useQuery(GET_PRODUCTS, {
     variables: {
-      first: 16, // Загружаем по 16 товаров за раз
+      first: 48, // Загружаем по 48 товаров за раз
       sortOrder,
       categoryId: selectedCategory || undefined,
     },
@@ -201,12 +206,14 @@ export default function Home() {
           (edge: { node: Product }) => edge.node,
         ) || [];
 
-      // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
+      // Если включен фильтр "скрыть товары не в наличии", отфильтровываем их
       if (hideOutOfStock) {
         return allProducts.filter(
           (product: Product) =>
-            product.stockAvailabilityStatus !==
-            ProductStockAvailabilityStatus.OUT_OF_STOCK,
+            product.stockAvailabilityStatus ===
+              ProductStockAvailabilityStatus.IN_STOCK ||
+            product.stockAvailabilityStatus ===
+              ProductStockAvailabilityStatus.IN_STOCK_SOON,
         );
       }
 
@@ -254,10 +261,7 @@ export default function Home() {
   );
 
   // Получаем общее количество товаров
-  const totalProductsCount = useMemo(
-    () => productsData?.products?.totalCount || products.length,
-    [productsData?.products?.totalCount, products.length],
-  );
+  const totalProductsCount = useMemo(() => products.length, [products.length]);
 
   // Получение/установка региона - безопасно для SSR
   useEffect(() => {
@@ -353,75 +357,166 @@ export default function Home() {
       );
     }
 
-    if (products.length === 0 && !isDataLoading) {
-      return (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center my-8">
-          <h2 className="text-lg font-medium text-yellow-800 mb-3">
-            Товары не найдены
-          </h2>
-          <p className="text-yellow-700 mb-4">
-            По вашему запросу не найдено товаров. Попробуйте изменить параметры
-            фильтрации или выбрать другую категорию.
-          </p>
-          <button
-            onClick={() => {
-              setSelectedCategory("");
-              setSortOrder("NEWEST_FIRST");
-              setHideOutOfStock(false);
-            }}
-            className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors"
-          >
-            Сбросить фильтры
-          </button>
-        </div>
-      );
-    }
-
     return (
       <>
         <Banner />
 
         <BestDeals products={bestDeals} />
 
-        <div className="mb-6 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">Каталог товаров</h2>
-          <button
-            onClick={toggleMobileFilters}
-            className="md:hidden flex items-center rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white hover:bg-gray-50"
-          >
-            <AdjustmentsHorizontalIcon className="h-5 w-5 mr-1 text-gray-600" />
-            Фильтры
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8 mb-12">
-          <ProductFilters
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategoryChange={handleCategoryChange}
-            sortOrder={sortOrder}
-            onSortChange={handleSortChange}
-            hideOutOfStock={hideOutOfStock}
-            onStockFilterChange={handleStockFilterChange}
-            showMobileFilters={showMobileFilters}
-            onCloseMobileFilters={toggleMobileFilters}
-          />
-
-          <div>
-            <div className="mb-4 flex justify-between items-center">
-              <div className="text-sm text-gray-600">
-                Найдено товаров: {totalProductsCount}
+        {/* Секция о компании */}
+        <div className="mb-12">
+          <div className="bg-blue-50 rounded-xl p-8 border border-blue-100">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              О компании
+            </h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <p className="text-gray-700 mb-4">
+                  Мы специализируемся на продаже строительных материалов,
+                  инструментов и товаров для дома и сада с 2010 года. Наша
+                  компания предлагает широкий ассортимент продукции от ведущих
+                  производителей с гарантией качества.
+                </p>
+                <p className="text-gray-700 mb-6">
+                  Мы постоянно расширяем каталог товаров и стремимся предложить
+                  нашим клиентам лучшие цены и условия доставки в регионе.
+                </p>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center text-blue-600 font-medium hover:text-blue-800 transition-colors"
+                >
+                  Подробнее о компании
+                  <ChevronRightIcon className="ml-1 w-4 h-4" />
+                </Link>
+              </div>
+              <div className="flex items-center justify-center">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+                    <div className="text-3xl font-bold text-blue-600 mb-2">
+                      10+
+                    </div>
+                    <div className="text-gray-600 text-sm">Лет на рынке</div>
+                  </div>
+                  <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+                    <div className="text-3xl font-bold text-blue-600 mb-2">
+                      5000+
+                    </div>
+                    <div className="text-gray-600 text-sm">Позиций товаров</div>
+                  </div>
+                  <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+                    <div className="text-3xl font-bold text-blue-600 mb-2">
+                      24/7
+                    </div>
+                    <div className="text-gray-600 text-sm">Поддержка</div>
+                  </div>
+                  <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+                    <div className="text-3xl font-bold text-blue-600 mb-2">
+                      98%
+                    </div>
+                    <div className="text-gray-600 text-sm">
+                      Довольных клиентов
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            <ProductGrid products={products} />
-
-            {infiniteScrollIsLoadingMore && (
-              <div className="flex justify-center mt-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+        {/* Секция с мобильным приложением */}
+        <div className="mb-12">
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-700 rounded-xl overflow-hidden">
+            <div className="grid md:grid-cols-2 items-center">
+              <div className="p-8 text-white">
+                <h2 className="text-2xl font-bold mb-4">
+                  Мобильное приложение
+                </h2>
+                <p className="mb-6 text-purple-100">
+                  Скачайте наше приложение для удобных покупок где бы вы ни
+                  находились. Получайте эксклюзивные предложения и отслеживайте
+                  свои заказы в реальном времени.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <Link
+                    href="#"
+                    className="bg-black text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-900 transition-colors"
+                  >
+                    <svg
+                      className="w-6 h-6 mr-2"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M17.5072 12.5378C17.4472 9.68781 19.5572 8.29781 19.6572 8.22781C18.3572 6.39781 16.3272 6.16781 15.6272 6.14781C13.9272 5.96781 12.2972 7.10781 11.4372 7.10781C10.5772 7.10781 9.23723 6.15781 7.79723 6.18781C5.95723 6.21781 4.25723 7.20781 3.31723 8.78781C1.39723 11.9978 2.78723 16.7278 4.62723 19.5378C5.53723 20.9178 6.59723 22.4578 7.97723 22.3978C9.31723 22.3378 9.80723 21.5178 11.4272 21.5178C13.0472 21.5178 13.5072 22.3978 14.8872 22.3578C16.3272 22.3378 17.2772 20.9778 18.1772 19.5878C19.2272 18.0178 19.6572 16.4878 19.6772 16.4178C19.6372 16.4078 17.5772 15.5978 17.5072 12.5378Z" />
+                      <path d="M15.1975 4.58781C15.9275 3.68781 16.4075 2.42781 16.2675 1.15781C15.1675 1.19781 13.8275 1.89781 13.0675 2.78781C12.3875 3.57781 11.7975 4.87781 11.9675 6.10781C13.1975 6.18781 14.4675 5.48781 15.1975 4.58781Z" />
+                    </svg>
+                    App Store
+                  </Link>
+                  <Link
+                    href="#"
+                    className="bg-black text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-900 transition-colors"
+                  >
+                    <svg
+                      className="w-6 h-6 mr-2"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M3.60938 2.49609C3.27344 2.83203 3.07031 3.38672 3.07031 4.07812V19.9219C3.07031 20.6133 3.27344 21.168 3.60938 21.5039L3.69531 21.5898L13.7109 11.5742V11.5V11.4258L3.69531 1.41016L3.60938 2.49609Z" />
+                      <path d="M17.4844 15.3477L13.7109 11.5742V11.5V11.4258L17.4844 7.65234L17.5703 7.73828L22.082 10.293C23.332 11.0078 23.332 11.9922 22.082 12.707L17.5703 15.2617L17.4844 15.3477Z" />
+                      <path d="M17.5703 15.2617L13.7109 11.5L3.60938 21.5039C4.01172 21.9297 4.66797 21.9766 5.41016 21.5508L17.5703 15.2617Z" />
+                      <path d="M17.5703 7.73828L5.41016 1.44922C4.66797 1.02344 4.01172 1.07031 3.60938 1.49609L13.7109 11.5L17.5703 7.73828Z" />
+                    </svg>
+                    Google Play
+                  </Link>
+                </div>
               </div>
-            )}
-            <div ref={infiniteScrollObserverTarget} className="h-1" />
+              <div className="hidden md:flex justify-center p-8">
+                <div className="relative w-52 h-96 bg-black rounded-3xl overflow-hidden border-8 border-gray-800">
+                  <div className="absolute top-0 left-0 right-0 h-6 bg-gray-800 flex justify-center items-end pb-1">
+                    <div className="w-20 h-1 bg-gray-600 rounded-full"></div>
+                  </div>
+                  <div className="w-full h-full bg-gradient-to-b from-blue-500 to-purple-600 pt-6 flex flex-col items-center">
+                    <div className="w-full px-4 py-2 flex justify-between items-center text-white text-xs">
+                      <span>12:30</span>
+                      <div className="flex space-x-1">
+                        <span>4G</span>
+                        <span>100%</span>
+                      </div>
+                    </div>
+                    <div className="mt-10 text-center text-white">
+                      <div className="text-lg font-bold mb-1">КРОНСТРОЙ</div>
+                      <div className="text-xs mb-8">Мобильное приложение</div>
+                      <div className="flex justify-center">
+                        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-purple-600">
+                          <BuildingStorefrontIcon className="h-8 w-8" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Секция перехода в каталог */}
+        <div className="mb-12 bg-gradient-to-r from-blue-50 to-white rounded-xl p-8 border border-blue-100">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Полный каталог товаров
+              </h2>
+              <p className="text-gray-600 mb-4 md:mb-0">
+                У нас вы найдете все необходимое для строительства, ремонта и
+                обустройства дома
+              </p>
+            </div>
+            <Link
+              href="/catalog"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center transition-colors"
+            >
+              Перейти в каталог
+              <ArrowRightIcon className="ml-2 h-5 w-5" />
+            </Link>
           </div>
         </div>
       </>

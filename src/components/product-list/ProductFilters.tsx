@@ -39,9 +39,9 @@ export function ProductFilters({
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-white rounded-lg shadow-md border border-gray-100 transition-all duration-300">
+    <div className="flex flex-col gap-4 p-4 bg-white rounded-xl border border-gray-200 transition-all duration-300">
       {/* Заголовок с кнопкой сворачивания/разворачивания */}
-      <div className="flex items-center justify-between border-b pb-3">
+      <div className="flex items-center justify-between border-b border-gray-100 pb-3">
         <div className="flex items-center gap-2">
           <FunnelIcon className="h-5 w-5 text-blue-600" />
           <h2 className="font-medium text-gray-800">Фильтры</h2>
@@ -66,7 +66,7 @@ export function ProductFilters({
           )}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-gray-500 hover:text-gray-700 p-1"
+            className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
           >
             <svg
               className={`h-5 w-5 transition-transform duration-300 ${
@@ -100,22 +100,22 @@ export function ProductFilters({
             </label>
 
             {/* Отображение категорий с изображениями */}
-            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+            <div className="space-y-1.5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
               <div
-                className={`p-2 rounded cursor-pointer flex items-center ${
+                className={`p-2 rounded-md cursor-pointer flex items-center ${
                   !selectedCategory
                     ? "bg-blue-50 text-blue-600 border border-blue-100"
                     : "hover:bg-gray-50 border border-transparent hover:border-gray-100"
                 } transition-all duration-200`}
                 onClick={() => onCategoryChange("")}
               >
-                <span className="ml-2">Все категории</span>
+                <span className="ml-1">Все категории</span>
               </div>
 
               {categories.map((category) => (
                 <div
                   key={category.id}
-                  className={`p-2 rounded cursor-pointer flex items-center ${
+                  className={`p-2 rounded-md cursor-pointer flex items-center ${
                     selectedCategory === category.id
                       ? "bg-blue-50 text-blue-600 border border-blue-100"
                       : "hover:bg-gray-50 border border-transparent hover:border-gray-100"
@@ -123,17 +123,17 @@ export function ProductFilters({
                   onClick={() => onCategoryChange(category.id)}
                 >
                   {category.iconUrl && (
-                    <div className="w-6 h-6 mr-2 flex-shrink-0">
+                    <div className="w-5 h-5 mr-1 flex-shrink-0">
                       <Image
                         src={category.iconUrl}
                         alt={category.title}
-                        width={24}
-                        height={24}
+                        width={20}
+                        height={20}
                         className="object-contain"
                       />
                     </div>
                   )}
-                  <span className="ml-2">{category.title}</span>
+                  <span className="ml-1 text-sm">{category.title}</span>
                 </div>
               ))}
             </div>

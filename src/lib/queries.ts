@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import {gql} from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
   query GetProducts(
@@ -656,6 +656,17 @@ export const GET_DELIVERY_ADDRESS = gql`
     deliveryAddress(id: $id) {
       id
       fullAddress
+    }
+  }
+`;
+
+export const GET_CATEGORIES_BY_QUERY = gql`
+  query GetCategoriesByQuery($query: String!) {
+    categoriesByQuery(query: $query) {
+      id
+      title
+      slug
+      iconUrl
     }
   }
 `;

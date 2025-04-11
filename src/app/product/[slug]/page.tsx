@@ -20,6 +20,9 @@ import {
   XMarkIcon,
   ShoppingCartIcon,
   MapPinIcon,
+  HashtagIcon,
+  ClockIcon,
+  InformationCircleIcon,
   ChevronRightIcon,
   PlusIcon,
   MinusIcon,
@@ -152,15 +155,15 @@ const ProductImageGallery = React.memo(
 
         {/* Миниатюры изображений */}
         {images.length > 1 && (
-          <div className="flex space-x-2 overflow-x-auto pb-2 px-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          <div className="flex space-x-2 overflow-x-auto overflow-y-hidden py-2 px-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 no-scrollbar">
             {images.map((image: ProductImage, index: number) => (
               <button
                 key={image.id}
-                className={`relative ${
+                className={`relative flex-shrink-0 ${
                   selectedImageIndex === index
                     ? "border-2 border-blue-600 ring-2 ring-blue-200"
                     : "border border-gray-200 hover:border-gray-300"
-                } rounded-lg aspect-square w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 transition-all focus:outline-none`}
+                } rounded-lg w-16 h-16 sm:w-20 sm:h-20 transition-all focus:outline-none`}
                 onClick={() => handleImageChange(index)}
                 aria-label={`Выбрать изображение ${index + 1}`}
               >
@@ -710,47 +713,62 @@ export default function ProductPage({ params }: ProductPageProps) {
               </div>
 
               {/* Статус наличия */}
-              {!notAvailableInRegion ? (
-                <div className="flex items-center mb-4">
-                  <div className="flex items-center px-3 py-1.5 bg-green-100 text-green-800 rounded-full">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    <span className="font-medium">В наличии</span>
-                  </div>
-                  {product.stock > 0 && (
-                    <span className="ml-3 text-sm text-gray-600">
-                      Осталось: {product.stock} {product.unit || "шт"}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <div className="mb-4">
-                  <div className="flex items-center px-3 py-1.5 bg-red-100 text-red-800 rounded-full">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                    <span className="font-medium">Нет в наличии</span>
-                  </div>
-
-                  {product.stockAvailabilityStatus ===
-                    ProductStockAvailabilityStatus.IN_STOCK_SOON && (
-                    <div className="mt-2 text-sm text-yellow-700 flex items-center">
-                      <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-1.5"></div>
-                      <span>Ожидается поступление (1-2 недели)</span>
+              <div className="mb-4 space-y-3">
+                {!notAvailableInRegion ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    {/* Бейдж "В наличии" */}
+                    <div className="flex items-center px-3 py-1.5 bg-green-50 border border-green-100 text-green-700 rounded-full transition-all hover:bg-green-100">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                      <span className="font-medium text-sm">В наличии</span>
                     </div>
-                  )}
 
-                  <div className="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-800">
-                    <p className="flex items-center">
-                      <ExclamationTriangleIcon className="h-4 w-4 mr-1.5 text-blue-600" />
-                      Проверьте наличие в других регионах или
-                      <button
-                        onClick={() => setShowRegionModal(true)}
-                        className="ml-1 font-medium underline hover:text-blue-700"
-                      >
-                        выберите регион
-                      </button>
-                    </p>
+                    {/* Остаток на складе */}
+                    {product.stock > 0 && (
+                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full">
+                        <HashtagIcon className="h-3.5 w-3.5 mr-1.5 text-gray-400" />
+                        <span>
+                          Осталось: {product.stock} {product.unit || "шт"}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="space-y-3">
+                    {/* Бейдж "Нет в наличии" */}
+                    <div className="flex items-center px-3 py-1.5 bg-red-50 border border-red-100 text-red-700 rounded-full">
+                      <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                      <span className="font-medium text-sm">Нет в наличии</span>
+                    </div>
+
+                    {/* Ожидается поступление */}
+                    {product.stockAvailabilityStatus ===
+                      ProductStockAvailabilityStatus.IN_STOCK_SOON && (
+                      <div className="flex items-center text-sm text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full">
+                        <ClockIcon className="h-3.5 w-3.5 mr-1.5 text-amber-500" />
+                        <span>Ожидается через 1-2 недели</span>
+                      </div>
+                    )}
+
+                    {/* Блок с предложением проверить другие регионы */}
+                    <div className="p-3 bg-blue-50/80 border border-blue-200 rounded-lg text-sm text-blue-800 transition-all hover:bg-blue-100/50">
+                      <div className="flex items-start">
+                        <InformationCircleIcon className="h-4 w-4 mt-0.5 mr-1.5 text-blue-500 flex-shrink-0" />
+                        <div>
+                          <p>
+                            Проверьте наличие в других регионах или{" "}
+                            <button
+                              onClick={() => setShowRegionModal(true)}
+                              className="font-medium underline hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 rounded"
+                            >
+                              выберите регион
+                            </button>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Количество и добавление в корзину */}
               <div className="flex items-center space-x-4">
@@ -826,58 +844,56 @@ export default function ProductPage({ params }: ProductPageProps) {
 
             {/* Блок с преимуществами */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-  {/* <!-- 1 --> */}
-  <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-    <ShieldCheckIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-    <div>
-      <h3 className="font-medium text-gray-900 text-sm">
-        Original products only
-      </h3>
-      <p className="text-xs text-gray-500">
-        Direct from manufacturers
-      </p>
-    </div>
-  </div>
+              {/* <!-- 1 --> */}
+              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
+                <ShieldCheckIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
+                <div>
+                  <h3 className="font-medium text-gray-900 text-sm">
+                    Оригинальная продукция
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Напрямую от производителей
+                  </p>
+                </div>
+              </div>
 
-  {/* <!-- 2 --> */}
-  <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-    <StarIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-    <div>
-      <h3 className="font-medium text-gray-900 text-sm">
-        Certified quality
-      </h3>
-      <p className="text-xs text-gray-500">
-        Warranty included
-      </p>
-    </div>
-  </div>
+              {/* <!-- 2 --> */}
+              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
+                <StarIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
+                <div>
+                  <h3 className="font-medium text-gray-900 text-sm">
+                    Сертифицированное качество
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    С официальной гарантией
+                  </p>
+                </div>
+              </div>
 
-  {/* <!-- 3 --> */}
-  <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-    <CreditCardIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-    <div>
-      <h3 className="font-medium text-gray-900 text-sm">
-        Secure payment
-      </h3>
-      <p className="text-xs text-gray-500">
-        Cards, crypto, wire transfer
-      </p>
-    </div>
-  </div>
+              {/* <!-- 3 --> */}
+              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
+                <CreditCardIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
+                <div>
+                  <h3 className="font-medium text-gray-900 text-sm">
+                    Удобная оплата
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Принимаем все формы расчетов
+                  </p>
+                </div>
+              </div>
 
-  {/* <!-- 4 --> */}
-  <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-    <CheckBadgeIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-    <div>
-      <h3 className="font-medium text-gray-900 text-sm">
-        Official dealer
-      </h3>
-      <p className="text-xs text-gray-500">
-        No intermediaries
-      </p>
-    </div>
-  </div>
-</div>
+              {/* <!-- 4 --> */}
+              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
+                <CheckBadgeIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
+                <div>
+                  <h3 className="font-medium text-gray-900 text-sm">
+                    Официальный дистрибьютор
+                  </h3>
+                  <p className="text-xs text-gray-500">Без посредников</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

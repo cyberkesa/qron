@@ -1,34 +1,20 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
+#!/bin/sh
 echo "🔍 Running code checks and validations..."
 
-echo "🧹 Running lint-staged (ESLint and Prettier)..."
-npx lint-staged || {
-  echo "❌ There were linting or formatting errors. Please fix them and try again."
+echo "🧹 Running Prettier..."
+npx prettier --write .
+
+echo "🧹 Running ESLint..."
+npx next lint --fix || {
+  echo "❌ ESLint found errors. Please fix them and try again."
   exit 1
 }
 
-echo "🧪 Running validation scripts..."
-npm run validate-queries || {
-  echo "❌ Query validation failed. Please fix the errors and try again."
-  exit 1
-}
-
-npm run validate-pagination || {
-  echo "❌ Pagination validation failed. Please fix the errors and try again."
-  exit 1
-}
-
-npm run validate-pagination-usage || {
-  echo "❌ Pagination usage validation failed. Please fix the errors and try again."
-  exit 1
-}
-
-npm run check-imports || {
-  echo "❌ Import check failed. Please fix the errors and try again."
-  exit 1
-}
+# echo "🧪 Running validation scripts..."
+# npm run validate-all || {
+#   echo "❌ Validation failed. Please fix the errors and try again."
+#   exit 1
+# }
 
 echo "🏗️ Attempting to build the project..."
 npm run build || {

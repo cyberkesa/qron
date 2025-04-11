@@ -49,7 +49,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     fetchMore,
   } = useQuery(GET_PRODUCTS, {
     variables: {
-      first: 16, // Загружаем по 16 товаров за раз
+      first: 48, // Загружаем по 48 товаров за раз
       categoryId: categoryData?.categoryBySlug?.id,
       sortOrder: sortOrder,
     },
@@ -63,12 +63,14 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       (edge: { node: Product; cursor: string }) => edge.node,
     ) || [];
 
-  // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
+  // Фильтруем товары, которые не в наличии, если включена соответствующая опция
   if (hideOutOfStock) {
     products = products.filter(
       (product: Product) =>
-        product.stockAvailabilityStatus !==
-        ProductStockAvailabilityStatus.OUT_OF_STOCK,
+        product.stockAvailabilityStatus ===
+          ProductStockAvailabilityStatus.IN_STOCK ||
+        product.stockAvailabilityStatus ===
+          ProductStockAvailabilityStatus.IN_STOCK_SOON,
     );
   }
 
@@ -78,8 +80,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   // Вычисляем примерное общее количество товаров (на основе текущих данных)
   // Обычно сервер возвращает общее количество, но если нет, можно примерно оценить
-  const totalProductsCount =
-    productsData?.products?.totalCount || products.length;
+  const totalProductsCount = products.length;
 
   // Определяем общее состояние загрузки
   const isLoading = categoryLoading || productsLoading;
@@ -129,11 +130,13 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 8 }).map((_, index) => (
+          {Array.from({ length: 16 }).map((_, index) => (
             <div
               key={index}
-              className="h-72 bg-gray-200 rounded-lg animate-pulse"
-            ></div>
+              className="h-72 bg-gray-200 rounded-lg relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skeleton-loading"></div>
+            </div>
           ))}
         </div>
       </div>
@@ -344,8 +347,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         <p className="text-gray-600 mb-4 md:mb-0">
           Всего товаров:{" "}
           <span className="font-medium">{totalProductsCount}</span>
-          {products.length < totalProductsCount &&
-            ` (загружено ${products.length})`}
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4">
@@ -365,7 +366,10 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product: Product, index: number) => (
-              <ProductCard key={`${product.id}-${index}`} product={product} />
+              <ProductCard
+                key={`category-${product.id}-${index}-${Math.random().toString(36).substring(2, 9)}`}
+                product={product}
+              />
             ))}
           </div>
 
@@ -377,7 +381,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           )}
 
           {/* Сообщение об окончании списка товаров */}
-          {!hasMoreProducts && products.length >= 16 && (
+          {!hasMoreProducts && products.length >= 48 && (
             <div className="mt-8 text-center text-gray-500">
               Загружены все доступные товары ({products.length} из{" "}
               {totalProductsCount})
