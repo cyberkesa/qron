@@ -14,7 +14,7 @@ export const REGION_CONTACTS = {
     phoneLink: "tel:+74957992666",
     email: "info@tovari-kron.ru",
     address: "Домодедовское шоссе, 4-й километр, 15Б",
-    workingHours: "Пн-Пт: 9:00 - 18:00",
+    workingHours: "Пн-Сб: 9:00 - 18:00",
   },
   STAVROPOL: {
     name: "Ставропольский край",
@@ -22,7 +22,7 @@ export const REGION_CONTACTS = {
     phoneLink: "tel:+79034181666",
     email: "ug@tovari-kron.ru",
     address: "с. Надежда, ул. Орджоникидзе 79",
-    workingHours: "Пн-Пт: 9:00 - 18:00",
+    workingHours: "Пн-Сб: 9:00 - 18:00",
   },
 };
 

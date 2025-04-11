@@ -368,12 +368,12 @@ export default function ProductPage({ params }: ProductPageProps) {
   return (
     <div className="bg-white">
       {/* Хлебные крошки - уменьшенный режим на мобильных */}
-      <div className="container mx-auto px-4 py-3 md:py-5">
+      <div className="container mx-auto px-3 md:px-4 py-2 md:py-5 text-sm">
         <Breadcrumbs items={buildProductBreadcrumbs(product)} />
       </div>
 
-      <div className="container mx-auto px-4 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 relative mb-12">
+      <div className="container mx-auto px-3 md:px-4 pb-16 mb-16 md:mb-0">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 relative mb-6 md:mb-12">
           {/* Галерея изображений */}
           <div className="lg:sticky lg:top-4 self-start">
             <ProductImageGallery
@@ -425,15 +425,23 @@ export default function ProductPage({ params }: ProductPageProps) {
         onClose={() => setShowNotification(false)}
       />
 
-      {/* Добавляем блок с похожими товарами в конец страницы */}
-      {data?.productBySlug && (
-        <SimilarProducts currentProduct={data.productBySlug} />
-      )}
-
-      {/* Блок с недавно просмотренными товарами */}
-      {data?.productBySlug && (
-        <RecentlyViewed excludeProductId={data.productBySlug.id} />
-      )}
+      {/* Блоки рекомендаций */}
+      <div className="pb-24 md:pb-8">
+        {" "}
+        {/* Extra padding at bottom for mobile for sticky cart button */}
+        {/* Блок с похожими товарами */}
+        {data?.productBySlug && (
+          <div className="mt-6 md:mt-12">
+            <SimilarProducts currentProduct={data.productBySlug} />
+          </div>
+        )}
+        {/* Блок с недавно просмотренными товарами */}
+        {data?.productBySlug && (
+          <div className="mt-6 md:mt-12">
+            <RecentlyViewed excludeProductId={data.productBySlug.id} />
+          </div>
+        )}
+      </div>
 
       {/* Модальное окно выбора региона */}
       <RegionSelector

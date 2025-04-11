@@ -188,8 +188,8 @@ export function Footer() {
               <li className="flex items-start">
                 <ClockIcon className="h-4 w-4 text-blue-600 mr-2 mt-0.5" />
                 <div>
-                  <p className="text-gray-700 text-sm">Пн-Пт: 9:00 - 20:00</p>
-                  <p className="text-gray-700 text-sm">Сб-Вс: 10:00 - 18:00</p>
+                  <p className="text-gray-700 text-sm">Пн-Сб: 9:00 - 18:00</p>
+                  <p className="text-gray-700 text-sm">Вс: выходной</p>
                 </div>
               </li>
             </ul>

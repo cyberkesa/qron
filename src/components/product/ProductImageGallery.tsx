@@ -85,20 +85,40 @@ const ProductImageGallery = ({
   return (
     <div className="flex flex-col space-y-4 relative md:sticky md:top-4 sm:pb-6">
       <div
-        className={`rounded-xl overflow-hidden aspect-square relative ${isZooming ? "cursor-zoom-out" : "cursor-zoom-in"}`}
+        className={`rounded-xl overflow-hidden aspect-square relative ${
+          isZooming ? "cursor-zoom-out" : "cursor-zoom-in"
+        } bg-white border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md`}
         ref={imageContainerRef}
         onClick={handleZoomToggle}
         onMouseMove={handleMouseMove}
+        onTouchMove={(e) => {
+          if (!isZooming || !imageContainerRef.current) return;
+          const touch = e.touches[0];
+          const container = imageContainerRef.current;
+          const rect = container.getBoundingClientRect();
+          const x = Math.min(
+            Math.max(0, (touch.clientX - rect.left) / rect.width),
+            1,
+          );
+          const y = Math.min(
+            Math.max(0, (touch.clientY - rect.top) / rect.height),
+            1,
+          );
+          setZoomPosition({ x, y });
+        }}
         onMouseLeave={() => isZooming && setIsZooming(false)}
+        onTouchEnd={() => isZooming && setIsZooming(false)}
       >
         {currentImage ? (
           <>
             {isZooming ? (
               <div className="absolute inset-0 overflow-hidden">
                 <div
-                  className="absolute w-[200%] h-[200%] transition-transform duration-75"
+                  className="absolute w-[250%] h-[250%] transition-transform duration-100"
                   style={{
-                    transform: `translate(${-zoomPosition.x * 100}%, ${-zoomPosition.y * 100}%)`,
+                    transform: `translate(${-zoomPosition.x * 100}%, ${
+                      -zoomPosition.y * 100
+                    }%)`,
                     backgroundImage: `url(${currentImage.url})`,
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
@@ -107,18 +127,21 @@ const ProductImageGallery = ({
                 />
               </div>
             ) : (
-              <Image
-                src={currentImage.url}
-                alt={currentImage.alt}
-                className="object-contain p-6"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
+              <div className="animate-fadeIn">
+                <Image
+                  src={currentImage.url}
+                  alt={currentImage.alt}
+                  className="object-contain p-6 transition-opacity duration-300"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
+                  quality={90}
+                />
+              </div>
             )}
             <div className="absolute bottom-4 right-4 flex space-x-2">
               <button
-                className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none"
+                className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 active:scale-95"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleZoomToggle();
@@ -126,16 +149,18 @@ const ProductImageGallery = ({
                 aria-label={
                   isZooming ? "Отключить увеличение" : "Увеличить изображение"
                 }
+                style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 <MagnifyingGlassIcon className="h-5 w-5 text-gray-600" />
               </button>
               <button
-                className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none"
+                className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 active:scale-95"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleGalleryToggle();
                 }}
                 aria-label="Открыть полноэкранный просмотр"
+                style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 <ArrowsPointingOutIcon className="h-5 w-5 text-gray-600" />
               </button>
@@ -152,7 +177,7 @@ const ProductImageGallery = ({
         {images.length > 1 && (
           <>
             <button
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none group"
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 group active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
                 handleImageChange(
@@ -160,16 +185,18 @@ const ProductImageGallery = ({
                 );
               }}
               aria-label="Предыдущее изображение"
+              style={{ WebkitTapHighlightColor: "transparent" }}
             >
               <ChevronLeftIcon className="h-5 w-5 text-gray-600 group-hover:text-gray-900" />
             </button>
             <button
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none group"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 group active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
                 handleImageChange((selectedImageIndex + 1) % images.length);
               }}
               aria-label="Следующее изображение"
+              style={{ WebkitTapHighlightColor: "transparent" }}
             >
               <ChevronRightIcon className="h-5 w-5 text-gray-600 group-hover:text-gray-900" />
             </button>
@@ -177,19 +204,20 @@ const ProductImageGallery = ({
         )}
       </div>
 
-      {/* Миниатюры изображений */}
+      {/* Миниатюры изображений - оптимизированы для свайпа на мобильных */}
       {images.length > 1 && (
-        <div className="flex space-x-2 overflow-x-auto overflow-y-hidden py-2 px-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 no-scrollbar">
+        <div className="flex space-x-2 overflow-x-auto overflow-y-hidden py-2 px-1 no-scrollbar -mx-1 px-1">
           {images.map((image: ProductImage, index: number) => (
             <button
               key={image.id}
               className={`relative flex-shrink-0 ${
                 selectedImageIndex === index
-                  ? "border-2 border-blue-600 ring-2 ring-blue-200"
+                  ? "border-2 border-blue-600 ring-2 ring-blue-200 scale-[1.05] shadow-md"
                   : "border border-gray-200 hover:border-gray-300"
-              } rounded-lg w-16 h-16 sm:w-20 sm:h-20 transition-all focus:outline-none`}
+              } rounded-lg w-16 h-16 sm:w-20 sm:h-20 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 active:scale-95`}
               onClick={() => handleImageChange(index)}
               aria-label={`Выбрать изображение ${index + 1}`}
+              style={{ WebkitTapHighlightColor: "transparent" }}
             >
               <Image
                 src={image.url}
@@ -206,12 +234,13 @@ const ProductImageGallery = ({
 
       {/* Полноэкранный просмотр галереи */}
       {isGalleryOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center animate-fadeIn">
           <div className="relative w-full h-full">
             <button
-              className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 transition-colors p-2 rounded-full text-white z-10"
+              className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 transition-colors p-2 rounded-full text-white z-10 active:scale-95"
               onClick={() => setIsGalleryOpen(false)}
               aria-label="Закрыть галерею"
+              style={{ WebkitTapHighlightColor: "transparent" }}
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -220,52 +249,56 @@ const ProductImageGallery = ({
               <Image
                 src={currentImage.url}
                 alt={currentImage.alt}
-                className="object-contain p-8"
+                className="object-contain p-8 animate-fadeIn"
                 width={1200}
                 height={1200}
                 sizes="100vw"
+                quality={90}
               />
             </div>
 
             {images.length > 1 && (
               <>
                 <button
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 transition-colors p-3 rounded-full text-white"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 transition-colors p-3 rounded-full text-white active:scale-95"
                   onClick={() =>
                     handleImageChange(
                       (selectedImageIndex - 1 + images.length) % images.length,
                     )
                   }
                   aria-label="Предыдущее изображение"
+                  style={{ WebkitTapHighlightColor: "transparent" }}
                 >
                   <ChevronLeftIcon className="h-6 w-6" />
                 </button>
                 <button
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 transition-colors p-3 rounded-full text-white"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 transition-colors p-3 rounded-full text-white active:scale-95"
                   onClick={() =>
                     handleImageChange((selectedImageIndex + 1) % images.length)
                   }
                   aria-label="Следующее изображение"
+                  style={{ WebkitTapHighlightColor: "transparent" }}
                 >
                   <ChevronRightIcon className="h-6 w-6" />
                 </button>
               </>
             )}
 
-            {/* Миниатюры в галерее */}
+            {/* Миниатюры в галерее с индикатором текущего слайда */}
             {images.length > 1 && (
               <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center p-4 bg-black/50 backdrop-blur-sm">
-                <div className="flex space-x-2 overflow-x-auto">
+                <div className="flex space-x-2 overflow-x-auto no-scrollbar">
                   {images.map((image: ProductImage, index: number) => (
                     <button
                       key={image.id}
                       className={`relative ${
                         selectedImageIndex === index
-                          ? "border-2 border-white"
+                          ? "border-2 border-white scale-110 z-10"
                           : "border border-gray-600 opacity-70 hover:opacity-100"
-                      } rounded-md w-16 h-16 transition-all focus:outline-none`}
+                      } rounded-md w-16 h-16 transition-all focus:outline-none active:scale-95`}
                       onClick={() => handleImageChange(index)}
                       aria-label={`Выбрать изображение ${index + 1}`}
+                      style={{ WebkitTapHighlightColor: "transparent" }}
                     >
                       <Image
                         src={image.url}

@@ -198,18 +198,21 @@ export default function CatalogPage() {
     ) : null;
 
   return (
-    <div className="container mx-auto px-4 py-6 mb-12">
+    <div className="container mx-auto px-3 md:px-4 py-6 mb-12 animate-fadeIn">
       <div className="mb-4">
         <nav className="flex" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-2 text-sm">
+          <ol className="inline-flex items-center text-sm">
             <li className="inline-flex items-center">
-              <Link href="/" className="text-gray-700 hover:text-blue-600">
+              <Link
+                href="/"
+                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+              >
                 Главная
               </Link>
             </li>
             <li>
               <div className="flex items-center">
-                <ChevronRightIcon className="w-4 h-4 text-gray-500 mx-1" />
+                <ChevronRightIcon className="w-4 h-4 text-gray-400 mx-1" />
                 <span className="text-gray-500">Каталог</span>
               </div>
             </li>
@@ -218,21 +221,21 @@ export default function CatalogPage() {
       </div>
 
       <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
           Каталог товаров
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-gray-600 text-sm md:text-base">
           Все товары для строительства, ремонта и обустройства дома
         </p>
       </div>
 
       {isDataLoading && !productsData ? (
         <div className="animate-pulse">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: 12 }).map((_, index) => (
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+            {Array.from({ length: 8 }).map((_, index) => (
               <div
                 key={index}
-                className="bg-gray-200 h-72 rounded-lg animate-pulse relative overflow-hidden"
+                className="bg-gray-100 rounded-xl h-64 animate-pulse relative overflow-hidden shadow-sm"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skeleton-loading"></div>
               </div>
@@ -240,50 +243,57 @@ export default function CatalogPage() {
           </div>
         </div>
       ) : hasError ? (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center my-8">
+        <div className="bg-red-50 border border-red-100 rounded-xl p-6 text-center my-8 shadow-sm">
           <h2 className="text-lg font-medium text-red-800 mb-2">
             Произошла ошибка при загрузке данных
           </h2>
-          <p className="text-red-600 mb-4">{errorMessage}</p>
+          <p className="text-red-600 mb-4 text-sm md:text-base">
+            {errorMessage}
+          </p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors active:scale-[0.98]"
+            style={{ WebkitTapHighlightColor: "transparent" }}
           >
             Обновить страницу
           </button>
         </div>
       ) : products.length === 0 && !isDataLoading ? (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center my-8">
+        <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-6 md:p-8 text-center my-8 shadow-sm">
           <h2 className="text-lg font-medium text-yellow-800 mb-3">
             Товары не найдены
           </h2>
-          <p className="text-yellow-700 mb-4">
+          <p className="text-yellow-700 mb-4 text-sm md:text-base max-w-lg mx-auto">
             По вашему запросу не найдено товаров. Попробуйте изменить параметры
             фильтрации или выбрать другую категорию.
           </p>
           <button
             onClick={resetFilters}
-            className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors"
+            className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors active:scale-[0.98]"
+            style={{ WebkitTapHighlightColor: "transparent" }}
           >
             Сбросить фильтры
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 md:gap-6">
           {showMobileFilters && (
             <div
-              className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+              className="fixed inset-0 z-50 bg-black/60 lg:hidden animate-fadeIn"
               onClick={toggleMobileFilters}
             >
               <div
-                className="absolute right-0 top-0 h-full w-[320px] max-w-full bg-white overflow-y-auto p-4"
+                className="absolute right-0 top-0 h-full w-[300px] max-w-[80vw] bg-white overflow-y-auto p-4 shadow-xl animate-fadeInRight"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex justify-between items-center mb-4 border-b pb-4">
-                  <h3 className="font-medium text-lg">Фильтры</h3>
+                  <h3 className="font-semibold text-lg text-gray-800">
+                    Фильтры
+                  </h3>
                   <button
                     onClick={toggleMobileFilters}
-                    className="text-gray-500 hover:text-gray-700 p-1 rounded-full bg-gray-100"
+                    className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors active:scale-95"
+                    style={{ WebkitTapHighlightColor: "transparent" }}
                   >
                     <XMarkIcon className="h-5 w-5" />
                   </button>
@@ -304,63 +314,92 @@ export default function CatalogPage() {
           )}
 
           <div className="hidden lg:block sticky top-24 h-fit">
-            <ProductFilters
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={handleCategoryChange}
-              sortOrder={sortOrder}
-              onSortChange={handleSortChange}
-              hideOutOfStock={hideOutOfStock}
-              onStockFilterChange={handleStockFilterChange}
-              showMobileFilters={showMobileFilters}
-              onCloseMobileFilters={toggleMobileFilters}
-            />
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 transition-shadow duration-300 hover:shadow-md">
+              <ProductFilters
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onCategoryChange={handleCategoryChange}
+                sortOrder={sortOrder}
+                onSortChange={handleSortChange}
+                hideOutOfStock={hideOutOfStock}
+                onStockFilterChange={handleStockFilterChange}
+                showMobileFilters={showMobileFilters}
+                onCloseMobileFilters={toggleMobileFilters}
+              />
+            </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="space-y-4 md:space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 md:p-4 transition-shadow duration-300 hover:shadow-md">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4">
                 <div className="text-sm text-gray-600 flex items-center">
-                  <span className="bg-blue-50 text-blue-700 rounded-full px-3 py-1 font-medium">
+                  <span className="bg-blue-50 text-blue-700 rounded-full px-3 py-1.5 font-medium">
                     Найдено товаров: {totalProductsCount}
                   </span>
                 </div>
 
-                <div className="flex gap-2 self-stretch sm:self-center">
+                <div className="flex gap-2 self-stretch sm:self-center w-full sm:w-auto">
                   <button
                     onClick={toggleMobileFilters}
-                    className="lg:hidden flex items-center rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white hover:bg-gray-50"
+                    className="lg:hidden flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white hover:bg-gray-50 transition-colors w-1/2 sm:w-auto active:scale-[0.98]"
+                    style={{ WebkitTapHighlightColor: "transparent" }}
                   >
-                    <AdjustmentsHorizontalIcon className="h-5 w-5 mr-1 text-gray-600" />
+                    <AdjustmentsHorizontalIcon className="h-5 w-5 mr-1.5 text-gray-600" />
                     Фильтры
                   </button>
 
-                  <div className="relative sm:hidden">
+                  <div className="relative w-1/2 sm:w-auto">
                     <select
                       value={sortOrder}
                       onChange={(e) =>
                         handleSortChange(e.target.value as ProductSortOrder)
                       }
-                      className="block w-full rounded-lg border border-gray-300 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      className="block w-full rounded-lg border border-gray-200 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                      style={{ WebkitAppearance: "none" }}
                     >
-                      <option value="NEWEST_FIRST">Сначала новые</option>
+                      <option value="NEWEST_FIRST">Новинки</option>
                       <option value="PRICE_LOW_TO_HIGH">Сначала дешевле</option>
                       <option value="PRICE_HIGH_TO_LOW">Сначала дороже</option>
                       <option value="NAME_A_TO_Z">По названию (А-Я)</option>
                       <option value="NAME_Z_TO_A">По названию (Я-А)</option>
                     </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                      <svg
+                        className="h-4 w-4 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 20 20"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="1.5"
+                          d="M19 9l-7 7-7-7"
+                        ></path>
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <ProductGrid products={products} />
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+              {products.map((product: Product, index: number) => (
+                <div
+                  key={`catalog-${product.id}-${index}`}
+                  className="animate-fadeIn"
+                  style={{ animationDelay: `${(index % 8) * 50}ms` }}
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
 
             {infiniteScrollIsLoadingMore && (
-              <div className="flex justify-center my-6">
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
-                  <span className="text-sm text-gray-600">
+              <div className="flex justify-center py-6">
+                <div className="flex items-center justify-center space-x-2 bg-white px-4 py-2 rounded-full shadow-sm">
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent" />
+                  <span className="text-sm text-gray-600 font-medium">
                     Загрузка товаров...
                   </span>
                 </div>

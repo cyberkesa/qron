@@ -1,6 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  memo,
+  lazy,
+  Suspense,
+} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,10 +32,11 @@ import { useCartContext } from "@/lib/providers/CartProvider";
 // Импортируем выделенные компоненты
 import TopBar from "./header/TopBar";
 import CategoryNav from "./header/CategoryNav";
-import UserMenu from "./header/UserMenu";
-import CartIndicator from "./header/CartIndicator";
-import MobileMenu from "./header/MobileMenu";
 import MobileNavLink from "./header/MobileNavLink";
+
+// Lazy load components that aren't immediately visible
+const LazyUserMenu = lazy(() => import("./header/UserMenu"));
+const LazyMobileMenu = lazy(() => import("./header/MobileMenu"));
 
 // Компонент для главной части хедера с логотипом, поиском и корзиной
 const MainHeader = memo(
@@ -98,24 +108,31 @@ const MainHeader = memo(
 
 MainHeader.displayName = "MainHeader";
 
-export default function Header() {
+export default memo(function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [regionContacts, setRegionContacts] = useState(REGION_CONTACTS.MOSCOW);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
+
+  // Use fetchPolicy: "cache-first" for data that doesn't change often during a session
   const { data: cartData } = useQuery(GET_CART, {
     fetchPolicy: "cache-and-network",
   });
-  const { data: userData } = useQuery(GET_VIEWER);
-  const { data: categoriesData } = useQuery(GET_CATEGORIES);
+  const { data: userData } = useQuery(GET_VIEWER, {
+    fetchPolicy: "cache-first",
+  });
+  const { data: categoriesData } = useQuery(GET_CATEGORIES, {
+    fetchPolicy: "cache-first",
+  });
   const [logout] = useMutation(LOGOUT);
   const { cart: unifiedCart } = useCartContext();
 
-  // Мемоизация данных для предотвращения ненужных рендеров
+  // Memoized data to prevent unnecessary renders
   const categories = useMemo(
     () => categoriesData?.rootCategories || [],
     [categoriesData],
@@ -134,7 +151,7 @@ export default function Header() {
     [userData],
   );
 
-  // Функции обработчиков событий
+  // Event handler functions
   const toggleMenu = useCallback(() => {
     setIsMenuOpen((prev) => !prev);
   }, []);
@@ -152,21 +169,21 @@ export default function Header() {
     try {
       const result = await logout();
       if (result.data?.logOut?.__typename === "LogOutSuccessResult") {
-        // Очищаем все токены и данные
+        // Clear all tokens and data
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("selectedRegion");
         localStorage.removeItem("guestToken");
         localStorage.removeItem("tokenRegionId");
 
-        // Закрываем меню и перенаправляем на страницу входа
+        // Close menus and redirect to login page
         handleCloseMenus();
         router.push("/login");
       }
     } catch (error) {
       console.error("Error during logout:", error);
     }
-  }, [logout, handleCloseMenus, router]); // Add all dependencies used inside the callback
+  }, [logout, handleCloseMenus, router]);
 
   const toggleCategoryExpand = useCallback((categoryId: string) => {
     setExpandedCategories((prev) =>
@@ -224,13 +241,31 @@ export default function Header() {
       ) {
         setIsUserMenuOpen(false);
       }
+
+      if (
+        isMenuOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsUserMenuOpen(false);
+        setIsMenuOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscapeKey);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscapeKey);
     };
-  }, []);
+  }, [isMenuOpen]);
 
   // Мемоизированные UI компоненты
   const authLinks = useMemo(() => {
@@ -240,6 +275,8 @@ export default function Header() {
           <button
             className="flex items-center text-gray-700 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
             onClick={toggleUserMenu}
+            aria-expanded={isUserMenuOpen}
+            aria-haspopup="true"
           >
             <UserIcon className="w-6 h-6" />
             <span className="ml-1 hidden md:inline font-medium">
@@ -248,12 +285,22 @@ export default function Header() {
             <ChevronDownIcon className="h-4 w-4 ml-1 hidden md:inline" />
           </button>
 
-          <UserMenu
-            isOpen={isUserMenuOpen}
-            userInfo={userInfo}
-            onClose={handleCloseMenus}
-            onLogout={handleLogout}
-          />
+          {isUserMenuOpen && (
+            <Suspense
+              fallback={
+                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 opacity-75">
+                  Loading...
+                </div>
+              }
+            >
+              <LazyUserMenu
+                isOpen={isUserMenuOpen}
+                userInfo={userInfo}
+                onClose={handleCloseMenus}
+                onLogout={handleLogout}
+              />
+            </Suspense>
+          )}
         </div>
       );
     }
@@ -287,106 +334,12 @@ export default function Header() {
     handleLogout,
   ]);
 
-  const mobileMenu = useMemo(() => {
-    if (!isMenuOpen) return null;
-
-    return (
-      <div className="md:hidden bg-white border-t border-gray-200 shadow-lg animate-fade-in-up">
-        <nav className="container mx-auto px-4 py-3">
-          <ul className="space-y-3">
-            <MobileNavLink
-              href="/"
-              active={pathname === "/"}
-              onClick={handleCloseMenus}
-            >
-              Главная
-            </MobileNavLink>
-            <MobileNavLink
-              href="/catalog"
-              active={pathname === "/catalog"}
-              onClick={handleCloseMenus}
-            >
-              Каталог товаров
-            </MobileNavLink>
-            <MobileNavLink
-              href="/categories"
-              active={pathname === "/categories"}
-              onClick={handleCloseMenus}
-            >
-              Категории
-            </MobileNavLink>
-
-            {isLoggedIn ? (
-              <>
-                <MobileNavLink
-                  href="/profile"
-                  active={pathname === "/profile"}
-                  onClick={handleCloseMenus}
-                >
-                  Профиль
-                </MobileNavLink>
-                <MobileNavLink
-                  href="/orders"
-                  active={pathname === "/orders"}
-                  onClick={handleCloseMenus}
-                >
-                  Мои заказы
-                </MobileNavLink>
-              </>
-            ) : (
-              <>
-                <MobileNavLink
-                  href="/login"
-                  active={pathname === "/login"}
-                  onClick={handleCloseMenus}
-                >
-                  Войти
-                </MobileNavLink>
-                <MobileNavLink
-                  href="/register"
-                  active={pathname === "/register"}
-                  onClick={handleCloseMenus}
-                >
-                  Регистрация
-                </MobileNavLink>
-              </>
-            )}
-
-            <div className="border-t border-gray-200 mt-3 pt-2">
-              <MobileNavLink
-                href="/delivery"
-                active={pathname === "/delivery"}
-                onClick={handleCloseMenus}
-              >
-                Доставка
-              </MobileNavLink>
-            </div>
-            <MobileNavLink
-              href="/about"
-              active={pathname === "/about"}
-              onClick={handleCloseMenus}
-            >
-              О компании
-            </MobileNavLink>
-            <MobileNavLink
-              href="/contacts"
-              active={pathname === "/contacts"}
-              onClick={handleCloseMenus}
-            >
-              Контакты
-            </MobileNavLink>
-          </ul>
-        </nav>
-      </div>
-    );
-  }, [isMenuOpen, pathname, isLoggedIn, handleCloseMenus]);
-
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm">
-      {/* Верхняя плашка с регионом и контактами */}
+    <header className="sticky top-0 z-[1000] bg-white shadow-sm">
+      {/* Top bar with region and contacts */}
       <TopBar regionContacts={regionContacts} />
 
-      {/* Основная часть с логотипом, поиском, корзиной */}
+      {/* Main part with logo, search, cart */}
       <MainHeader
         isLoggedIn={isLoggedIn}
         cartItemsCount={cartItemsCount}
@@ -396,16 +349,17 @@ export default function Header() {
         onToggleMenu={toggleMenu}
       />
 
-      {/* Навигация по категориям */}
+      {/* Navigation by categories */}
       <CategoryNav categories={categories} />
 
-      {/* Мобильное меню (отображается при открытии) */}
+      {/* Mobile menu (displayed when opened) */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 z-100 bg-black/50 animate-fade-in"
+          className="fixed inset-0 z-[1001] bg-black/50 animate-fade-in"
           onClick={handleCloseMenus}
         >
           <div
+            ref={mobileMenuRef}
             className="absolute top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white overflow-auto animate-fade-in-left"
             onClick={(e) => e.stopPropagation()}
           >
@@ -423,70 +377,18 @@ export default function Header() {
               <SearchForm />
             </div>
 
-            <nav className="px-4 pb-6">
-              {/* Основные ссылки */}
-              <div className="space-y-2 border-b border-gray-200 pb-4 mb-4">
-                <Link
-                  href="/catalog"
-                  className="block py-2 text-gray-700 hover:text-blue-600"
-                  onClick={handleCloseMenus}
-                >
-                  Каталог товаров
-                </Link>
-              </div>
-
-              {/* Категории */}
-              <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">
-                  Категории
-                </h3>
-                <div className="space-y-1">
-                  {categories.map((category: Category) => (
-                    <Link
-                      key={category.id}
-                      href={`/categories/${category.slug}`}
-                      className="block py-2 text-gray-700 hover:text-blue-600"
-                      onClick={handleCloseMenus}
-                    >
-                      <div className="flex items-center">
-                        {category.iconUrl && (
-                          <Image
-                            src={category.iconUrl}
-                            alt={category.title}
-                            width={16}
-                            height={16}
-                            className="mr-2"
-                          />
-                        )}
-                        <span>{category.title}</span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {!isLoggedIn && (
-                <div className="pt-4 border-t border-gray-200 flex flex-col space-y-3">
-                  <Link
-                    href="/login"
-                    className="w-full py-2 px-4 bg-white border border-gray-300 rounded-md text-gray-700 text-center hover:bg-gray-50"
-                    onClick={handleCloseMenus}
-                  >
-                    Войти
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="w-full py-2 px-4 bg-blue-600 text-white rounded-md text-center hover:bg-blue-700"
-                    onClick={handleCloseMenus}
-                  >
-                    Регистрация
-                  </Link>
-                </div>
-              )}
-            </nav>
+            <Suspense fallback={<div className="p-4">Loading menu...</div>}>
+              <LazyMobileMenu
+                isOpen={true}
+                currentPath={pathname || ""}
+                categories={categories}
+                onClose={handleCloseMenus}
+                isAuthenticated={isLoggedIn}
+              />
+            </Suspense>
           </div>
         </div>
       )}
     </header>
   );
-}
+});

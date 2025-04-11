@@ -14,6 +14,8 @@
     "validate-pagination-usage": "node --loader ts-node/esm src/scripts/validatePaginationUsage.ts",
     "check-imports": "node --loader ts-node/esm src/scripts/checkImports.ts",
     "validate-all": "npm run validate-queries && npm run validate-pagination && npm run validate-pagination-usage && npm run check-imports",
+    "analyze-effects": "node src/scripts/analyze-use-effect-deps.js",
+    "analyze-bundle": "ANALYZE=true next build",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -39,6 +41,9 @@
     "tailwind-merge": "^3.2.0"
   },
   "devDependencies": {
+    "@babel/parser": "^7.24.1",
+    "@babel/traverse": "^7.24.1",
+    "@next/bundle-analyzer": "^15.3.0",
     "@types/glob": "^8.1.0",
     "@types/node": "^22.14.0",
     "@types/react": "^18",

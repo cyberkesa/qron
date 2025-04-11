@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import {gql} from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
   query GetProducts(
@@ -761,6 +761,64 @@ export const GET_DELIVERY_ADDRESS = gql`
     deliveryAddress(id: $id) {
       id
       fullAddress
+    }
+  }
+`;
+
+// Мутация для обновления профиля пользователя
+export const UPDATE_PROFILE = gql`
+  mutation UpdateProfile($name: String!, $phoneNumber: String) {
+    updateProfile(name: $name, phoneNumber: $phoneNumber) {
+      ... on UpdateProfileSuccessResult {
+        viewer {
+          ... on RegisteredViewer {
+            id
+            name
+            emailAddress
+            phoneNumber
+            region {
+              id
+              name
+            }
+          }
+        }
+      }
+      ... on UnexpectedError {
+        message
+      }
+    }
+  }
+`;
+
+// Запрос для получения товаров по ID категории
+export const GET_PRODUCTS_BY_CATEGORY = gql`
+  query GetProductsByCategory(
+    $categoryId: ID!
+    $first: Int!
+    $sortOrder: ProductSortOrder!
+  ) {
+    products(first: $first, categoryId: $categoryId, sortOrder: $sortOrder) {
+      edges {
+        node {
+          id
+          name
+          description
+          price
+          decimalPrice
+          images {
+            id
+            url
+          }
+          slug
+          stockAvailabilityStatus
+          category {
+            id
+            title
+            slug
+          }
+          quantityMultiplicity
+        }
+      }
     }
   }
 `;

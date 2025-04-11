@@ -5,6 +5,7 @@
 /* Font rendering optimization */
 html {
   font-display: swap;
+  -webkit-text-size-adjust: 100%; /* Prevent automatic font size adjustment on orientation change */
 }
 img,
 svg,
@@ -25,14 +26,41 @@ object {
   --primary-hover: 29, 78, 216;
   --transition-normal: 0.2s ease-in-out;
   --transition-slow: 0.4s ease-in-out;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
   font-size: 14px; /* Base mobile font size */
+  overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+  -webkit-overflow-scrolling: touch; /* Improve scrolling on iOS */
 }
 
-/* Responsive typography */
+/* Safe area handling for modern iOS devices */
+.h-safe-bottom {
+  height: var(--safe-area-bottom);
+}
+
+/* Improve tap target sizes on mobile */
+@media (max-width: 640px) {
+  button, 
+  a,
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px; /* Apple's recommended minimum touch target size */
+    min-width: 44px;
+  }
+  
+  /* Improve form field spacing */
+  input, 
+  select, 
+  textarea {
+    margin-bottom: 12px;
+    font-size: 16px !important; /* Prevent zoom on focus in iOS */
+  }
+}
+
+/* Mobile-first responsive typography */
 @media (max-width: 640px) {
   h1 {
     font-size: 1.5rem !important;
@@ -68,6 +96,17 @@ body {
   select,
   textarea {
     font-size: 0.875rem !important;
+  }
+  
+  /* Reduce padding/margin for mobile */
+  .container {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  
+  /* Adjust product cards for mobile */
+  .product-card {
+    margin-bottom: 16px !important;
   }
 }
 
@@ -168,7 +207,17 @@ svg {
   animation: pulse 4s ease-in-out infinite;
 }
 
-/* Стили для кастомного скроллбара */
+/* No scrollbar but allow scrolling */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+/* Custom scrollbar styling */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -506,4 +555,25 @@ svg {
 .category-menu-item.active::after {
   width: 100%;
   left: 0;
+}
+
+/* Add animations for tab transitions */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

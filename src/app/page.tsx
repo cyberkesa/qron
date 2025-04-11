@@ -29,6 +29,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { ProductCarousel } from "@/components/product/ProductCarousel";
+import { FeaturedCategories } from "@/components/home/FeaturedCategories";
 import Image from "next/image";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
@@ -54,12 +55,36 @@ const BestDeals = memo(({ products }: { products: Product[] }) => {
   if (!products.length) return null;
 
   return (
-    <div className="mb-12">
-      <div className="flex items-center mb-6">
-        <FireIcon className="h-6 w-6 text-red-600 mr-2" />
-        <h2 className="text-2xl font-bold text-gray-900">Лучшие предложения</h2>
+    <div className="mb-16">
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-100 shadow-sm">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <FireIcon className="h-7 w-7 text-orange-500 mr-3" />
+            <h2 className="text-2xl font-bold text-gray-900">
+              Лучшие предложения
+            </h2>
+          </div>
+          <Link
+            href="/best-deals"
+            className="flex items-center text-orange-600 hover:text-orange-700 transition-colors text-sm font-medium"
+          >
+            Смотреть все
+            <ChevronRightIcon className="ml-1 w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="relative">
+          <div className="absolute -left-3 -right-3 -top-2 bottom-0 bg-gradient-to-r from-amber-100/20 to-orange-100/20 rounded-xl -z-10"></div>
+          <ProductCarousel products={products} />
+        </div>
+
+        <div className="mt-4 text-center">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800">
+            <FireIcon className="h-4 w-4 mr-1" />
+            Специальные цены
+          </span>
+        </div>
       </div>
-      <ProductCarousel products={products} />
     </div>
   );
 });
@@ -362,6 +387,16 @@ export default function Home() {
         <Banner />
 
         <BestDeals products={bestDeals} />
+
+        {/* Featured Categories */}
+        <div className="mb-12">
+          <div className="flex items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Популярные категории
+            </h2>
+          </div>
+          <FeaturedCategories />
+        </div>
 
         {/* Секция о компании */}
         <div className="mb-12">

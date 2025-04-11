@@ -15,6 +15,8 @@ export const metadata = {
   title: "КРОН – онлайн-магазин товаров для сада и огорода",
   description:
     "Широкий ассортимент качественных товаров для дома, ремонта, сада и огорода с доставкой по всей России",
+  viewport:
+    "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
 };
 
 export default function RootLayout({
@@ -25,6 +27,10 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
         <link
           rel="preload"
           href="/fonts/inter.woff2"

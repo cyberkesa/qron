@@ -2,26 +2,59 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@apollo/client";
-import { GET_VIEWER } from "@/lib/queries";
+import { useQuery, useMutation } from "@apollo/client";
+import { GET_VIEWER, UPDATE_PROFILE } from "@/lib/queries";
+import {
+  UserIcon,
+  EnvelopeIcon,
+  PhoneIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
 import Link from "next/link";
 
 export default function EditProfilePage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     phoneNumber: "",
   });
   const [message, setMessage] = useState({ text: "", isError: false });
+  const [loading, setLoading] = useState(false);
 
-  const { data, loading, error } = useQuery(GET_VIEWER);
+  const { data, loading: dataLoading, error } = useQuery(GET_VIEWER);
+  const [updateProfile] = useMutation(UPDATE_PROFILE, {
+    onCompleted: (data) => {
+      if (data.updateProfile.__typename === "UpdateProfileSuccessResult") {
+        setMessage({
+          text: "Профиль успешно обновлен",
+          isError: false,
+        });
+        // Редирект на страницу профиля через 2 секунды
+        setTimeout(() => {
+          router.push("/profile");
+        }, 2000);
+      } else {
+        setMessage({
+          text: data.updateProfile.message || "Не удалось обновить профиль",
+          isError: true,
+        });
+      }
+      setLoading(false);
+    },
+    onError: (error) => {
+      setMessage({
+        text: error.message || "Произошла ошибка при обновлении профиля",
+        isError: true,
+      });
+      setLoading(false);
+    },
+  });
 
   useEffect(() => {
-    if (data?.viewer) {
+    if (data && data.viewer) {
       setFormData({
-        firstName: data.viewer.firstName || "",
-        lastName: data.viewer.lastName || "",
+        name: data.viewer.name || "",
         phoneNumber: data.viewer.phoneNumber || "",
       });
     }
@@ -29,204 +62,184 @@ export default function EditProfilePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setMessage({ text: "", isError: false });
 
     try {
-      // Simulate successful update since we might not have the actual mutation
-      // Simulate success response
-      setMessage({
-        text: "Профиль успешно обновлен",
-        isError: false,
+      await updateProfile({
+        variables: {
+          name: formData.name,
+          phoneNumber: formData.phoneNumber || null,
+        },
       });
-
-      // Redirect after short delay
-      setTimeout(() => {
-        router.push("/profile");
-      }, 2000);
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Произошла ошибка при обновлении профиля";
-
+    } catch (error) {
+      console.error("Ошибка при обновлении профиля:", error);
       setMessage({
-        text: errorMessage,
+        text: "Произошла ошибка при обновлении профиля",
         isError: true,
       });
+      setLoading(false);
     }
   };
 
-  if (loading) {
+  if (dataLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[70vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка данных профиля...</p>
-        </div>
+      <div className="flex justify-center items-center p-8">
+        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          Редактирование профиля
-        </h1>
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-          {error.message || "Произошла ошибка при загрузке профиля"}
-        </div>
-        <div className="flex justify-center">
-          <Link
-            href="/profile"
-            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300"
-          >
-            Вернуться в профиль
-          </Link>
-        </div>
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        {error.message || "Произошла ошибка при загрузке данных профиля"}
       </div>
     );
   }
 
-  if (!data?.viewer) {
+  if (!data || !data.viewer) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          Редактирование профиля
-        </h1>
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6">
-          Вы не авторизованы
-        </div>
-        <div className="flex justify-center">
-          <Link
-            href="/login"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Войти в аккаунт
-          </Link>
-        </div>
+      <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
+        Необходимо авторизоваться для редактирования профиля
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-lg mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
-          Редактирование профиля
-        </h1>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-gray-200">
+        <div className="flex items-center">
+          <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+            <UserIcon className="w-6 h-6 text-blue-600" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">
+              Редактирование профиля
+            </h1>
+            <p className="text-gray-600 text-sm">
+              Измените ваши персональные данные
+            </p>
+          </div>
+        </div>
+      </div>
 
+      <div className="p-6">
         {message.text && (
           <div
-            className={`px-4 py-3 rounded mb-6 ${
+            className={`mb-6 p-4 rounded-lg flex items-center ${
               message.isError
-                ? "bg-red-100 border border-red-400 text-red-700"
-                : "bg-green-100 border border-green-400 text-green-700"
+                ? "bg-red-50 text-red-700 border border-red-100"
+                : "bg-green-50 text-green-700 border border-green-100"
             }`}
           >
+            {message.isError ? (
+              <XCircleIcon className="w-5 h-5 mr-2" />
+            ) : (
+              <CheckCircleIcon className="w-5 h-5 mr-2" />
+            )}
             {message.text}
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label
-                htmlFor="firstName"
-                className="block text-gray-700 font-medium mb-2"
-              >
-                Имя
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-1">
+            <label
+              htmlFor="name"
+              className="flex items-center text-gray-700 font-medium text-sm"
+            >
+              <UserIcon className="w-4 h-4 mr-2 text-gray-500" />
+              Имя
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              required
+              placeholder="Введите ваше имя"
+            />
+          </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="lastName"
-                className="block text-gray-700 font-medium mb-2"
-              >
-                Фамилия
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="email"
-                className="block text-gray-700 font-medium mb-2"
-              >
-                Email
-              </label>
+          <div className="space-y-1">
+            <label
+              htmlFor="email"
+              className="flex items-center text-gray-700 font-medium text-sm"
+            >
+              <EnvelopeIcon className="w-4 h-4 mr-2 text-gray-500" />
+              Email
+            </label>
+            <div className="relative">
               <input
                 type="email"
                 id="email"
-                value={data.viewer.email}
+                value={data.viewer.emailAddress}
                 readOnly
-                className="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-500"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-500 cursor-not-allowed"
               />
-              <p className="text-sm text-gray-500 mt-1">
-                Email нельзя изменить
-              </p>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <span className="text-xs text-gray-500 bg-gray-200 rounded-md px-2 py-1">
+                  Неизменяемое поле
+                </span>
+              </div>
             </div>
+            <p className="text-xs text-gray-500 mt-1 ml-6">
+              Email является вашим идентификатором и не может быть изменен
+            </p>
+          </div>
 
-            <div className="mb-6">
-              <label
-                htmlFor="phoneNumber"
-                className="block text-gray-700 font-medium mb-2"
-              >
-                Телефон
-              </label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="phoneNumber"
+              className="flex items-center text-gray-700 font-medium text-sm"
+            >
+              <PhoneIcon className="w-4 h-4 mr-2 text-gray-500" />
+              Телефон
+            </label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="+7 (999) 123-45-67"
+            />
+          </div>
 
-            <div className="flex justify-between">
-              <Link
-                href="/profile"
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-              >
-                Отмена
-              </Link>
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
-              >
-                Сохранить
-              </button>
-            </div>
-          </form>
-        </div>
+          <div className="flex justify-end space-x-4 pt-4 border-t border-gray-100">
+            <Link
+              href="/profile"
+              className="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+            >
+              Отмена
+            </Link>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <span className="flex items-center">
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                  Сохранение...
+                </span>
+              ) : (
+                "Сохранить"
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

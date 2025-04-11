@@ -201,9 +201,23 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         {category?.title}
       </h1>
 
+      {category?.description && (
+        <div className="mb-6 prose prose-sm max-w-none text-gray-600">
+          <div dangerouslySetInnerHTML={{ __html: category.description }} />
+        </div>
+      )}
+
       {category?.children && category.children.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2 text-blue-600"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+            </svg>
             Подкатегории
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -212,13 +226,13 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                 <Link
                   key={subcategory.id}
                   href={`/categories/${subcategory.slug}`}
-                  className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100"
+                  className="group block p-4 bg-white rounded-lg hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-blue-200"
                 >
                   <div className="flex items-center">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-blue-600"
+                        className="h-5 w-5 text-blue-600"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -230,7 +244,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                         <path d="M6 12a2 2 0 012-2h8a2 2 0 012 2v2a2 2 0 01-2 2H2h2a2 2 0 002-2v-2z" />
                       </svg>
                     </div>
-                    <h3 className="text-sm font-medium text-gray-900">
+                    <h3 className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                       {subcategory.title}
                     </h3>
                   </div>
@@ -241,10 +255,19 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row justify-between md:items-center mb-6">
-        <p className="text-gray-600 mb-4 md:mb-0">
-          Всего товаров:{" "}
-          <span className="font-medium">{totalProductsCount}</span>
+      <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 sticky top-[70px] bg-white z-10 py-4 border-b border-gray-200">
+        <p className="text-gray-600 mb-4 md:mb-0 flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2 text-blue-600"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" />
+            <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z" />
+          </svg>
+          Товаров в категории:{" "}
+          <span className="font-medium ml-1">{totalProductsCount}</span>
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4">
@@ -258,11 +281,31 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
       {products.length === 0 ? (
         <div className="bg-gray-50 p-8 rounded-lg text-center">
-          <p className="text-gray-600">В данной категории нет товаров.</p>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-12 w-12 mx-auto text-gray-400 mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p className="text-gray-600 mb-2">
+            В данной категории пока нет товаров.
+          </p>
+          <p className="text-gray-500 text-sm">
+            Пожалуйста, посмотрите другие категории или свяжитесь с нами для
+            уточнения информации.
+          </p>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {products.map((product: Product, index: number) => (
               <ProductCard
                 key={`category-${product.id}-${index}`}
@@ -273,14 +316,16 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
           {isLoadingMore && (
             <div className="flex justify-center mt-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600" />
             </div>
           )}
 
           {!hasMoreProducts && products.length >= 100 && (
-            <div className="mt-8 text-center text-gray-500">
-              Загружены все доступные товары ({products.length} из{" "}
-              {totalProductsCount})
+            <div className="mt-8 text-center text-gray-500 bg-gray-50 p-4 rounded-lg border border-gray-200">
+              Загружены все доступные товары
+              <span className="font-medium text-gray-700">
+                ({products.length} из {totalProductsCount})
+              </span>
             </div>
           )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@apollo/client";
 import { GET_PRODUCTS, GET_CATEGORIES } from "@/lib/queries";
@@ -14,7 +14,7 @@ import {
 } from "@/components/search/SearchOptimization";
 
 // Компонент для элемента товара в выпадающем списке результатов
-const ProductResultItem = ({ product }: { product: Product }) => (
+const ProductResultItem = memo(({ product }: { product: Product }) => (
   <Link
     href={`/product/${product.slug}`}
     className="block px-4 py-3 hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100 last:border-b-0 hover-bright"
@@ -28,6 +28,12 @@ const ProductResultItem = ({ product }: { product: Product }) => (
             width={40}
             height={40}
             className="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
+            loading="lazy"
+            onError={(e) => {
+              // Fallback if image fails to load
+              (e.target as HTMLImageElement).src =
+                "/images/product-placeholder.png";
+            }}
           />
         </div>
       )}
@@ -41,10 +47,12 @@ const ProductResultItem = ({ product }: { product: Product }) => (
       </div>
     </div>
   </Link>
-);
+));
+
+ProductResultItem.displayName = "ProductResultItem";
 
 // Компонент для элемента категории в выпадающем списке результатов
-const CategoryResultItem = ({ category }: { category: Category }) => (
+const CategoryResultItem = memo(({ category }: { category: Category }) => (
   <Link
     href={`/categories/${category.slug}`}
     className="block px-4 py-3 hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100 last:border-b-0 hover-bright"
@@ -58,6 +66,12 @@ const CategoryResultItem = ({ category }: { category: Category }) => (
             width={24}
             height={24}
             className="object-contain transition-transform duration-300 hover:scale-110"
+            loading="lazy"
+            onError={(e) => {
+              // Fallback if image fails to load
+              (e.target as HTMLImageElement).src =
+                "/images/category-placeholder.png";
+            }}
           />
         </div>
       )}
@@ -71,21 +85,133 @@ const CategoryResultItem = ({ category }: { category: Category }) => (
       </div>
     </div>
   </Link>
+));
+
+CategoryResultItem.displayName = "CategoryResultItem";
+
+// Компонент для загрузки результатов в виртуализированном списке
+const SearchResults = memo(
+  ({
+    searchQuery,
+    searchProductResults,
+    searchCategoryResults,
+    isLoading,
+    onSubmit,
+  }: {
+    searchQuery: string;
+    searchProductResults: Product[];
+    searchCategoryResults: Category[];
+    isLoading: boolean;
+    onSubmit: () => void;
+  }) => {
+    const normalizedQuery = normalizeSearchString(searchQuery);
+    const hasResults =
+      searchProductResults.length > 0 || searchCategoryResults.length > 0;
+
+    // Отображение только первых 1000 пикселей содержимого (примерно 10-15 элементов)
+    // Остальное будет загружено при прокрутке
+    const resultsContainerRef = useRef<HTMLDivElement>(null);
+
+    if (isLoading) {
+      return (
+        <div className="p-4 text-center text-gray-500">
+          <div className="inline-block w-5 h-5 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin mr-2"></div>
+          Поиск...
+        </div>
+      );
+    }
+
+    if (!hasResults && normalizedQuery.length >= 2) {
+      return (
+        <div className="p-4 text-center text-gray-500 animate-fade-in">
+          По запросу «{searchQuery}» ничего не найдено
+        </div>
+      );
+    }
+
+    return (
+      <div ref={resultsContainerRef} className="max-h-96 overflow-y-auto">
+        {searchCategoryResults.length > 0 && (
+          <div>
+            <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase font-semibold">
+              Категории
+            </div>
+            {searchCategoryResults.slice(0, 3).map((category: Category) => (
+              <div
+                key={category.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: "50ms" }}
+              >
+                <CategoryResultItem category={category} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {searchProductResults.length > 0 && (
+          <div>
+            <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase font-semibold">
+              Товары
+            </div>
+            {searchProductResults.map((product: Product, index: number) => (
+              <div
+                key={product.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${Math.min(index + 1, 10) * 50}ms` }}
+              >
+                <ProductResultItem product={product} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="p-3 text-center border-t border-gray-100">
+          <button
+            onClick={onSubmit}
+            className="text-blue-600 text-sm font-medium hover:text-blue-800 hover-lift transition-colors w-full py-1.5 hover:bg-blue-50 rounded-md"
+          >
+            Показать все результаты
+          </button>
+        </div>
+      </div>
+    );
+  },
 );
 
+SearchResults.displayName = "SearchResults";
+
+// Custom hook для дебаунса поискового запроса
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 // Основной компонент формы поиска
-const SearchForm = ({ className = "" }: { className?: string }) => {
+const SearchForm = memo(({ className = "" }: { className?: string }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [isResultsOpen, setIsResultsOpen] = useState(false);
-  const searchTimeout = useRef<NodeJS.Timeout>();
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Используем debounced значение для поисковых запросов
+  const debouncedSearchQuery = useDebounce(searchQuery, 200);
+
   // Нормализация поискового запроса
   const normalizedQuery = useMemo(() => {
-    return normalizeSearchString(searchQuery);
-  }, [searchQuery]);
+    return normalizeSearchString(debouncedSearchQuery);
+  }, [debouncedSearchQuery]);
 
   // Запрос товаров для живого поиска с улучшенными параметрами
   const { data: productData, loading: productsLoading } = useQuery(
@@ -97,6 +223,8 @@ const SearchForm = ({ className = "" }: { className?: string }) => {
         searchQuery: normalizedQuery,
       },
       skip: !normalizedQuery || normalizedQuery.length < 2,
+      // Добавляем политику кэширования для быстрых повторных запросов
+      fetchPolicy: "cache-first",
     },
   );
 
@@ -105,6 +233,8 @@ const SearchForm = ({ className = "" }: { className?: string }) => {
     GET_CATEGORIES,
     {
       skip: !normalizedQuery || normalizedQuery.length < 2,
+      // Это данные, которые редко меняются
+      fetchPolicy: "cache-first",
     },
   );
 
@@ -167,30 +297,25 @@ const SearchForm = ({ className = "" }: { className?: string }) => {
     });
   }, [categoryData, normalizedQuery]);
 
-  // Определяем есть ли результаты
-  const hasResults =
-    searchProductResults.length > 0 || searchCategoryResults.length > 0;
+  // Определяем есть ли результаты для отображения дропдауна
+  const shouldShowResults = useMemo(
+    () => debouncedSearchQuery.length >= 2 && isResultsOpen,
+    [debouncedSearchQuery, isResultsOpen],
+  );
+
   const isLoading = productsLoading || categoriesLoading;
 
-  // Обработчик изменения поля поиска с дебаунсом
+  // Обработчик изменения поля поиска
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       setSearchQuery(value);
 
-      // Очищаем предыдущий таймаут
-      if (searchTimeout.current) {
-        clearTimeout(searchTimeout.current);
+      if (value.trim().length >= 2) {
+        setIsResultsOpen(true);
+      } else if (value.trim().length === 0) {
+        setIsResultsOpen(false);
       }
-
-      // Устанавливаем новый таймаут для задержки запроса - уменьшаем до 150мс для более быстрого отклика
-      searchTimeout.current = setTimeout(() => {
-        if (value.trim().length >= 2) {
-          setIsResultsOpen(true);
-        } else {
-          setIsResultsOpen(false);
-        }
-      }, 150);
     },
     [],
   );
@@ -206,8 +331,8 @@ const SearchForm = ({ className = "" }: { className?: string }) => {
 
   // Обработчик отправки формы
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
+    (e?: React.FormEvent) => {
+      if (e) e.preventDefault();
       if (searchQuery.trim()) {
         router.push(
           `/search?q=${encodeURIComponent(searchQuery)}&sort=NEWEST_FIRST`,
@@ -229,8 +354,22 @@ const SearchForm = ({ className = "" }: { className?: string }) => {
       }
     };
 
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsResultsOpen(false);
+        if (inputRef.current) {
+          inputRef.current.blur();
+        }
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
   }, []);
 
   return (
@@ -244,6 +383,8 @@ const SearchForm = ({ className = "" }: { className?: string }) => {
           value={searchQuery}
           onChange={handleInputChange}
           onFocus={() => searchQuery.length >= 2 && setIsResultsOpen(true)}
+          aria-label="Поиск"
+          autoComplete="off"
         />
         <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
 
@@ -252,77 +393,28 @@ const SearchForm = ({ className = "" }: { className?: string }) => {
             type="button"
             onClick={clearSearch}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors hover-scale"
+            aria-label="Очистить поиск"
           >
             <XMarkIcon className="h-5 w-5" />
           </button>
         )}
       </form>
 
-      {isResultsOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto border border-gray-200 animate-fade-in-down">
-          {isLoading ? (
-            <div className="p-4 text-center text-gray-500">
-              <div className="inline-block w-5 h-5 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin mr-2"></div>
-              Поиск...
-            </div>
-          ) : !hasResults && normalizedQuery.length >= 2 ? (
-            <div className="p-4 text-center text-gray-500 animate-fade-in">
-              По запросу «{searchQuery}» ничего не найдено
-            </div>
-          ) : (
-            <>
-              {searchCategoryResults.length > 0 && (
-                <div>
-                  <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase font-semibold">
-                    Категории
-                  </div>
-                  {searchCategoryResults
-                    .slice(0, 3)
-                    .map((category: Category) => (
-                      <div
-                        key={category.id}
-                        className="animate-fade-in-up"
-                        style={{ animationDelay: "50ms" }}
-                      >
-                        <CategoryResultItem category={category} />
-                      </div>
-                    ))}
-                </div>
-              )}
-
-              {searchProductResults.length > 0 && (
-                <div>
-                  <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase font-semibold">
-                    Товары
-                  </div>
-                  {searchProductResults.map(
-                    (product: Product, index: number) => (
-                      <div
-                        key={product.id}
-                        className="animate-fade-in-up"
-                        style={{ animationDelay: `${(index + 1) * 50}ms` }}
-                      >
-                        <ProductResultItem product={product} />
-                      </div>
-                    ),
-                  )}
-                </div>
-              )}
-
-              <div className="p-3 text-center border-t border-gray-100">
-                <button
-                  onClick={handleSubmit}
-                  className="text-blue-600 text-sm font-medium hover:text-blue-800 hover-lift transition-colors w-full py-1.5 hover:bg-blue-50 rounded-md"
-                >
-                  Показать все результаты
-                </button>
-              </div>
-            </>
-          )}
+      {shouldShowResults && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-50 border border-gray-200 animate-fade-in-down">
+          <SearchResults
+            searchQuery={searchQuery}
+            searchProductResults={searchProductResults}
+            searchCategoryResults={searchCategoryResults}
+            isLoading={isLoading}
+            onSubmit={handleSubmit}
+          />
         </div>
       )}
     </div>
   );
-};
+});
+
+SearchForm.displayName = "SearchForm";
 
 export default SearchForm;
