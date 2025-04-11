@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import useImageOptimizer from "@/lib/hooks/useImageOptimizer";
-import { useMemoryLeakDetector } from "@/lib/hooks/useMemoryLeakDetector";
 
 interface OptimizedImageProps {
   src: string;
@@ -38,7 +37,14 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   onError,
 }) => {
   const [imgError, setImgError] = useState<Error | null>(null);
-  const { isMounted } = useMemoryLeakDetector("OptimizedImage");
+  const isMounted = useRef(true);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   // Use our image optimizer hook
   const {

@@ -8,26 +8,11 @@ import { CartProvider } from "@/lib/providers/CartProvider";
 import { PerformanceProvider } from "@/lib/providers/PerformanceProvider";
 import { ErrorProvider } from "@/lib/providers/ErrorProvider";
 import { CacheProvider } from "@/lib/providers/CacheProvider";
-import PerformanceDashboard from "@/components/debug/PerformanceDashboard";
-import NetworkMonitor from "@/components/debug/NetworkMonitor";
 
 export function Providers({ children }: { children: ReactNode }) {
-  // Only include performance monitoring in development mode
-  const isDev = process.env.NODE_ENV === "development";
-
-  // Устанавливаем регион по умолчанию, если он не установлен
+  // Очистить кэш Apollo при инициализации клиентской части
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Проверяем, выбран ли регион
-      const hasRegion = localStorage.getItem("selectedRegion");
-
-      // Если регион не выбран, устанавливаем Москву по умолчанию
-      if (!hasRegion) {
-        const defaultRegion = { id: "1", name: "Москва" };
-        localStorage.setItem("selectedRegion", JSON.stringify(defaultRegion));
-        localStorage.setItem("tokenRegionId", "1");
-      }
-
       // Очищаем кэш клиента при загрузке страницы для предотвращения конфликтов RSC и Apollo
       client.resetStore().catch((err) => {
         console.error("Error resetting Apollo cache:", err);
@@ -38,19 +23,10 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <ApolloProvider client={client}>
       <ErrorProvider>
-        <PerformanceProvider initialEnabled={isDev}>
+        <PerformanceProvider>
           <NotificationProvider>
             <CacheProvider resetOnRouteChange={true}>
-              <CartProvider>
-                {children}
-                {/* Only show performance tools in development */}
-                {isDev && (
-                  <>
-                    <PerformanceDashboard />
-                    <NetworkMonitor enabled={true} slowThreshold={500} />
-                  </>
-                )}
-              </CartProvider>
+              <CartProvider>{children}</CartProvider>
             </CacheProvider>
           </NotificationProvider>
         </PerformanceProvider>
