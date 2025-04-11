@@ -100,44 +100,80 @@ const MobileNavLink = memo(
 MobileNavLink.displayName = "MobileNavLink";
 
 // Компонент для категорий в навигации
-const CategoryNav = memo(({ categories }: { categories: Category[] }) => (
-  <div className="hidden md:block bg-gray-50 border-t border-gray-200">
-    <div className="container mx-auto px-4">
-      <nav className="flex space-x-6 text-sm py-2 overflow-x-auto">
-        <Link
-          href="/catalog"
-          className="text-gray-700 hover:text-blue-600 py-2 whitespace-nowrap font-medium"
-        >
-          Каталог
-        </Link>
-        <Link
-          href="/categories"
-          className="text-gray-700 hover:text-blue-600 py-2 whitespace-nowrap"
-        >
-          Все категории
-        </Link>
-        {categories.map((category: Category) => (
-          <Link
-            key={category.id}
-            href={`/categories/${category.slug}`}
-            className="text-gray-700 hover:text-blue-600 py-2 whitespace-nowrap flex items-center"
+const CategoryNav = memo(({ categories }: { categories: Category[] }) => {
+  const [showCategories, setShowCategories] = useState(false);
+
+  const toggleCategories = () => {
+    setShowCategories((prev) => !prev);
+  };
+
+  const handleMouseEnter = () => {
+    setShowCategories(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowCategories(false);
+  };
+
+  return (
+    <div className="hidden md:block bg-gray-50 border-t border-gray-200 relative z-40">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center gap-4 py-2">
+          <div
+            className="relative"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
-            {category.iconUrl && (
-              <Image
-                src={category.iconUrl}
-                alt={category.title}
-                width={16}
-                height={16}
-                className="mr-1"
+            <button
+              className={`flex items-center gap-1 text-gray-700 hover:text-blue-600 py-2 px-3 rounded-md ${showCategories ? "bg-blue-50 text-blue-600" : ""}`}
+              onClick={toggleCategories}
+            >
+              <span className="font-medium">Категории</span>
+              <ChevronDownIcon
+                className={`h-4 w-4 transition-transform ${showCategories ? "rotate-180" : ""}`}
               />
+            </button>
+
+            {showCategories && (
+              <div className="absolute left-0 top-full mt-1 bg-white shadow-lg rounded-md border border-gray-200 w-64 z-60 animate-zoom-in">
+                <div className="py-2 max-h-[70vh] overflow-y-auto">
+                  {categories.map((category) => (
+                    <Link
+                      key={category.id}
+                      href={`/categories/${category.slug}`}
+                      className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                    >
+                      {category.iconUrl && (
+                        <Image
+                          src={category.iconUrl}
+                          alt={category.title}
+                          width={16}
+                          height={16}
+                          className="mr-2"
+                        />
+                      )}
+                      <span>{category.title}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             )}
-            {category.title}
-          </Link>
-        ))}
-      </nav>
+          </div>
+
+          {/* Простое горизонтальное меню для основных разделов */}
+          <div className="flex gap-6">
+            <Link
+              href="/catalog"
+              className="text-gray-700 hover:text-blue-600 py-2"
+            >
+              Каталог
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-));
+  );
+});
 
 CategoryNav.displayName = "CategoryNav";
 
@@ -157,7 +193,7 @@ const UserMenu = memo(
     if (!isOpen) return null;
 
     return (
-      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-20 border border-gray-200 animate-fade-in">
+      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-60 animate-zoom-in border border-gray-200">
         <div className="px-4 py-2 border-b border-gray-100">
           <p className="text-sm font-medium text-gray-900">{userInfo.name}</p>
           <p className="text-xs text-gray-500 truncate">{userInfo.email}</p>
@@ -201,18 +237,29 @@ const MainHeader = memo(
     onToggleUserMenu,
     userInfo,
     authLinks,
+    onToggleMenu,
   }: {
     isLoggedIn: boolean;
     cartItemsCount: number;
     onToggleUserMenu: () => void;
     userInfo: { name: string | undefined; email: string | undefined };
     authLinks: React.ReactNode;
+    onToggleMenu: () => void;
   }) => (
     <div className="py-4 border-b border-gray-200 bg-white">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
+          {/* Мобильная кнопка меню */}
+          <button
+            onClick={onToggleMenu}
+            className="md:hidden p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md"
+            aria-label="Открыть меню"
+          >
+            <Bars3Icon className="h-6 w-6" />
+          </button>
+
           {/* Логотип */}
-          <Link href="/" className="flex-shrink-0">
+          <Link href="/" className="flex-shrink-0 hover-scale">
             <h1 className="text-2xl font-bold text-blue-600">Qron Shop</h1>
           </Link>
 
@@ -257,6 +304,7 @@ export default function Header() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [regionContacts, setRegionContacts] = useState(REGION_CONTACTS.MOSCOW);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -319,6 +367,14 @@ export default function Header() {
       console.error("Error during logout:", error);
     }
   }, [logout, handleCloseMenus, router]); // Add all dependencies used inside the callback
+
+  const toggleCategoryExpand = useCallback((categoryId: string) => {
+    setExpandedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId],
+    );
+  }, []);
 
   // Проверка авторизации и загрузка региона при монтировании
   useEffect(() => {
@@ -435,7 +491,7 @@ export default function Header() {
     if (!isMenuOpen) return null;
 
     return (
-      <div className="md:hidden bg-white border-t border-gray-200 shadow-lg animate-fade-in">
+      <div className="md:hidden bg-white border-t border-gray-200 shadow-lg animate-fade-in-up">
         <nav className="container mx-auto px-4 py-3">
           <ul className="space-y-3">
             <MobileNavLink
@@ -526,7 +582,7 @@ export default function Header() {
   }, [isMenuOpen, pathname, isLoggedIn, handleCloseMenus]);
 
   return (
-    <header className="sticky top-0 z-40 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 bg-white shadow-sm">
       {/* Верхняя плашка с регионом и контактами */}
       <TopBar regionContacts={regionContacts} />
 
@@ -537,6 +593,7 @@ export default function Header() {
         onToggleUserMenu={toggleUserMenu}
         userInfo={userInfo}
         authLinks={authLinks}
+        onToggleMenu={toggleMenu}
       />
 
       {/* Навигация по категориям */}
@@ -545,14 +602,14 @@ export default function Header() {
       {/* Мобильное меню (отображается при открытии) */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/50"
+          className="fixed inset-0 z-100 bg-black/50 animate-fade-in"
           onClick={handleCloseMenus}
         >
           <div
-            className="absolute top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white overflow-auto p-4"
+            className="absolute top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white overflow-auto animate-fade-in-left"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-gray-200 pb-4 mb-4">
+            <div className="flex items-center justify-between border-b border-gray-200 p-4">
               <h2 className="text-lg font-medium">Меню</h2>
               <button
                 onClick={handleCloseMenus}
@@ -562,65 +619,74 @@ export default function Header() {
               </button>
             </div>
 
-            <nav>
-              <ul className="space-y-2">
-                <MobileNavLink
+            <div className="p-4">
+              <SearchForm />
+            </div>
+
+            <nav className="px-4 pb-6">
+              {/* Основные ссылки */}
+              <div className="space-y-2 border-b border-gray-200 pb-4 mb-4">
+                <Link
                   href="/catalog"
-                  active={pathname === "/catalog"}
+                  className="block py-2 text-gray-700 hover:text-blue-600"
                   onClick={handleCloseMenus}
                 >
-                  Каталог
-                </MobileNavLink>
-                <MobileNavLink
-                  href="/profile"
-                  active={pathname === "/profile"}
-                  onClick={handleCloseMenus}
-                >
-                  Мой профиль
-                </MobileNavLink>
-                <MobileNavLink
-                  href="/orders"
-                  active={pathname === "/orders"}
-                  onClick={handleCloseMenus}
-                >
-                  Мои заказы
-                </MobileNavLink>
-                <MobileNavLink
-                  href="/delivery"
-                  active={pathname === "/delivery"}
-                  onClick={handleCloseMenus}
-                >
-                  Доставка
-                </MobileNavLink>
-                <MobileNavLink
-                  href="/about"
-                  active={pathname === "/about"}
-                  onClick={handleCloseMenus}
-                >
-                  О компании
-                </MobileNavLink>
-                <MobileNavLink
-                  href="/contacts"
-                  active={pathname === "/contacts"}
-                  onClick={handleCloseMenus}
-                >
-                  Контакты
-                </MobileNavLink>
-              </ul>
+                  Каталог товаров
+                </Link>
+              </div>
+
+              {/* Категории */}
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">
+                  Категории
+                </h3>
+                <div className="space-y-1">
+                  {categories.map((category: Category) => (
+                    <Link
+                      key={category.id}
+                      href={`/categories/${category.slug}`}
+                      className="block py-2 text-gray-700 hover:text-blue-600"
+                      onClick={handleCloseMenus}
+                    >
+                      <div className="flex items-center">
+                        {category.iconUrl && (
+                          <Image
+                            src={category.iconUrl}
+                            alt={category.title}
+                            width={16}
+                            height={16}
+                            className="mr-2"
+                          />
+                        )}
+                        <span>{category.title}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {!isLoggedIn && (
+                <div className="pt-4 border-t border-gray-200 flex flex-col space-y-3">
+                  <Link
+                    href="/login"
+                    className="w-full py-2 px-4 bg-white border border-gray-300 rounded-md text-gray-700 text-center hover:bg-gray-50"
+                    onClick={handleCloseMenus}
+                  >
+                    Войти
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="w-full py-2 px-4 bg-blue-600 text-white rounded-md text-center hover:bg-blue-700"
+                    onClick={handleCloseMenus}
+                  >
+                    Регистрация
+                  </Link>
+                </div>
+              )}
             </nav>
           </div>
         </div>
       )}
-
-      {/* Меню пользователя */}
-      <div ref={profileMenuRef} className="relative">
-        <UserMenu
-          isOpen={isUserMenuOpen}
-          userInfo={userInfo}
-          onClose={handleCloseMenus}
-          onLogout={handleLogout}
-        />
-      </div>
     </header>
   );
 }

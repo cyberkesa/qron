@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import {gql} from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
   query GetProducts(
@@ -31,6 +31,21 @@ export const GET_PRODUCTS = gql`
             id
             title
             slug
+            ... on NonRootLeafCategory {
+              ancestors {
+                id
+                title
+                slug
+              }
+              parent {
+                id
+                title
+                slug
+              }
+            }
+            ... on RootLeafCategory {
+              iconUrl
+            }
           }
           stockAvailabilityStatus
           quantityMultiplicity
@@ -76,6 +91,21 @@ export const GET_PRODUCT = gql`
         id
         title
         slug
+        ... on NonRootLeafCategory {
+          ancestors {
+            id
+            title
+            slug
+          }
+          parent {
+            id
+            title
+            slug
+          }
+        }
+        ... on RootLeafCategory {
+          iconUrl
+        }
       }
       stockAvailabilityStatus
       quantityMultiplicity
@@ -105,6 +135,21 @@ export const GET_CART = gql`
                 id
                 title
                 slug
+                ... on NonRootLeafCategory {
+                  ancestors {
+                    id
+                    title
+                    slug
+                  }
+                  parent {
+                    id
+                    title
+                    slug
+                  }
+                }
+                ... on RootLeafCategory {
+                  iconUrl
+                }
               }
               stockAvailabilityStatus
               quantityMultiplicity
@@ -146,6 +191,21 @@ export const ADD_TO_CART = gql`
                     id
                     title
                     slug
+                    ... on NonRootLeafCategory {
+                      ancestors {
+                        id
+                        title
+                        slug
+                      }
+                      parent {
+                        id
+                        title
+                        slug
+                      }
+                    }
+                    ... on RootLeafCategory {
+                      iconUrl
+                    }
                   }
                   stockAvailabilityStatus
                   quantityMultiplicity
@@ -189,6 +249,21 @@ export const REMOVE_FROM_CART = gql`
                     id
                     title
                     slug
+                    ... on NonRootLeafCategory {
+                      ancestors {
+                        id
+                        title
+                        slug
+                      }
+                      parent {
+                        id
+                        title
+                        slug
+                      }
+                    }
+                    ... on RootLeafCategory {
+                      iconUrl
+                    }
                   }
                   stockAvailabilityStatus
                   quantityMultiplicity
@@ -232,6 +307,21 @@ export const UPDATE_CART_ITEM_QUANTITY = gql`
                     id
                     title
                     slug
+                    ... on NonRootLeafCategory {
+                      ancestors {
+                        id
+                        title
+                        slug
+                      }
+                      parent {
+                        id
+                        title
+                        slug
+                      }
+                    }
+                    ... on RootLeafCategory {
+                      iconUrl
+                    }
                   }
                   stockAvailabilityStatus
                   quantityMultiplicity
@@ -534,6 +624,21 @@ export const GET_BEST_DEAL_PRODUCTS = gql`
         id
         title
         slug
+        ... on NonRootLeafCategory {
+          ancestors {
+            id
+            title
+            slug
+          }
+          parent {
+            id
+            title
+            slug
+          }
+        }
+        ... on RootLeafCategory {
+          iconUrl
+        }
       }
       stockAvailabilityStatus
     }
@@ -656,17 +761,6 @@ export const GET_DELIVERY_ADDRESS = gql`
     deliveryAddress(id: $id) {
       id
       fullAddress
-    }
-  }
-`;
-
-export const GET_CATEGORIES_BY_QUERY = gql`
-  query GetCategoriesByQuery($query: String!) {
-    categoriesByQuery(query: $query) {
-      id
-      title
-      slug
-      iconUrl
     }
   }
 `;

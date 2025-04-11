@@ -1,45 +1,53 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUpIcon } from "@heroicons/react/24/outline";
 
 export function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
+    const checkScroll = () => {
+      const scrollY = window.scrollY;
+      // Показываем кнопку когда скролл больше 300px
+      const shouldShow = scrollY > 300;
+
+      if (shouldShow !== isVisible) {
+        setIsVisible(shouldShow);
       }
     };
 
-    window.addEventListener("scroll", toggleVisibility);
-
-    return () => {
-      window.removeEventListener("scroll", toggleVisibility);
-    };
-  }, []);
+    window.addEventListener("scroll", checkScroll);
+    return () => window.removeEventListener("scroll", checkScroll);
+  }, [isVisible]);
 
   const scrollToTop = () => {
+    setIsAnimating(true);
+
+    // Плавный скролл с анимацией
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
+
+    // Сбрасываем анимацию когда скролл закончен
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 500);
   };
 
-  if (!isVisible) {
-    return null;
-  }
+  if (!isVisible) return null;
 
   return (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-8 right-8 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-      aria-label="Вернуться наверх"
+      className={`fixed bottom-6 right-6 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg z-50 transition-all duration-300 ${
+        isAnimating ? "animate-bounce" : "hover:transform hover:scale-110"
+      } hover-lift`}
+      aria-label="Прокрутить вверх"
     >
-      <ArrowUpIcon className="h-6 w-6" />
+      <ArrowUpIcon className="h-5 w-5" />
     </button>
   );
 }

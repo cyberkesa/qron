@@ -21,6 +21,10 @@ object {
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;
+  --primary-color: 37, 99, 235;
+  --primary-hover: 29, 78, 216;
+  --transition-normal: 0.2s ease-in-out;
+  --transition-slow: 0.4s ease-in-out;
 }
 body {
   color: rgb(var(--foreground-rgb));
@@ -196,4 +200,292 @@ svg {
 
 .skeleton-loading {
   animation: shimmer 1.5s infinite;
+}
+
+/* Новые анимации и эффекты */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-in-out;
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.5s ease-in-out;
+}
+
+.animate-fade-in-left {
+  animation: fadeInLeft 0.5s ease-in-out;
+}
+
+.animate-fade-in-right {
+  animation: fadeInRight 0.5s ease-in-out;
+}
+
+.animate-zoom-in {
+  animation: zoomIn 0.4s ease-in-out;
+}
+
+.animate-bounce {
+  animation: bounce 2s ease infinite;
+}
+
+/* Hover эффекты */
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.hover-bright {
+  transition: filter var(--transition-normal);
+}
+
+.hover-bright:hover {
+  filter: brightness(1.1);
+}
+
+/* Эффекты для кнопок */
+.btn-pulse {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-pulse:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.btn-pulse:hover:after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(20, 20);
+    opacity: 0;
+  }
+}
+
+/* Стили для карточек товаров */
+.product-card {
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.product-card-image {
+  transition: transform var(--transition-normal);
+  overflow: hidden;
+}
+
+.product-card:hover .product-card-image img {
+  transform: scale(1.05);
+}
+
+/* Анимации для меню пользователя */
+.user-menu-enter {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+.user-menu-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.user-menu-exit {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.user-menu-exit-active {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+/* Эффекты для форм */
+.form-input {
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.form-input:focus {
+  border-color: rgb(var(--primary-color));
+  box-shadow: 0 0 0 3px rgba(var(--primary-color), 0.2);
+}
+
+/* Анимация для активной навигации */
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: rgb(var(--primary-color));
+  transition: width var(--transition-normal);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+.nav-link.active {
+  color: rgb(var(--primary-color));
+}
+
+/* Анимации для выпадающего меню */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.dropdown-menu {
+  animation: fadeInDown 0.25s ease-out forwards;
+  transform-origin: top center;
+}
+
+/* Стили для меню категорий */
+.category-dropdown {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.category-menu-item {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.category-menu-item:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.category-menu-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: rgb(37, 99, 235);
+  transition: all 0.2s ease;
+}
+
+.category-menu-item:hover::after,
+.category-menu-item.active::after {
+  width: 100%;
+  left: 0;
 }

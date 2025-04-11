@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Product, ProductStockAvailabilityStatus } from "@/types/api";
+import { Product, ProductStockAvailabilityStatus, Category } from "@/types/api";
 import { useMutation, useQuery } from "@apollo/client";
 import { ADD_TO_CART, GET_VIEWER, GET_CART } from "@/lib/queries";
 import { useApolloClient } from "@apollo/client";
@@ -11,6 +11,29 @@ import { CartItemUnified } from "@/lib/hooks/useCart";
 import { QuantityCounter } from "@/components/ui/QuantityCounter";
 import { Notification } from "@/components/ui/Notification";
 import React from "react";
+
+// Вспомогательная функция для отображения пути категории
+const formatCategoryPath = (category: Category) => {
+  if (!category) return "";
+
+  let path = category.title;
+
+  // Если это NonRootLeafCategory и есть предки или родитель
+  if (category.__typename === "NonRootLeafCategory") {
+    // Если есть предки
+    if (category.ancestors && category.ancestors.length > 0) {
+      // Показываем только последнего предка для компактности
+      const lastAncestor = category.ancestors[category.ancestors.length - 1];
+      path = `${lastAncestor.title} / ${path}`;
+    }
+    // Иначе используем родителя, если он есть
+    else if (category.parent) {
+      path = `${category.parent.title} / ${path}`;
+    }
+  }
+
+  return path;
+};
 
 interface ProductCardProps {
   product: Product;
@@ -112,22 +135,22 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
     switch (product.stockAvailabilityStatus) {
       case ProductStockAvailabilityStatus.IN_STOCK:
         return (
-          <span className="absolute top-2 right-2 bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded z-10 flex items-center">
-            <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 inline-block"></span>
+          <span className="absolute top-2 right-2 bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded-full z-10 flex items-center animate-fade-in shadow-sm">
+            <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 inline-block"></span>
             В наличии
           </span>
         );
       case ProductStockAvailabilityStatus.IN_STOCK_SOON:
         return (
-          <span className="absolute top-2 right-2 bg-yellow-100 text-amber-700 text-xs font-medium px-2 py-0.5 rounded z-10 flex items-center">
-            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mr-1 inline-block"></span>
+          <span className="absolute top-2 right-2 bg-yellow-100 text-amber-700 text-xs font-medium px-2 py-0.5 rounded-full z-10 flex items-center animate-fade-in shadow-sm">
+            <span className="w-2 h-2 bg-amber-500 rounded-full mr-1.5 inline-block"></span>
             Скоро в наличии
           </span>
         );
       case ProductStockAvailabilityStatus.OUT_OF_STOCK:
         return (
-          <span className="absolute top-2 right-2 bg-gray-100 text-gray-700 text-xs font-medium px-2 py-0.5 rounded z-10 flex items-center">
-            <span className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1 inline-block"></span>
+          <span className="absolute top-2 right-2 bg-gray-100 text-gray-700 text-xs font-medium px-2 py-0.5 rounded-full z-10 flex items-center animate-fade-in shadow-sm">
+            <span className="w-2 h-2 bg-gray-500 rounded-full mr-1.5 inline-block"></span>
             Нет в наличии
           </span>
         );
@@ -169,7 +192,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
   // Стили для карточки на основе доступности товара
   const cardClassName = useMemo(() => {
     const baseClasses =
-      "group rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-md relative h-full flex flex-col";
+      "group rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg relative h-full flex flex-col product-card";
 
     if (isOutOfStock) {
       return `${baseClasses} bg-gray-50 opacity-80`;
@@ -214,12 +237,12 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
       {getStockStatusBadge()}
 
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="h-48 overflow-hidden relative flex items-center justify-center p-4 bg-white">
+        <div className="h-48 overflow-hidden relative flex items-center justify-center p-4 bg-white product-card-image">
           {product.images && product.images.length > 0 ? (
             <Image
               src={product.images[0].url}
               alt={product.name}
-              className={`object-contain w-full h-full transition-transform duration-300 group-hover:scale-105 ${isOutOfStock ? "filter grayscale opacity-70" : ""}`}
+              className={`object-contain w-full h-full transition-transform duration-300 group-hover:scale-110 ${isOutOfStock ? "filter grayscale opacity-70" : ""}`}
               width={200}
               height={200}
               priority={false}
@@ -237,10 +260,10 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
         {product.category && (
           <Link
             href={`/categories/${product.category.slug}`}
-            className="text-xs text-gray-500 hover:text-blue-600 transition-colors mb-1 inline-block"
+            className="text-xs text-gray-500 hover:text-blue-600 transition-colors mb-1 inline-block hover-bright"
             onClick={(e) => e.stopPropagation()}
           >
-            {product.category.title}
+            {formatCategoryPath(product.category)}
           </Link>
         )}
 
@@ -277,7 +300,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
               <button
                 onClick={() => handleUpdateQuantity(1)}
                 disabled={isAddingToCart || isOutOfStock}
-                className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
+                className={`flex items-center justify-center p-2 rounded-lg transition-colors btn-pulse ${
                   isOutOfStock
                     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                     : "bg-blue-50 text-blue-600 hover:bg-blue-100"

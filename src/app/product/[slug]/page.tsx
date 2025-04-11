@@ -35,6 +35,8 @@ import {
   CurrencyRupeeIcon,
   StarIcon,
   ChevronLeftIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from "@heroicons/react/24/outline";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { useViewHistory } from "@/lib/hooks/useViewHistory";
@@ -43,6 +45,10 @@ import { useCartContext } from "@/lib/providers/CartProvider";
 import { QuantityCounter } from "@/components/ui/QuantityCounter";
 import { Notification } from "@/components/ui/Notification";
 import { RecentlyViewed } from "@/components/product-list/RecentlyViewed";
+import {
+  Breadcrumbs,
+  buildProductBreadcrumbs,
+} from "@/components/ui/Breadcrumbs";
 
 // Типы для компонента страницы продукта
 interface ProductPageProps {
@@ -359,6 +365,8 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   // Получаем текущее количество товара в корзине
   const getCurrentCartQuantity = useCallback(() => {
+    if (!data?.productBySlug) return 0;
+
     if (userData?.viewer && client) {
       // Для авторизованных пользователей получаем из кэша Apollo
       const cartData = client.readQuery({ query: GET_CART });
@@ -373,7 +381,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       );
       return cartItem?.quantity || 0;
     }
-  }, [userData?.viewer, unifiedCart.items, client, data.productBySlug.id]);
+  }, [userData?.viewer, unifiedCart.items, client, data?.productBySlug]);
 
   const currentCartQuantity = useMemo(
     () => getCurrentCartQuantity(),
@@ -602,50 +610,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     <div className="bg-white">
       {/* Хлебные крошки - уменьшенный режим на мобильных */}
       <div className="container mx-auto px-4 py-3 md:py-5">
-        <nav className="flex overflow-x-auto" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3 text-sm whitespace-nowrap">
-            <li className="inline-flex items-center">
-              <Link
-                href="/"
-                className="text-gray-500 hover:text-blue-600 transition-colors"
-              >
-                Главная
-              </Link>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <ChevronRightIcon className="h-4 w-4 text-gray-400 mx-1" />
-                <Link
-                  href="/categories"
-                  className="text-gray-500 hover:text-blue-600 transition-colors"
-                >
-                  Категории
-                </Link>
-              </div>
-            </li>
-            {product.category && (
-              <li>
-                <div className="flex items-center">
-                  <ChevronRightIcon className="h-4 w-4 text-gray-400 mx-1" />
-                  <Link
-                    href={`/categories/${product.category.slug}`}
-                    className="text-gray-500 hover:text-blue-600 transition-colors"
-                  >
-                    {product.category.title}
-                  </Link>
-                </div>
-              </li>
-            )}
-            <li aria-current="page">
-              <div className="flex items-center">
-                <ChevronRightIcon className="h-4 w-4 text-gray-400 mx-1" />
-                <span className="text-gray-700 truncate max-w-[150px] md:max-w-xs font-medium">
-                  {product.name}
-                </span>
-              </div>
-            </li>
-          </ol>
-        </nav>
+        <Breadcrumbs items={buildProductBreadcrumbs(product)} />
       </div>
 
       <div className="container mx-auto px-4 pb-16">

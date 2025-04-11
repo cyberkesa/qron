@@ -15,6 +15,10 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { ProductSorter } from "@/components/product-list/ProductSorter";
 import { StockFilter } from "@/components/product-list/StockFilter";
 import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
+import {
+  Breadcrumbs,
+  buildCategoryBreadcrumbs,
+} from "@/components/ui/Breadcrumbs";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -211,91 +215,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="mb-6">
-        <nav className="flex" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3 text-sm">
-            <li className="inline-flex items-center">
-              <Link href="/" className="text-gray-600 hover:text-blue-600">
-                Главная
-              </Link>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <span className="mx-2 text-gray-400">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </span>
-                <Link
-                  href="/categories"
-                  className="text-gray-600 hover:text-blue-600"
-                >
-                  Категории
-                </Link>
-              </div>
-            </li>
-            {/* Показываем родительскую категорию, если она есть */}
-            {category?.parent && (
-              <li>
-                <div className="flex items-center">
-                  <span className="mx-2 text-gray-400">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </span>
-                  <Link
-                    href={`/categories/${category.parent.slug}`}
-                    className="text-gray-600 hover:text-blue-600"
-                  >
-                    {category.parent.title}
-                  </Link>
-                </div>
-              </li>
-            )}
-            <li aria-current="page">
-              <div className="flex items-center">
-                <span className="mx-2 text-gray-400">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </span>
-                <span className="text-gray-500">{category?.title}</span>
-              </div>
-            </li>
-          </ol>
-        </nav>
+        <Breadcrumbs items={buildCategoryBreadcrumbs(category)} />
       </div>
 
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">

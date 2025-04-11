@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_PRODUCTS } from "@/lib/queries";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -19,6 +19,10 @@ import {
 import { ProductSorter } from "@/components/product-list/ProductSorter";
 import { StockFilter } from "@/components/product-list/StockFilter";
 import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
+import {
+  normalizeSearchString,
+  processSearchResults,
+} from "@/components/search/SearchOptimization";
 import { Suspense } from "react";
 
 // Create a client component that uses useSearchParams
@@ -34,6 +38,11 @@ function SearchPageContent() {
   const [searchInputValue, setSearchInputValue] = useState(searchQuery);
   const [hideOutOfStock, setHideOutOfStock] = useState(true);
 
+  // Нормализация поискового запроса
+  const normalizedQuery = useMemo(() => {
+    return normalizeSearchString(searchQuery);
+  }, [searchQuery]);
+
   // Запрос товаров с учетом фильтров с пагинацией
   const {
     data: productsData,
@@ -44,13 +53,13 @@ function SearchPageContent() {
     variables: {
       first: 48, // Загружаем по 48 товаров за раз
       sortOrder: sortOrder,
-      searchQuery,
+      searchQuery: normalizedQuery,
     },
-    skip: !searchQuery,
+    skip: !normalizedQuery,
   });
 
   // Подготовка данных для использования в компоненте
-  let products =
+  const rawProducts =
     productsData?.products?.edges?.map(
       (edge: { node: Product; cursor: string }) => ({
         ...edge.node,
@@ -58,15 +67,23 @@ function SearchPageContent() {
       }),
     ) || [];
 
-  // Удаляем дубликаты по ID товара
-  const uniqueProductIds = new Set();
-  products = products.filter((product: Product) => {
-    if (uniqueProductIds.has(product.id)) {
-      return false;
+  // Обработка и фильтрация результатов
+  const products = useMemo(() => {
+    // Используем нашу утилиту для обработки результатов
+    return processSearchResults(rawProducts, normalizedQuery, false);
+  }, [rawProducts, normalizedQuery]);
+
+  // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
+  const filteredProducts = useMemo(() => {
+    if (hideOutOfStock) {
+      return products.filter(
+        (product: Product) =>
+          product.stockAvailabilityStatus !==
+          ProductStockAvailabilityStatus.OUT_OF_STOCK,
+      );
     }
-    uniqueProductIds.add(product.id);
-    return true;
-  });
+    return products;
+  }, [products, hideOutOfStock]);
 
   const hasMoreProducts =
     productsData?.products?.pageInfo?.hasNextPage || false;
@@ -75,15 +92,6 @@ function SearchPageContent() {
 
   // Получаем общее количество товаров
   const totalProductsCount = products.length;
-
-  // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
-  if (hideOutOfStock) {
-    products = products.filter(
-      (product: Product) =>
-        product.stockAvailabilityStatus !==
-        ProductStockAvailabilityStatus.OUT_OF_STOCK,
-    );
-  }
 
   // Обновляем URL при изменении фильтров
   useEffect(() => {
@@ -131,7 +139,7 @@ function SearchPageContent() {
             after: productsData.products.pageInfo.endCursor,
             first: 48,
             sortOrder,
-            searchQuery,
+            searchQuery: normalizedQuery,
           },
         });
       }
@@ -140,7 +148,10 @@ function SearchPageContent() {
 
   // Состояние без результатов поиска
   const noResults =
-    !isDataLoading && !productsError && products.length === 0 && searchQuery;
+    !isDataLoading &&
+    !productsError &&
+    filteredProducts.length === 0 &&
+    normalizedQuery;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -272,7 +283,7 @@ function SearchPageContent() {
 
               {/* Сетка товаров */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map(
+                {filteredProducts.map(
                   (product: Product & { cursor?: string }, index: number) => (
                     <ProductCard
                       key={`search-${product.id}-${index}-${Math.random().toString(36).substring(2, 9)}`}
@@ -290,7 +301,7 @@ function SearchPageContent() {
               )}
 
               {/* Сообщение об окончании списка товаров */}
-              {!hasMoreProducts && products.length > 0 && (
+              {!hasMoreProducts && filteredProducts.length > 0 && (
                 <div className="mt-8 text-center py-4 bg-gray-50 rounded-lg border border-gray-200">
                   <p className="text-gray-500">
                     Загружены все доступные товары

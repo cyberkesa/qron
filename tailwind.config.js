@@ -33,10 +33,17 @@ module.exports = {
         },
       },
       animation: {
-        fadeIn: "fadeIn 0.3s ease-in-out",
+        fadeIn: "fadeIn 0.5s ease-in-out",
       },
       scale: {
         98: "0.98",
+      },
+      zIndex: {
+        60: "60",
+        70: "70",
+        80: "80",
+        90: "90",
+        100: "100",
       },
     },
     screens: {

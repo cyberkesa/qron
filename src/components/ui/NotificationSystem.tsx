@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
@@ -10,6 +10,7 @@ import { Notification, NotificationType } from "@/lib/hooks/useNotifications";
 interface NotificationItemProps {
   notification: Notification;
   onDismiss: (id: string) => void;
+  index: number;
 }
 
 const getIconByType = (type: NotificationType) => {
@@ -57,22 +58,55 @@ const getTextColorByType = (type: NotificationType) => {
 const NotificationItem: React.FC<NotificationItemProps> = ({
   notification,
   onDismiss,
+  index,
 }) => {
+  const [isExiting, setIsExiting] = useState(false);
   const bgColor = getBgColorByType(notification.type);
   const textColor = getTextColorByType(notification.type);
 
+  // Автоматическое закрытие с анимацией
+  useEffect(() => {
+    if (notification.timeout) {
+      const timer = setTimeout(() => {
+        setIsExiting(true);
+
+        // Задержка перед удалением для анимации
+        setTimeout(() => {
+          onDismiss(notification.id);
+        }, 300);
+      }, notification.timeout);
+
+      return () => clearTimeout(timer);
+    }
+  }, [notification, onDismiss]);
+
+  const handleDismiss = () => {
+    setIsExiting(true);
+    setTimeout(() => {
+      onDismiss(notification.id);
+    }, 300);
+  };
+
+  // Вычисление анимации и стилей
+  const animationClass = isExiting
+    ? "animate-fade-out opacity-0 transform translate-x-4"
+    : "animate-fade-in-right";
+
+  const animationDelay = index * 100;
+
   return (
     <div
-      className={`${bgColor} border p-4 rounded-lg shadow-md flex items-start mb-3 animate-fade-in transition-all duration-300`}
+      className={`${bgColor} border px-4 py-3 rounded-lg shadow-md flex items-start mb-3 ${animationClass} transition-all duration-300`}
       role="alert"
+      style={{ animationDelay: `${animationDelay}ms` }}
     >
       <div className="flex-shrink-0 mr-3">
         {getIconByType(notification.type)}
       </div>
       <div className={`flex-1 ${textColor}`}>{notification.message}</div>
       <button
-        onClick={() => onDismiss(notification.id)}
-        className={`flex-shrink-0 ml-2 ${textColor} hover:bg-opacity-20 hover:bg-gray-500 rounded-full p-1`}
+        onClick={handleDismiss}
+        className={`flex-shrink-0 ml-2 hover:bg-opacity-20 hover:bg-gray-500 rounded-full p-1 transition-colors ${textColor} hover-scale`}
         aria-label="Закрыть уведомление"
       >
         <XMarkIcon className="h-5 w-5" />
@@ -94,11 +128,12 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = ({
 
   return (
     <div className="fixed top-5 right-5 z-50 max-w-sm space-y-2 w-full">
-      {notifications.map((notification) => (
+      {notifications.map((notification, index) => (
         <NotificationItem
           key={notification.id}
           notification={notification}
           onDismiss={onDismiss}
+          index={index}
         />
       ))}
     </div>
