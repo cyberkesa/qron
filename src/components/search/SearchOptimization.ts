@@ -2,7 +2,7 @@
  * Утилиты для оптимизации поиска
  */
 
-import {Category, Product, ProductStockAvailabilityStatus} from '@/types/api';
+import { Category, Product, ProductStockAvailabilityStatus } from "@/types/api";
 
 /**
  * Нормализует строку для поиска:
@@ -11,51 +11,51 @@ import {Category, Product, ProductStockAvailabilityStatus} from '@/types/api';
  * - Удаляет диакритические знаки и специальные символы
  */
 export function normalizeSearchString(text: string): string {
-  if (!text) return '';
+  if (!text) return "";
 
   // Приводим к нижнему регистру и удаляем множественные пробелы
-  let normalized = text.toLowerCase().trim().replace(/\s+/g, ' ');
+  let normalized = text.toLowerCase().trim().replace(/\s+/g, " ");
 
   // Удаляем диакритические знаки (например, преобразуем "é" в "e")
-  normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  normalized = normalized.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
   // Транслитерация русских символов (пример: "лопата" -> "lopata")
   // Это поможет найти результаты даже если пользователь случайно переключился
   // на другую раскладку
   const russianMap: Record<string, string> = {
-    'а': 'a',
-    'б': 'b',
-    'в': 'v',
-    'г': 'g',
-    'д': 'd',
-    'е': 'e',
-    'ё': 'yo',
-    'ж': 'zh',
-    'з': 'z',
-    'и': 'i',
-    'й': 'y',
-    'к': 'k',
-    'л': 'l',
-    'м': 'm',
-    'н': 'n',
-    'о': 'o',
-    'п': 'p',
-    'р': 'r',
-    'с': 's',
-    'т': 't',
-    'у': 'u',
-    'ф': 'f',
-    'х': 'h',
-    'ц': 'ts',
-    'ч': 'ch',
-    'ш': 'sh',
-    'щ': 'sch',
-    'ъ': '',
-    'ы': 'y',
-    'ь': '',
-    'э': 'e',
-    'ю': 'yu',
-    'я': 'ya'
+    а: "a",
+    б: "b",
+    в: "v",
+    г: "g",
+    д: "d",
+    е: "e",
+    ё: "yo",
+    ж: "zh",
+    з: "z",
+    и: "i",
+    й: "y",
+    к: "k",
+    л: "l",
+    м: "m",
+    н: "n",
+    о: "o",
+    п: "p",
+    р: "r",
+    с: "s",
+    т: "t",
+    у: "u",
+    ф: "f",
+    х: "h",
+    ц: "ts",
+    ч: "ch",
+    ш: "sh",
+    щ: "sch",
+    ъ: "",
+    ы: "y",
+    ь: "",
+    э: "e",
+    ю: "yu",
+    я: "ya",
   };
 
   return normalized;
@@ -65,7 +65,9 @@ export function normalizeSearchString(text: string): string {
  * Рассчитывает оценку релевантности для товара по поисковому запросу
  */
 export function calculateProductRelevance(
-    product: Product, searchQuery: string): number {
+  product: Product,
+  searchQuery: string,
+): number {
   if (!searchQuery || !product) return 0;
 
   const normalizedQuery = normalizeSearchString(searchQuery);
@@ -112,8 +114,9 @@ export function calculateProductRelevance(
   }
 
   // Учитываем наличие товара (в наличии имеет приоритет)
-  if (product.stockAvailabilityStatus ===
-      ProductStockAvailabilityStatus.IN_STOCK) {
+  if (
+    product.stockAvailabilityStatus === ProductStockAvailabilityStatus.IN_STOCK
+  ) {
     score += 5;
   }
 
@@ -124,22 +127,24 @@ export function calculateProductRelevance(
  * Сортирует результаты поиска по релевантности
  */
 export function sortProductsByRelevance(
-    products: Product[], searchQuery: string): Product[] {
+  products: Product[],
+  searchQuery: string,
+): Product[] {
   const normalizedQuery = normalizeSearchString(searchQuery);
 
   if (!normalizedQuery || !products.length) return products;
 
   // Рассчитываем релевантность для каждого товара и храним её локально
-  const productsWithRelevance = products.map(product => {
+  const productsWithRelevance = products.map((product) => {
     const relevanceScore = calculateProductRelevance(product, normalizedQuery);
-    return {product, relevanceScore};
+    return { product, relevanceScore };
   });
 
   // Сортируем по релевантности (от высокой к низкой)
   productsWithRelevance.sort((a, b) => b.relevanceScore - a.relevanceScore);
 
   // Возвращаем исходные объекты продуктов, но в отсортированном порядке
-  return productsWithRelevance.map(item => item.product);
+  return productsWithRelevance.map((item) => item.product);
 }
 
 /**
@@ -166,8 +171,10 @@ export function removeDuplicateProducts(products: Product[]): Product[] {
  * - При необходимости фильтрует по наличию
  */
 export function processSearchResults(
-    products: Product[], searchQuery: string,
-    hideOutOfStock = true): Product[] {
+  products: Product[],
+  searchQuery: string,
+  hideOutOfStock = true,
+): Product[] {
   // Удаляем дубликаты
   let processedProducts = removeDuplicateProducts(products);
 
@@ -177,8 +184,10 @@ export function processSearchResults(
   // Фильтруем отсутствующие товары, если нужно
   if (hideOutOfStock) {
     processedProducts = processedProducts.filter(
-        product => product.stockAvailabilityStatus !==
-            ProductStockAvailabilityStatus.OUT_OF_STOCK);
+      (product) =>
+        product.stockAvailabilityStatus !==
+        ProductStockAvailabilityStatus.OUT_OF_STOCK,
+    );
   }
 
   return processedProducts;

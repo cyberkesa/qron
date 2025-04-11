@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { useQuery, useMutation, useApolloClient } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -14,41 +12,28 @@ import {
   GET_VIEWER,
   GET_CART,
 } from "@/lib/queries";
-import { ProductStockAvailabilityStatus } from "@/types/api";
-import {
-  CheckIcon,
-  XMarkIcon,
-  ShoppingCartIcon,
-  MapPinIcon,
-  HashtagIcon,
-  ClockIcon,
-  InformationCircleIcon,
-  ChevronRightIcon,
-  PlusIcon,
-  MinusIcon,
-  CreditCardIcon,
-  TruckIcon,
-  ShieldCheckIcon,
-  ArrowsPointingOutIcon,
-  CheckBadgeIcon,
-  PhotoIcon,
-  CurrencyRupeeIcon,
-  StarIcon,
-  ChevronLeftIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from "@heroicons/react/24/outline";
+import { ProductStockAvailabilityStatus, Region } from "@/types/api";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
+import Link from "next/link";
 import { useViewHistory } from "@/lib/hooks/useViewHistory";
 import { SimilarProducts } from "@/components/product-list/SimilarProducts";
 import { useCartContext } from "@/lib/providers/CartProvider";
-import { QuantityCounter } from "@/components/ui/QuantityCounter";
 import { Notification } from "@/components/ui/Notification";
 import { RecentlyViewed } from "@/components/product-list/RecentlyViewed";
 import {
   Breadcrumbs,
   buildProductBreadcrumbs,
 } from "@/components/ui/Breadcrumbs";
+import { trackEvent } from "@/lib/analytics";
+
+// Импортируем созданные компоненты
+import ProductImageGallery, {
+  ProductImage,
+} from "@/components/product/ProductImageGallery";
+import ProductInfo from "@/components/product/ProductInfo";
+import ProductTabs from "@/components/product/ProductTabs";
+import MobileAddToCart from "@/components/product/MobileAddToCart";
+import RegionSelector from "@/components/product/RegionSelector";
 
 // Типы для компонента страницы продукта
 interface ProductPageProps {
@@ -64,216 +49,6 @@ interface ProductAttribute {
   name: string;
   value: string;
 }
-
-// Локальный интерфейс для региона, соответствующий ApiRegion
-interface Region {
-  id: string;
-  name: string;
-}
-
-interface ProductImage {
-  id: string;
-  url: string;
-  alt: string;
-}
-
-// Новый компонент для галереи изображений
-const ProductImageGallery = React.memo(
-  ({
-    images,
-    productName,
-  }: {
-    images: ProductImage[];
-    productName: string;
-  }) => {
-    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-    const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-
-    // Мемоизируем текущее изображение
-    const currentImage = useMemo(() => {
-      return images[selectedImageIndex] || images[0];
-    }, [images, selectedImageIndex]);
-
-    // Обработчик изменения изображения
-    const handleImageChange = useCallback((index: number) => {
-      setSelectedImageIndex(index);
-    }, []);
-
-    // Обработчик открытия/закрытия галереи
-    const handleGalleryToggle = useCallback(() => {
-      setIsGalleryOpen((prev) => !prev);
-    }, []);
-
-    return (
-      <div className="flex flex-col space-y-4 relative md:sticky md:top-4 sm:pb-6">
-        <div className="rounded-xl overflow-hidden aspect-square relative">
-          {currentImage ? (
-            <>
-              <Image
-                src={currentImage.url}
-                alt={currentImage.alt}
-                className="object-contain p-6"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
-              <button
-                className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none"
-                onClick={handleGalleryToggle}
-                aria-label="Открыть полноэкранный просмотр"
-              >
-                <ArrowsPointingOutIcon className="h-5 w-5 text-gray-600" />
-              </button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
-              <PhotoIcon className="h-16 w-16 mb-2" />
-              <span>Изображение отсутствует</span>
-            </div>
-          )}
-
-          {/* Навигация по изображениям */}
-          {images.length > 1 && (
-            <>
-              <button
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none group"
-                onClick={() =>
-                  handleImageChange(
-                    (selectedImageIndex - 1 + images.length) % images.length,
-                  )
-                }
-                aria-label="Предыдущее изображение"
-              >
-                <ChevronLeftIcon className="h-5 w-5 text-gray-600 group-hover:text-gray-900" />
-              </button>
-              <button
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-md hover:bg-white transition-all focus:outline-none group"
-                onClick={() =>
-                  handleImageChange((selectedImageIndex + 1) % images.length)
-                }
-                aria-label="Следующее изображение"
-              >
-                <ChevronRightIcon className="h-5 w-5 text-gray-600 group-hover:text-gray-900" />
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Миниатюры изображений */}
-        {images.length > 1 && (
-          <div className="flex space-x-2 overflow-x-auto overflow-y-hidden py-2 px-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 no-scrollbar">
-            {images.map((image: ProductImage, index: number) => (
-              <button
-                key={image.id}
-                className={`relative flex-shrink-0 ${
-                  selectedImageIndex === index
-                    ? "border-2 border-blue-600 ring-2 ring-blue-200"
-                    : "border border-gray-200 hover:border-gray-300"
-                } rounded-lg w-16 h-16 sm:w-20 sm:h-20 transition-all focus:outline-none`}
-                onClick={() => handleImageChange(index)}
-                aria-label={`Выбрать изображение ${index + 1}`}
-              >
-                <Image
-                  src={image.url}
-                  alt={`${productName} - изображение ${index + 1}`}
-                  className="object-contain p-1"
-                  width={80}
-                  height={80}
-                  sizes="80px"
-                />
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Полноэкранный просмотр галереи */}
-        {isGalleryOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
-            <div className="relative w-full h-full">
-              <button
-                className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 transition-colors p-2 rounded-full text-white z-10"
-                onClick={() => setIsGalleryOpen(false)}
-                aria-label="Закрыть галерею"
-              >
-                <XMarkIcon className="h-6 w-6" />
-              </button>
-
-              <div className="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center">
-                <Image
-                  src={currentImage.url}
-                  alt={currentImage.alt}
-                  className="object-contain p-8"
-                  width={1200}
-                  height={1200}
-                  sizes="100vw"
-                />
-              </div>
-
-              {images.length > 1 && (
-                <>
-                  <button
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 transition-colors p-3 rounded-full text-white"
-                    onClick={() =>
-                      handleImageChange(
-                        (selectedImageIndex - 1 + images.length) %
-                          images.length,
-                      )
-                    }
-                    aria-label="Предыдущее изображение"
-                  >
-                    <ChevronLeftIcon className="h-6 w-6" />
-                  </button>
-                  <button
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 transition-colors p-3 rounded-full text-white"
-                    onClick={() =>
-                      handleImageChange(
-                        (selectedImageIndex + 1) % images.length,
-                      )
-                    }
-                    aria-label="Следующее изображение"
-                  >
-                    <ChevronRightIcon className="h-6 w-6" />
-                  </button>
-                </>
-              )}
-
-              {/* Миниатюры в галерее */}
-              {images.length > 1 && (
-                <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center p-4 bg-black/50 backdrop-blur-sm">
-                  <div className="flex space-x-2 overflow-x-auto">
-                    {images.map((image: ProductImage, index: number) => (
-                      <button
-                        key={image.id}
-                        className={`relative ${
-                          selectedImageIndex === index
-                            ? "border-2 border-white"
-                            : "border border-gray-600 opacity-70 hover:opacity-100"
-                        } rounded-md w-16 h-16 transition-all focus:outline-none`}
-                        onClick={() => handleImageChange(index)}
-                        aria-label={`Выбрать изображение ${index + 1}`}
-                      >
-                        <Image
-                          src={image.url}
-                          alt={`${productName} - изображение ${index + 1}`}
-                          className="object-contain p-1"
-                          width={64}
-                          height={64}
-                          sizes="64px"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  },
-);
-
-ProductImageGallery.displayName = "ProductImageGallery";
 
 // Компонент страницы продукта
 export default function ProductPage({ params }: ProductPageProps) {
@@ -360,8 +135,16 @@ export default function ProductPage({ params }: ProductPageProps) {
   useEffect(() => {
     if (data?.productBySlug) {
       addToHistory(data.productBySlug);
+
+      // Отслеживаем просмотр товара в Яндекс.Метрике
+      trackEvent("product_view", {
+        product_id: data.productBySlug.id,
+        product_name: data.productBySlug.name,
+        product_price: data.productBySlug.price,
+        product_category: data.productBySlug.category?.title || "Без категории",
+      });
     }
-  }, [data?.productBySlug, addToHistory]); // Use the full object as dependency
+  }, [data?.productBySlug, addToHistory]);
 
   // Получаем текущее количество товара в корзине
   const getCurrentCartQuantity = useCallback(() => {
@@ -446,6 +229,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       }
 
       showNotificationWithMessage("Товар добавлен в корзину");
+      trackEvent("product_added_to_cart", { productId: data.productBySlug.id });
     } catch (error) {
       console.error("Error adding to cart:", error);
       showNotificationWithMessage(
@@ -509,6 +293,13 @@ export default function ProductPage({ params }: ProductPageProps) {
       unifiedAddToCart,
     ],
   );
+
+  const handleRegionSelect = useCallback((region: Region) => {
+    localStorage.setItem("selectedRegion", JSON.stringify(region));
+    setCurrentRegion(region);
+    setShowRegionModal(false);
+    window.location.reload(); // Перезагрузка для применения нового региона
+  }, []);
 
   if (loading) {
     return (
@@ -574,38 +365,6 @@ export default function ProductPage({ params }: ProductPageProps) {
   const productAttributes =
     (product as { attributes?: ProductAttribute[] }).attributes || [];
 
-  const renderRegionSelection = () => {
-    return (
-      <div className="mt-4">
-        <p className="text-sm text-gray-600 mb-2">Выберите регион:</p>
-        <select
-          className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          value={currentRegion?.id || ""}
-          onChange={(e) => {
-            const selectedRegion = regionsData?.regions.find(
-              (r: Region) => r.id === e.target.value,
-            );
-            if (selectedRegion) {
-              localStorage.setItem(
-                "selectedRegion",
-                JSON.stringify(selectedRegion),
-              );
-              setCurrentRegion(selectedRegion);
-              window.location.reload(); // Перезагрузка для применения нового региона
-            }
-          }}
-        >
-          <option value="">Выберите регион</option>
-          {regionsData?.regions?.map((region: Region) => (
-            <option key={region.id} value={region.id}>
-              {region.name}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  };
-
   return (
     <div className="bg-white">
       {/* Хлебные крошки - уменьшенный режим на мобильных */}
@@ -615,7 +374,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
       <div className="container mx-auto px-4 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 relative mb-12">
-          {/* Галерея изображений - теперь отдельный компонент */}
+          {/* Галерея изображений */}
           <div className="lg:sticky lg:top-4 self-start">
             <ProductImageGallery
               images={productImages}
@@ -624,452 +383,47 @@ export default function ProductPage({ params }: ProductPageProps) {
           </div>
 
           {/* Информация о товаре */}
-          <div className="flex flex-col">
-            {/* Заголовок и артикул */}
-            <div className="mb-4">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                {product.name}
-              </h1>
-
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                {product.sku && (
-                  <div className="flex items-center">
-                    <span>Артикул: </span>
-                    <span className="ml-1 font-medium">{product.sku}</span>
-                  </div>
-                )}
-
-                {product.category && (
-                  <Link
-                    href={`/categories/${product.category.slug}`}
-                    className="text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    {product.category.title}
-                  </Link>
-                )}
-
-                {/* Регион */}
-                <div className="flex items-center">
-                  <MapPinIcon className="h-4 w-4 mr-1" />
-                  <span>
-                    {currentRegion?.name ||
-                      regionData?.viewer?.region?.name ||
-                      "Не выбран"}
-                  </span>
-                  <button
-                    className="ml-1 text-blue-600 underline hover:text-blue-800"
-                    onClick={() => setShowRegionModal(!showRegionModal)}
-                  >
-                    Изменить
-                  </button>
-                </div>
-              </div>
-
-              {showRegionModal && renderRegionSelection()}
-            </div>
-
-            {/* Цена и статус наличия */}
-            <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-100">
-              <div className="flex flex-wrap items-end gap-3 mb-4">
-                <span className="text-3xl font-bold text-gray-900">
-                  {formatPrice(product.price)}
-                </span>
-
-                {product.oldPrice && product.oldPrice > product.price && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg text-gray-500 line-through">
-                      {formatPrice(product.oldPrice)}
-                    </span>
-                    <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                      -
-                      {Math.round((1 - product.price / product.oldPrice) * 100)}
-                      %
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Статус наличия */}
-              <div className="mb-4 space-y-3">
-                {!notAvailableInRegion ? (
-                  <div className="flex flex-wrap items-center gap-3">
-                    {/* Бейдж "В наличии" */}
-                    <div className="flex items-center px-3 py-1.5 bg-green-50 border border-green-100 text-green-700 rounded-full transition-all hover:bg-green-100">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                      <span className="font-medium text-sm">В наличии</span>
-                    </div>
-
-                    {/* Остаток на складе */}
-                    {product.stock > 0 && (
-                      <div className="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full">
-                        <HashtagIcon className="h-3.5 w-3.5 mr-1.5 text-gray-400" />
-                        <span>
-                          Осталось: {product.stock} {product.unit || "шт"}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {/* Бейдж "Нет в наличии" */}
-                    <div className="flex items-center px-3 py-1.5 bg-red-50 border border-red-100 text-red-700 rounded-full">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                      <span className="font-medium text-sm">Нет в наличии</span>
-                    </div>
-
-                    {/* Ожидается поступление */}
-                    {product.stockAvailabilityStatus ===
-                      ProductStockAvailabilityStatus.IN_STOCK_SOON && (
-                      <div className="flex items-center text-sm text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full">
-                        <ClockIcon className="h-3.5 w-3.5 mr-1.5 text-amber-500" />
-                        <span>Ожидается через 1-2 недели</span>
-                      </div>
-                    )}
-
-                    {/* Блок с предложением проверить другие регионы */}
-                    <div className="p-3 bg-blue-50/80 border border-blue-200 rounded-lg text-sm text-blue-800 transition-all hover:bg-blue-100/50">
-                      <div className="flex items-start">
-                        <InformationCircleIcon className="h-4 w-4 mt-0.5 mr-1.5 text-blue-500 flex-shrink-0" />
-                        <div>
-                          <p>
-                            Проверьте наличие в других регионах или{" "}
-                            <button
-                              onClick={() => setShowRegionModal(true)}
-                              className="font-medium underline hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 rounded"
-                            >
-                              выберите регион
-                            </button>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Количество и добавление в корзину */}
-              <div className="flex items-center space-x-4">
-                {currentCartQuantity > 0 ? (
-                  <div className="flex items-center border rounded-md overflow-hidden bg-white shadow-sm">
-                    <button
-                      onClick={() => handleUpdateQuantity(-1)}
-                      disabled={
-                        currentCartQuantity <=
-                        (data?.productBySlug?.quantityMultiplicity || 1)
-                      }
-                      className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition disabled:opacity-50 disabled:hover:bg-white"
-                    >
-                      <MinusIcon className="h-4 w-4" />
-                    </button>
-                    <div className="w-12 text-center font-medium">
-                      {currentCartQuantity}
-                    </div>
-                    <button
-                      onClick={() => handleUpdateQuantity(1)}
-                      className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition"
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart || notAvailableInRegion}
-                    className={`flex-1 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors ${
-                      isAddingToCart ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                  >
-                    {isAddingToCart ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                        Добавление...
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center">
-                        <ShoppingCartIcon className="h-5 w-5 mr-2" />
-                        Добавить в корзину
-                      </div>
-                    )}
-                  </button>
-                )}
-              </div>
-
-              {/* Информация о шаге, если он больше 1 */}
-              {product.quantityMultiplicity &&
-                product.quantityMultiplicity > 1 && (
-                  <div className="mt-3 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-800">
-                    <span className="flex flex-col items-start gap-1.5">
-                      <span className="flex items-start">
-                        <ExclamationTriangleIcon className="h-4 w-4 mt-0.5 mr-1.5 shrink-0 text-amber-500" />
-                        <div className="flex flex-col gap-1">
-                          <span className="font-medium">
-                            Фасовка:{" "}
-                            <b className="text-gray-900">
-                              {product.quantityMultiplicity} шт. в упаковке
-                            </b>
-                          </span>
-                          <span className="text-sm text-gray-600">
-                            ◉ Цена указана за 1 шт.
-                            <br />◉ В корзине считается количеством шт.
-                          </span>
-                        </div>
-                      </span>
-                    </span>
-                  </div>
-                )}
-            </div>
-
-            {/* Блок с преимуществами */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-              {/* <!-- 1 --> */}
-              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-                <ShieldCheckIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-900 text-sm">
-                    Оригинальная продукция
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    Напрямую от производителей
-                  </p>
-                </div>
-              </div>
-
-              {/* <!-- 2 --> */}
-              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-                <StarIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-900 text-sm">
-                    Сертифицированное качество
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    С официальной гарантией
-                  </p>
-                </div>
-              </div>
-
-              {/* <!-- 3 --> */}
-              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-                <CreditCardIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-900 text-sm">
-                    Удобная оплата
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    Принимаем все формы расчетов
-                  </p>
-                </div>
-              </div>
-
-              {/* <!-- 4 --> */}
-              <div className="bg-gray-50 rounded-lg p-3 flex items-start border border-gray-100">
-                <CheckBadgeIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <div>
-                  <h3 className="font-medium text-gray-900 text-sm">
-                    Официальный дистрибьютор
-                  </h3>
-                  <p className="text-xs text-gray-500">Без посредников</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ProductInfo
+            product={product}
+            currentRegion={currentRegion}
+            currentCartQuantity={currentCartQuantity}
+            isAddingToCart={isAddingToCart}
+            notAvailableInRegion={notAvailableInRegion}
+            onAddToCart={handleAddToCart}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRegionChange={() => setShowRegionModal(true)}
+            formatPrice={formatPrice}
+          />
         </div>
 
         {/* Вкладки с информацией */}
-        <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
-          <div className="flex overflow-x-auto border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab("description")}
-              className={`py-4 px-6 text-sm font-medium whitespace-nowrap transition-colors ${
-                activeTab === "description"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-900"
-              }`}
-            >
-              Описание
-            </button>
-            {/* <button
-              onClick={() => setActiveTab("specs")}
-              className={`py-4 px-6 text-sm font-medium whitespace-nowrap transition-colors ${
-                activeTab === "specs"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-900"
-              }`}
-            >
-              Характеристики
-            </button> */}
-            <button
-              onClick={() => setActiveTab("delivery")}
-              className={`py-4 px-6 text-sm font-medium whitespace-nowrap transition-colors ${
-                activeTab === "delivery"
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-900"
-              }`}
-            >
-              Доставка и оплата
-            </button>
-          </div>
-
-          {/* Содержимое вкладок */}
-          <div className="p-6">
-            {activeTab === "description" && (
-              <div className="prose prose-blue max-w-none">
-                <div
-                  dangerouslySetInnerHTML={{ __html: product.description }}
-                />
-              </div>
-            )}
-
-            {activeTab === "specs" && (
-              <div>
-                {productAttributes && productAttributes.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {productAttributes.map(
-                      (attr: ProductAttribute, index: number) => (
-                        <div
-                          key={index}
-                          className="flex justify-between py-3 border-b border-gray-100 even:bg-gray-50 px-3 rounded-lg"
-                        >
-                          <span className="text-gray-600">{attr.name}</span>
-                          <span className="font-medium text-gray-900">
-                            {attr.value}
-                          </span>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-6 text-gray-500">
-                    <div className="mb-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-12 w-12 mx-auto text-gray-300"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1}
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                        />
-                      </svg>
-                    </div>
-                    <p>Характеристики не указаны</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === "delivery" && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">
-                    Доставка
-                  </h3>
-                  <div className="bg-blue-50 rounded-lg p-4 text-blue-800 text-sm">
-                    <div className="flex items-start">
-                      <TruckIcon className="h-5 w-5 mt-0.5 mr-3 shrink-0" />
-                      <div>
-                        <p className="mb-2">
-                          Мы осуществляем доставку по всей России. Сроки
-                          доставки зависят от вашего региона и обычно составляют
-                          от 1 до 7 рабочих дней.
-                        </p>
-                        <p>
-                          <span className="font-medium">Текущий регион:</span>{" "}
-                          {currentRegion?.name ||
-                            regionData?.viewer?.region?.name ||
-                            "Не выбран"}
-                          <button
-                            onClick={() => setShowRegionModal(true)}
-                            className="ml-2 underline hover:text-blue-600"
-                          >
-                            Изменить
-                          </button>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">
-                    Оплата
-                  </h3>
-                  <p className="mb-3 text-gray-600">
-                    Доступны следующие способы оплаты:
-                  </p>
-                  <ul className="space-y-2">
-                    <li className="flex items-center bg-gray-50 p-3 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                      <span>Оплата наличными или картой при получении</span>
-                    </li>
-                    <li className="flex items-center bg-gray-50 p-3 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                      <span>
-                        Оплата по безналичному расчету (для юридических лиц)
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <ProductTabs
+          description={product.description}
+          attributes={productAttributes}
+          currentRegion={currentRegion}
+          onRegionChange={() => setShowRegionModal(true)}
+        />
       </div>
 
       {/* "Липкая" панель покупки для мобильных устройств */}
-      <div className="fixed bottom-0 left-0 right-0 md:hidden bg-white border-t border-gray-200 p-3 shadow-lg z-50">
-        <div className="flex items-center gap-3">
-          <div className="flex-shrink-0">
-            <span className="text-xl font-bold text-gray-900">
-              {formatPrice(product.price)}
-            </span>
-          </div>
-          {currentCartQuantity > 0 ? (
-            <QuantityCounter
-              quantity={currentCartQuantity}
-              minQuantity={product.quantityMultiplicity || 1}
-              onIncrement={() => handleUpdateQuantity(1)}
-              onDecrement={() => handleUpdateQuantity(-1)}
-              isLoading={isAddingToCart}
-              className="flex-1"
-            />
-          ) : (
-            <button
-              onClick={handleAddToCart}
-              disabled={isAddingToCart || notAvailableInRegion}
-              className={`flex-1 py-3 px-4 rounded-lg font-medium text-base transition-all ${
-                notAvailableInRegion
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700 active:scale-98 shadow-sm"
-              }`}
-            >
-              {isAddingToCart ? (
-                <span className="flex items-center justify-center">
-                  <div className="animate-spin h-5 w-5 mr-2 border-2 border-white border-t-transparent rounded-full"></div>
-                  Добавление...
-                </span>
-              ) : notAvailableInRegion ? (
-                "Нет в наличии"
-              ) : (
-                <span className="flex items-center justify-center">
-                  <ShoppingCartIcon className="h-5 w-5 mr-2" />В корзину
-                </span>
-              )}
-            </button>
-          )}
-        </div>
-      </div>
+      <MobileAddToCart
+        price={product.price}
+        formatPrice={formatPrice}
+        currentCartQuantity={currentCartQuantity}
+        isAddingToCart={isAddingToCart}
+        notAvailableInRegion={notAvailableInRegion}
+        quantityMultiplicity={product.quantityMultiplicity || 1}
+        onAddToCart={handleAddToCart}
+        onUpdateQuantity={handleUpdateQuantity}
+      />
 
       {/* Всплывающее уведомление о добавлении в корзину */}
-      {showAddedNotification && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-sm py-2 px-4 rounded-lg z-50 shadow-lg flex items-center space-x-2 animate-fadeIn">
-          <CheckIcon className="h-5 w-5" />
-          <span>Товар добавлен в корзину</span>
-        </div>
-      )}
+      <Notification
+        message={notificationMessage}
+        type={notificationType}
+        isVisible={showNotification}
+        onClose={() => setShowNotification(false)}
+      />
 
       {/* Добавляем блок с похожими товарами в конец страницы */}
       {data?.productBySlug && (
@@ -1081,11 +435,13 @@ export default function ProductPage({ params }: ProductPageProps) {
         <RecentlyViewed excludeProductId={data.productBySlug.id} />
       )}
 
-      <Notification
-        message={notificationMessage}
-        type={notificationType}
-        isVisible={showNotification}
-        onClose={() => setShowNotification(false)}
+      {/* Модальное окно выбора региона */}
+      <RegionSelector
+        show={showRegionModal}
+        regions={regionsData?.regions || []}
+        currentRegion={currentRegion}
+        onRegionSelect={handleRegionSelect}
+        onClose={() => setShowRegionModal(false)}
       />
     </div>
   );

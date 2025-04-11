@@ -5,8 +5,9 @@ import {
   ArrowRightIcon,
   TrashIcon,
   ExclamationCircleIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import {
   GET_CART,
@@ -31,6 +32,33 @@ export function Cart() {
   const [isRemoving, setIsRemoving] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [operationError, setOperationError] = useState<string | null>(null);
+
+  // Разделяем товары на обычные и проблемные (нет в наличии или с нулевой ценой)
+  const { validItems, problematicItems } = useMemo(() => {
+    const valid: CartItemUnified[] = [];
+    const problematic: CartItemUnified[] = [];
+
+    cart.items.forEach((item) => {
+      if (
+        item.product.stockAvailabilityStatus === "OUT_OF_STOCK" ||
+        item.product.price <= 0
+      ) {
+        problematic.push(item);
+      } else {
+        valid.push(item);
+      }
+    });
+
+    return { validItems: valid, problematicItems: problematic };
+  }, [cart.items]);
+
+  // Подсчет общей суммы только для доступных товаров
+  const validItemsTotal = useMemo(() => {
+    return validItems.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0,
+    );
+  }, [validItems]);
 
   // Handler for opening the delete item confirmation dialog
   const handleDeleteItem = (productId: string) => {
@@ -108,6 +136,137 @@ export function Cart() {
     );
   }
 
+  const CartItem = ({
+    item,
+    isProblematic = false,
+  }: {
+    item: CartItemUnified;
+    isProblematic?: boolean;
+  }) => (
+    <div
+      key={item.id}
+      className={`grid md:grid-cols-12 gap-4 p-6 transition-all duration-300 ${
+        isProblematic
+          ? "bg-red-50 border-l-4 border-red-400"
+          : "hover:bg-gray-50"
+      }`}
+    >
+      {/* Изображение и информация о товаре */}
+      <div className="md:col-span-6 flex space-x-4">
+        <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
+          <Link href={`/product/${item.product.slug}`}>
+            <Image
+              src={item.product.images[0].url}
+              alt={item.product.name}
+              fill
+              className={`object-contain rounded-md border ${isProblematic ? "border-red-200 opacity-60" : "border-gray-200"}`}
+            />
+          </Link>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <Link
+            href={`/product/${item.product.slug}`}
+            className={`font-medium hover:text-blue-600 transition-colors line-clamp-2 ${
+              isProblematic ? "text-red-700" : "text-gray-900"
+            }`}
+          >
+            {item.product.name}
+          </Link>
+          <p className="text-gray-500 text-sm mt-1 line-clamp-1">
+            {item.product.category && item.product.category.title}
+          </p>
+
+          {isProblematic && (
+            <div className="mt-1.5 flex items-center text-sm text-red-600">
+              <ExclamationTriangleIcon className="h-4 w-4 mr-1.5" />
+              {item.product.stockAvailabilityStatus === "OUT_OF_STOCK"
+                ? "Нет в наличии"
+                : "Товар недоступен для заказа"}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDeleteItem(item.product.id);
+            }}
+            className="mt-2 inline-flex items-center text-sm text-red-600 hover:text-red-800 transition-colors"
+            disabled={isRemoving && itemToDelete === item.product.id}
+          >
+            {isRemoving && itemToDelete === item.product.id ? (
+              <div className="h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-1"></div>
+            ) : (
+              <TrashIcon className="h-4 w-4 mr-1" />
+            )}
+            <span>Удалить</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Цена */}
+      <div className="md:col-span-2 flex md:justify-center items-center">
+        <div className="md:hidden text-sm font-medium text-gray-500 mr-2">
+          Цена:
+        </div>
+        <div
+          className={`font-medium ${item.product.price <= 0 ? "text-red-600" : ""}`}
+        >
+          {new Intl.NumberFormat("ru-RU").format(item.product.price)} ₽
+        </div>
+      </div>
+
+      {/* Количество */}
+      <div className="md:col-span-2 flex md:justify-center items-center">
+        <div className="md:hidden text-sm font-medium text-gray-500 mr-2">
+          Кол-во:
+        </div>
+        <div className="flex flex-col items-center">
+          <QuantityCounter
+            quantity={item.quantity}
+            minQuantity={item.product.quantityMultiplicity || 1}
+            onIncrement={() =>
+              updateQuantity(
+                item.product.id,
+                item.quantity + (item.product.quantityMultiplicity || 1),
+              )
+            }
+            onDecrement={() =>
+              updateQuantity(
+                item.product.id,
+                item.quantity - (item.product.quantityMultiplicity || 1),
+              )
+            }
+            disabled={isProblematic}
+          />
+          {item.product.quantityMultiplicity &&
+            item.product.quantityMultiplicity > 1 && (
+              <div className="text-xs text-gray-500 mt-1">
+                Продается по: {item.product.quantityMultiplicity} шт.
+              </div>
+            )}
+        </div>
+      </div>
+
+      {/* Итоговая цена */}
+      <div className="md:col-span-2 flex md:justify-end items-center">
+        <div className="md:hidden text-sm font-medium text-gray-500 mr-2">
+          Сумма:
+        </div>
+        <div
+          className={`font-bold text-lg ${isProblematic ? "text-red-600" : "text-gray-900"}`}
+        >
+          {new Intl.NumberFormat("ru-RU", {
+            maximumFractionDigits: 0,
+          }).format(item.product.price * item.quantity)}{" "}
+          ₽
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Отображение ошибок */}
@@ -161,109 +320,33 @@ export function Cart() {
         <div className="col-span-2 text-end">Сумма</div>
       </div>
 
-      <div className="divide-y">
-        {cart.items.map((item) => (
-          <div
-            key={item.id}
-            className="grid md:grid-cols-12 gap-4 p-6 hover:bg-gray-50 transition-all duration-300"
-          >
-            {/* Изображение и информация о товаре */}
-            <div className="md:col-span-6 flex space-x-4">
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
-                <Link href={`/product/${item.product.slug}`}>
-                  <Image
-                    src={item.product.images[0].url}
-                    alt={item.product.name}
-                    fill
-                    className="object-contain rounded-md border border-gray-200"
-                  />
-                </Link>
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <Link
-                  href={`/product/${item.product.slug}`}
-                  className="font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
-                >
-                  {item.product.name}
-                </Link>
-                <p className="text-gray-500 text-sm mt-1 line-clamp-1">
-                  {item.product.category && item.product.category.title}
-                </p>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleDeleteItem(item.product.id);
-                  }}
-                  className="mt-2 inline-flex items-center text-sm text-red-600 hover:text-red-800 transition-colors"
-                  disabled={isRemoving && itemToDelete === item.product.id}
-                >
-                  {isRemoving && itemToDelete === item.product.id ? (
-                    <div className="h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-1"></div>
-                  ) : (
-                    <TrashIcon className="h-4 w-4 mr-1" />
-                  )}
-                  <span>Удалить</span>
-                </button>
-              </div>
+      {/* Проблемные товары */}
+      {problematicItems.length > 0 && (
+        <div className="mb-4">
+          <div className="bg-red-50 px-6 py-3 border-y border-red-200">
+            <div className="flex items-center">
+              <ExclamationCircleIcon className="h-5 w-5 text-red-600 mr-2" />
+              <h3 className="font-medium text-red-800">
+                Товары, недоступные для заказа ({problematicItems.length})
+              </h3>
             </div>
-
-            {/* Цена */}
-            <div className="md:col-span-2 flex md:justify-center items-center">
-              <div className="md:hidden text-sm font-medium text-gray-500 mr-2">
-                Цена:
-              </div>
-              <div className="font-medium">
-                {new Intl.NumberFormat("ru-RU").format(item.product.price)} ₽
-              </div>
-            </div>
-
-            {/* Количество */}
-            <div className="md:col-span-2 flex md:justify-center items-center">
-              <div className="md:hidden text-sm font-medium text-gray-500 mr-2">
-                Кол-во:
-              </div>
-              <div className="flex flex-col items-center">
-                <QuantityCounter
-                  quantity={item.quantity}
-                  minQuantity={item.product.quantityMultiplicity || 1}
-                  onIncrement={() =>
-                    updateQuantity(
-                      item.product.id,
-                      item.quantity + (item.product.quantityMultiplicity || 1),
-                    )
-                  }
-                  onDecrement={() =>
-                    updateQuantity(
-                      item.product.id,
-                      item.quantity - (item.product.quantityMultiplicity || 1),
-                    )
-                  }
-                />
-                {item.product.quantityMultiplicity &&
-                  item.product.quantityMultiplicity > 1 && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      Продается по: {item.product.quantityMultiplicity} шт.
-                    </div>
-                  )}
-              </div>
-            </div>
-
-            {/* Итоговая цена */}
-            <div className="md:col-span-2 flex md:justify-end items-center">
-              <div className="md:hidden text-sm font-medium text-gray-500 mr-2">
-                Сумма:
-              </div>
-              <div className="font-bold text-lg text-gray-900">
-                {new Intl.NumberFormat("ru-RU", {
-                  maximumFractionDigits: 0,
-                }).format(item.product.price * item.quantity)}{" "}
-                ₽
-              </div>
-            </div>
+            <p className="text-sm text-red-700 mt-1">
+              Следующие товары недоступны для заказа. Рекомендуем удалить их из
+              корзины перед оформлением заказа.
+            </p>
           </div>
+          <div className="divide-y divide-red-100">
+            {problematicItems.map((item) => (
+              <CartItem key={item.id} item={item} isProblematic={true} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Доступные товары */}
+      <div className="divide-y">
+        {validItems.map((item) => (
+          <CartItem key={item.id} item={item} />
         ))}
       </div>
 
@@ -273,7 +356,7 @@ export function Cart() {
           <div className="text-2xl font-bold text-blue-600">
             {new Intl.NumberFormat("ru-RU", {
               maximumFractionDigits: 0,
-            }).format(cart.totalPrice)}{" "}
+            }).format(validItemsTotal)}{" "}
             ₽
           </div>
         </div>
@@ -287,12 +370,24 @@ export function Cart() {
           </Link>
           <Link
             href="/checkout"
-            className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors text-center font-medium flex items-center justify-center"
+            className={`flex-1 px-6 py-3 rounded-md text-center font-medium flex items-center justify-center ${
+              problematicItems.length > 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+            }`}
+            onClick={(e) => problematicItems.length > 0 && e.preventDefault()}
           >
             <span>Оформить заказ</span>
             <ArrowRightIcon className="ml-2 h-4 w-4" />
           </Link>
         </div>
+
+        {problematicItems.length > 0 && (
+          <div className="mt-4 text-sm text-red-600 text-center">
+            Для оформления заказа необходимо удалить недоступные товары из
+            корзины
+          </div>
+        )}
       </div>
 
       {/* Delete item confirmation dialog */}

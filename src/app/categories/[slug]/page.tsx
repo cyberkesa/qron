@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,10 +31,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
   const [hideOutOfStock, setHideOutOfStock] = useState(true);
 
-  // Извлекаем slug из params с помощью React.use()
   const { slug } = React.use(params);
 
-  // Получаем данные о категории по slug
   const {
     data: categoryData,
     error: categoryError,
@@ -45,7 +43,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     },
   });
 
-  // Получаем товары из этой категории с пагинацией
   const {
     data: productsData,
     error: productsError,
@@ -53,21 +50,19 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     fetchMore,
   } = useQuery(GET_PRODUCTS, {
     variables: {
-      first: 48, // Загружаем по 48 товаров за раз
+      first: 100,
       categoryId: categoryData?.categoryBySlug?.id,
-      sortOrder: sortOrder,
+      sortOrder,
     },
     skip: !categoryData?.categoryBySlug?.id,
   });
 
-  // Подготовка данных из результатов запросов
   const category = categoryData?.categoryBySlug || null;
   let products =
     productsData?.products?.edges?.map(
       (edge: { node: Product; cursor: string }) => edge.node,
     ) || [];
 
-  // Фильтруем товары, которые не в наличии, если включена соответствующая опция
   if (hideOutOfStock) {
     products = products.filter(
       (product: Product) =>
@@ -80,18 +75,20 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   const hasMoreProducts =
     productsData?.products?.pageInfo?.hasNextPage || false;
-  const endCursor = productsData?.products?.pageInfo?.endCursor || null;
-
-  // Вычисляем примерное общее количество товаров (на основе текущих данных)
-  // Обычно сервер возвращает общее количество, но если нет, можно примерно оценить
   const totalProductsCount = products.length;
-
-  // Определяем общее состояние загрузки
   const isLoading = categoryLoading || productsLoading;
 
+  const handleSortChange = useCallback((newSortOrder: ProductSortOrder) => {
+    setSortOrder(newSortOrder);
+  }, []);
+
+  const handleStockFilterChange = useCallback((newHideOutOfStock: boolean) => {
+    setHideOutOfStock(newHideOutOfStock);
+  }, []);
+
   const { observerTarget, isLoadingMore } = useInfiniteScroll({
-    hasMore: productsData?.products?.pageInfo?.hasNextPage || false,
-    isLoading: isLoading,
+    hasMore: hasMoreProducts,
+    isLoading,
     onLoadMore: async () => {
       if (productsData?.products?.pageInfo?.endCursor) {
         await fetchMore({
@@ -105,26 +102,13 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     },
   });
 
-  // Обработчик изменения сортировки
-  const handleSortChange = (newSortOrder: ProductSortOrder) => {
-    setSortOrder(newSortOrder);
-  };
-
-  // Обработчик изменения фильтра наличия
-  const handleStockFilterChange = (newHideOutOfStock: boolean) => {
-    setHideOutOfStock(newHideOutOfStock);
-  };
-
-  // Рендер скелетона при загрузке
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-10">
         <div className="mb-6">
           <div className="h-6 bg-gray-200 rounded w-1/4 animate-pulse"></div>
         </div>
-
         <div className="h-8 bg-gray-200 rounded w-2/3 mb-8 animate-pulse"></div>
-
         <div className="flex justify-between mb-6">
           <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
           <div className="flex gap-4">
@@ -132,9 +116,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
           </div>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 16 }).map((_, index) => (
+          {Array.from({ length: 12 }).map((_, index) => (
             <div
               key={index}
               className="h-72 bg-gray-200 rounded-lg relative overflow-hidden"
@@ -147,7 +130,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     );
   }
 
-  // Рендер ошибки категории
   if (categoryError) {
     return (
       <div className="container mx-auto px-4 py-10">
@@ -168,7 +150,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     );
   }
 
-  // Рендер ошибки продуктов
   if (productsError) {
     return (
       <div className="container mx-auto px-4 py-10">
@@ -189,7 +170,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     );
   }
 
-  // Если категория не найдена и загрузка завершена
   if (!category && !isLoading) {
     return (
       <div className="container mx-auto px-4 py-10">
@@ -211,7 +191,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     );
   }
 
-  // Основной рендер страницы категории
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="mb-6">
@@ -222,7 +201,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         {category?.title}
       </h1>
 
-      {/* Отображаем подкатегории, если они есть */}
       {category?.children && category.children.length > 0 && (
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -287,21 +265,19 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product: Product, index: number) => (
               <ProductCard
-                key={`category-${product.id}-${index}-${Math.random().toString(36).substring(2, 9)}`}
+                key={`category-${product.id}-${index}`}
                 product={product}
               />
             ))}
           </div>
 
-          {/* Индикатор загрузки и триггер для подгрузки */}
           {isLoadingMore && (
             <div className="flex justify-center mt-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
             </div>
           )}
 
-          {/* Сообщение об окончании списка товаров */}
-          {!hasMoreProducts && products.length >= 48 && (
+          {!hasMoreProducts && products.length >= 100 && (
             <div className="mt-8 text-center text-gray-500">
               Загружены все доступные товары ({products.length} из{" "}
               {totalProductsCount})

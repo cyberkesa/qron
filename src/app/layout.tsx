@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import ClientLayout from "./client-layout";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import Script from "next/script";
+import { YandexMetrika } from "@/components/analytics/YandexMetrika";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -45,6 +46,7 @@ export default function RootLayout({
           src="https://api-maps.yandex.ru/2.1/?apikey=0a1aee5c-636b-4e86-8a79-fcaece99de92&lang=ru_RU"
           strategy="afterInteractive"
         />
+        <YandexMetrika />
       </body>
     </html>
   );

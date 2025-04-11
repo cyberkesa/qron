@@ -7,6 +7,7 @@ interface QuantityCounterProps {
   onIncrement: () => void;
   onDecrement: () => void;
   isLoading?: boolean;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -16,6 +17,7 @@ export function QuantityCounter({
   onIncrement,
   onDecrement,
   isLoading = false,
+  disabled = false,
   className = "",
 }: QuantityCounterProps) {
   const [animateValue, setAnimateValue] = useState(false);
@@ -33,24 +35,24 @@ export function QuantityCounter({
   }, [quantity, prevQuantity]);
 
   const handleIncrement = () => {
-    if (!isLoading) {
+    if (!isLoading && !disabled) {
       onIncrement();
     }
   };
 
   const handleDecrement = () => {
-    if (!isLoading && quantity > minQuantity) {
+    if (!isLoading && !disabled && quantity > minQuantity) {
       onDecrement();
     }
   };
 
   return (
     <div
-      className={`flex items-center border rounded-lg overflow-hidden bg-white shadow-sm ${className}`}
+      className={`flex items-center border rounded-lg overflow-hidden ${disabled ? "bg-gray-100 opacity-75" : "bg-white"} shadow-sm ${className}`}
     >
       <button
         onClick={handleDecrement}
-        disabled={isLoading || quantity <= minQuantity}
+        disabled={isLoading || disabled || quantity <= minQuantity}
         className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all active:scale-95 disabled:opacity-50 disabled:hover:bg-white disabled:active:scale-100 disabled:hover:text-gray-600"
         aria-label="Уменьшить количество"
       >
@@ -69,7 +71,7 @@ export function QuantityCounter({
       </div>
       <button
         onClick={handleIncrement}
-        disabled={isLoading}
+        disabled={isLoading || disabled}
         className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all active:scale-95 disabled:opacity-50 disabled:hover:bg-white disabled:active:scale-100 disabled:hover:text-gray-600"
         aria-label="Увеличить количество"
       >

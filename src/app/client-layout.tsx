@@ -12,7 +12,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
     <Providers>
       <div className="flex flex-col min-h-screen">
         <Header />
-        <main className="flex-grow no-shift">
+        <main className="flex-grow no-shift pt-4 mt-2">
           <PageTransition>{children}</PageTransition>
         </main>
         <Footer />

@@ -51,27 +51,27 @@ function SearchPageContent() {
     fetchMore,
   } = useQuery(GET_PRODUCTS, {
     variables: {
-      first: 48, // Загружаем по 48 товаров за раз
+      first: 100, // Загружаем по 100 товаров за раз (максимальный лимит)
       sortOrder: sortOrder,
       searchQuery: normalizedQuery,
     },
     skip: !normalizedQuery,
   });
 
-  // Подготовка данных для использования в компоненте
-  const rawProducts =
-    productsData?.products?.edges?.map(
-      (edge: { node: Product; cursor: string }) => ({
-        ...edge.node,
-        cursor: edge.cursor,
-      }),
-    ) || [];
-
   // Обработка и фильтрация результатов
   const products = useMemo(() => {
+    // Получаем необработанные данные о товарах
+    const rawProducts =
+      productsData?.products?.edges?.map(
+        (edge: { node: Product; cursor: string }) => ({
+          ...edge.node,
+          cursor: edge.cursor,
+        }),
+      ) || [];
+
     // Используем нашу утилиту для обработки результатов
     return processSearchResults(rawProducts, normalizedQuery, false);
-  }, [rawProducts, normalizedQuery]);
+  }, [productsData?.products?.edges, normalizedQuery]);
 
   // Фильтрация товаров, которых нет в наличии, если включен соответствующий фильтр
   const filteredProducts = useMemo(() => {
@@ -105,39 +105,42 @@ function SearchPageContent() {
     }
   }, [sortOrder, searchQuery]);
 
-  const handleSortChange = (newSortOrder: ProductSortOrder) => {
+  const handleSortChange = useCallback((newSortOrder: ProductSortOrder) => {
     setSortOrder(newSortOrder);
-  };
+  }, []);
 
-  const handleStockFilterChange = (newHideOutOfStock: boolean) => {
+  const handleStockFilterChange = useCallback((newHideOutOfStock: boolean) => {
     setHideOutOfStock(newHideOutOfStock);
-  };
+  }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchInputValue.trim()) {
-      router.push(
-        `/search?q=${encodeURIComponent(searchInputValue)}&sort=${sortOrder}`,
-      );
-    }
-  };
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (searchInputValue.trim()) {
+        router.push(
+          `/search?q=${encodeURIComponent(searchInputValue)}&sort=${sortOrder}`,
+        );
+      }
+    },
+    [searchInputValue, sortOrder, router],
+  );
 
-  const toggleMobileFilters = () => {
-    setShowMobileFilters(!showMobileFilters);
-  };
+  const toggleMobileFilters = useCallback(() => {
+    setShowMobileFilters((prev) => !prev);
+  }, []);
 
   const {
     observerTarget: infiniteObserverTarget,
     isLoadingMore: infiniteIsLoadingMore,
   } = useInfiniteScroll({
-    hasMore: productsData?.products?.pageInfo?.hasNextPage || false,
+    hasMore: hasMoreProducts,
     isLoading: productsLoading,
     onLoadMore: async () => {
       if (productsData?.products?.pageInfo?.endCursor) {
         await fetchMore({
           variables: {
             after: productsData.products.pageInfo.endCursor,
-            first: 48,
+            first: 100,
             sortOrder,
             searchQuery: normalizedQuery,
           },

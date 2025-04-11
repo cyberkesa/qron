@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useQuery } from "@apollo/client";
 import {
   GET_PRODUCTS,
@@ -23,7 +23,6 @@ import {
 import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
 
 export default function CatalogPage() {
-  // Состояния компонента
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -33,7 +32,6 @@ export default function CatalogPage() {
   } | null>(null);
   const [hideOutOfStock, setHideOutOfStock] = useState(true);
 
-  // Получение текущего региона
   const { data: regionData, error: regionError } = useQuery(
     GET_CURRENT_REGION,
     {
@@ -44,7 +42,6 @@ export default function CatalogPage() {
     },
   );
 
-  // Запрос товаров с использованием выбранных фильтров
   const {
     data: productsData,
     loading: productsLoading,
@@ -52,7 +49,7 @@ export default function CatalogPage() {
     fetchMore,
   } = useQuery(GET_PRODUCTS, {
     variables: {
-      first: 48, // Загружаем по 48 товаров за раз
+      first: 100,
       sortOrder,
       categoryId: selectedCategory || undefined,
     },
@@ -63,7 +60,6 @@ export default function CatalogPage() {
     },
   });
 
-  // Запрос категорий для фильтров
   const {
     data: categoriesData,
     loading: categoriesLoading,
@@ -75,7 +71,6 @@ export default function CatalogPage() {
     },
   });
 
-  // Получение/установка региона - безопасно для SSR
   useEffect(() => {
     if (regionData?.viewer?.region) {
       setCurrentRegion(regionData.viewer.region);
@@ -114,13 +109,13 @@ export default function CatalogPage() {
         await fetchMore({
           variables: {
             after: productsData.products.pageInfo.endCursor,
+            first: 100,
           },
         });
       }
     },
   });
 
-  // Мемоизируем обработанные товары
   const products = useMemo(() => {
     try {
       const allProducts =
@@ -128,18 +123,15 @@ export default function CatalogPage() {
           (edge: { node: Product }) => edge.node,
         ) || [];
 
-      // Если включен фильтр "скрыть товары не в наличии", отфильтровываем их
-      if (hideOutOfStock) {
-        return allProducts.filter(
-          (product: Product) =>
-            product.stockAvailabilityStatus ===
-              ProductStockAvailabilityStatus.IN_STOCK ||
-            product.stockAvailabilityStatus ===
-              ProductStockAvailabilityStatus.IN_STOCK_SOON,
-        );
-      }
-
-      return allProducts;
+      return hideOutOfStock
+        ? allProducts.filter(
+            (product: Product) =>
+              product.stockAvailabilityStatus ===
+                ProductStockAvailabilityStatus.IN_STOCK ||
+              product.stockAvailabilityStatus ===
+                ProductStockAvailabilityStatus.IN_STOCK_SOON,
+          )
+        : allProducts;
     } catch (error) {
       console.error("Ошибка обработки данных товаров:", error);
       return [];
@@ -151,7 +143,6 @@ export default function CatalogPage() {
     [categoriesData],
   );
 
-  // Получаем общее количество товаров
   const totalProductsCount = useMemo(() => products.length, [products.length]);
 
   const isDataLoading = useMemo(
@@ -172,7 +163,6 @@ export default function CatalogPage() {
     [productsError, categoriesError, regionError],
   );
 
-  // Обработчики событий UI
   const handleCategoryChange = useCallback((categoryId: string) => {
     setSelectedCategory(categoryId);
   }, []);
@@ -189,25 +179,26 @@ export default function CatalogPage() {
     setHideOutOfStock(checked);
   }, []);
 
-  // Компонент для сетки товаров
-  const ProductGrid = ({ products }: { products: Product[] }) => {
-    if (!products.length) return null;
+  const resetFilters = useCallback(() => {
+    setSelectedCategory("");
+    setSortOrder("NEWEST_FIRST");
+    setHideOutOfStock(false);
+  }, []);
 
-    return (
+  const ProductGrid = ({ products }: { products: Product[] }) =>
+    products.length > 0 ? (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {products.map((product, index) => (
           <ProductCard
-            key={`catalog-${product.id}-${index}-${Math.random().toString(36).substring(2, 9)}`}
+            key={`catalog-${product.id}-${index}`}
             product={product}
           />
         ))}
       </div>
-    );
-  };
+    ) : null;
 
   return (
     <div className="container mx-auto px-4 py-6 mb-12">
-      {/* Хлебные крошки */}
       <div className="mb-4">
         <nav className="flex" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2 text-sm">
@@ -226,7 +217,6 @@ export default function CatalogPage() {
         </nav>
       </div>
 
-      {/* Заголовок страницы */}
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
           Каталог товаров
@@ -236,11 +226,10 @@ export default function CatalogPage() {
         </p>
       </div>
 
-      {/* Содержимое каталога */}
       {isDataLoading && !productsData ? (
         <div className="animate-pulse">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: 16 }).map((_, index) => (
+            {Array.from({ length: 12 }).map((_, index) => (
               <div
                 key={index}
                 className="bg-gray-200 h-72 rounded-lg animate-pulse relative overflow-hidden"
@@ -273,11 +262,7 @@ export default function CatalogPage() {
             фильтрации или выбрать другую категорию.
           </p>
           <button
-            onClick={() => {
-              setSelectedCategory("");
-              setSortOrder("NEWEST_FIRST");
-              setHideOutOfStock(false);
-            }}
+            onClick={resetFilters}
             className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors"
           >
             Сбросить фильтры
@@ -285,7 +270,6 @@ export default function CatalogPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
-          {/* Фильтры на мобильных устройствах */}
           {showMobileFilters && (
             <div
               className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
@@ -319,7 +303,6 @@ export default function CatalogPage() {
             </div>
           )}
 
-          {/* Фильтры на десктопе */}
           <div className="hidden lg:block sticky top-24 h-fit">
             <ProductFilters
               categories={categories}
@@ -337,14 +320,12 @@ export default function CatalogPage() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                {/* Количество товаров */}
                 <div className="text-sm text-gray-600 flex items-center">
                   <span className="bg-blue-50 text-blue-700 rounded-full px-3 py-1 font-medium">
                     Найдено товаров: {totalProductsCount}
                   </span>
                 </div>
 
-                {/* Мобильные фильтры и сортировка */}
                 <div className="flex gap-2 self-stretch sm:self-center">
                   <button
                     onClick={toggleMobileFilters}
@@ -373,10 +354,8 @@ export default function CatalogPage() {
               </div>
             </div>
 
-            {/* Сетка товаров */}
             <ProductGrid products={products} />
 
-            {/* Индикатор загрузки при подгрузке товаров */}
             {infiniteScrollIsLoadingMore && (
               <div className="flex justify-center my-6">
                 <div className="flex items-center justify-center space-x-2">

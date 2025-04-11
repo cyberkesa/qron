@@ -11,223 +11,22 @@ import RegionSelector, {
   REGION_CONTACTS,
 } from "@/components/region/RegionSelector";
 import {
-  ShoppingCartIcon,
   UserIcon,
   Bars3Icon,
   XMarkIcon,
-  PhoneIcon,
-  TruckIcon,
-  InformationCircleIcon,
-  EnvelopeIcon,
   ChevronDownIcon,
+  ShoppingCartIcon,
 } from "@heroicons/react/24/outline";
 import { Category } from "@/types/api";
 import { useCartContext } from "@/lib/providers/CartProvider";
 
-// Мемоизированные компоненты для уменьшения ре-рендеров
-const TopBar = memo(
-  ({ regionContacts }: { regionContacts: typeof REGION_CONTACTS.MOSCOW }) => (
-    <div className="bg-gray-50 py-2 text-xs border-b border-gray-200">
-      <div className="container mx-auto px-4 flex items-center justify-between">
-        <div className="flex items-center space-x-6">
-          <RegionSelector />
-          <a
-            href={regionContacts.phoneLink}
-            className="text-gray-600 hover:text-blue-600 flex items-center"
-          >
-            <PhoneIcon className="h-3.5 w-3.5 mr-1" />
-            <span>{regionContacts.phone}</span>
-          </a>
-        </div>
-
-        <div className="hidden md:flex items-center space-x-6">
-          <Link
-            href="/delivery"
-            className="text-gray-600 hover:text-blue-600 flex items-center"
-          >
-            <TruckIcon className="h-3.5 w-3.5 mr-1" />
-            <span>Доставка</span>
-          </Link>
-          <Link
-            href="/about"
-            className="text-gray-600 hover:text-blue-600 flex items-center"
-          >
-            <InformationCircleIcon className="h-3.5 w-3.5 mr-1" />
-            <span>О компании</span>
-          </Link>
-          <Link
-            href="/contacts"
-            className="text-gray-600 hover:text-blue-600 flex items-center"
-          >
-            <EnvelopeIcon className="h-3.5 w-3.5 mr-1" />
-            <span>Контакты</span>
-          </Link>
-        </div>
-      </div>
-    </div>
-  ),
-);
-
-TopBar.displayName = "TopBar";
-
-// Компонент для ссылки навигации в мобильном меню
-const MobileNavLink = memo(
-  ({
-    href,
-    active,
-    onClick,
-    children,
-  }: {
-    href: string;
-    active: boolean;
-    onClick: () => void;
-    children: React.ReactNode;
-  }) => (
-    <li>
-      <Link
-        href={href}
-        className={`block py-2 px-3 rounded-md ${
-          active ? "bg-blue-50 text-blue-600" : "text-gray-700 hover:bg-gray-50"
-        }`}
-        onClick={onClick}
-      >
-        {children}
-      </Link>
-    </li>
-  ),
-);
-
-MobileNavLink.displayName = "MobileNavLink";
-
-// Компонент для категорий в навигации
-const CategoryNav = memo(({ categories }: { categories: Category[] }) => {
-  const [showCategories, setShowCategories] = useState(false);
-
-  const toggleCategories = () => {
-    setShowCategories((prev) => !prev);
-  };
-
-  const handleMouseEnter = () => {
-    setShowCategories(true);
-  };
-
-  const handleMouseLeave = () => {
-    setShowCategories(false);
-  };
-
-  return (
-    <div className="hidden md:block bg-gray-50 border-t border-gray-200 relative z-40">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center gap-4 py-2">
-          <div
-            className="relative"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            <button
-              className={`flex items-center gap-1 text-gray-700 hover:text-blue-600 py-2 px-3 rounded-md ${showCategories ? "bg-blue-50 text-blue-600" : ""}`}
-              onClick={toggleCategories}
-            >
-              <span className="font-medium">Категории</span>
-              <ChevronDownIcon
-                className={`h-4 w-4 transition-transform ${showCategories ? "rotate-180" : ""}`}
-              />
-            </button>
-
-            {showCategories && (
-              <div className="absolute left-0 top-full mt-1 bg-white shadow-lg rounded-md border border-gray-200 w-64 z-60 animate-zoom-in">
-                <div className="py-2 max-h-[70vh] overflow-y-auto">
-                  {categories.map((category) => (
-                    <Link
-                      key={category.id}
-                      href={`/categories/${category.slug}`}
-                      className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                    >
-                      {category.iconUrl && (
-                        <Image
-                          src={category.iconUrl}
-                          alt={category.title}
-                          width={16}
-                          height={16}
-                          className="mr-2"
-                        />
-                      )}
-                      <span>{category.title}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Простое горизонтальное меню для основных разделов */}
-          <div className="flex gap-6">
-            <Link
-              href="/catalog"
-              className="text-gray-700 hover:text-blue-600 py-2"
-            >
-              Каталог
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
-
-CategoryNav.displayName = "CategoryNav";
-
-// Компонент меню пользователя
-const UserMenu = memo(
-  ({
-    isOpen,
-    userInfo,
-    onClose,
-    onLogout,
-  }: {
-    isOpen: boolean;
-    userInfo: { name: string | undefined; email: string | undefined };
-    onClose: () => void;
-    onLogout: () => void;
-  }) => {
-    if (!isOpen) return null;
-
-    return (
-      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-60 animate-zoom-in border border-gray-200">
-        <div className="px-4 py-2 border-b border-gray-100">
-          <p className="text-sm font-medium text-gray-900">{userInfo.name}</p>
-          <p className="text-xs text-gray-500 truncate">{userInfo.email}</p>
-        </div>
-        <Link
-          href="/profile"
-          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-          onClick={onClose}
-        >
-          <UserIcon className="h-4 w-4 mr-2 text-gray-500" />
-          Мой профиль
-        </Link>
-        <Link
-          href="/orders"
-          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-          onClick={onClose}
-        >
-          <TruckIcon className="h-4 w-4 mr-2 text-gray-500" />
-          Мои заказы
-        </Link>
-        <div className="border-t border-gray-100 my-1"></div>
-        <button
-          onClick={onLogout}
-          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
-        >
-          <XMarkIcon className="h-4 w-4 mr-2" />
-          Выйти
-        </button>
-      </div>
-    );
-  },
-);
-
-UserMenu.displayName = "UserMenu";
+// Импортируем выделенные компоненты
+import TopBar from "./header/TopBar";
+import CategoryNav from "./header/CategoryNav";
+import UserMenu from "./header/UserMenu";
+import CartIndicator from "./header/CartIndicator";
+import MobileMenu from "./header/MobileMenu";
+import MobileNavLink from "./header/MobileNavLink";
 
 // Компонент для главной части хедера с логотипом, поиском и корзиной
 const MainHeader = memo(
@@ -314,6 +113,7 @@ export default function Header() {
   const { data: userData } = useQuery(GET_VIEWER);
   const { data: categoriesData } = useQuery(GET_CATEGORIES);
   const [logout] = useMutation(LOGOUT);
+  const { cart: unifiedCart } = useCartContext();
 
   // Мемоизация данных для предотвращения ненужных рендеров
   const categories = useMemo(

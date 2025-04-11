@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
 import { REGISTER, GET_REGIONS } from "@/lib/queries";
@@ -11,41 +11,13 @@ import {
   EnvelopeIcon,
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
-import RegisterClient from "./register-client";
 
 interface Region {
   id: string;
   name: string;
 }
 
-// Loading component for Suspense fallback
-function RegisterLoading() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-lg mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 text-center mb-8">
-          Регистрация
-        </h1>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="h-10 bg-gray-200 rounded mb-6"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="h-10 bg-gray-200 rounded mb-6"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="h-10 bg-gray-200 rounded mb-6"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="h-10 bg-gray-200 rounded mb-6"></div>
-            <div className="h-10 bg-blue-200 rounded"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Main registration component that uses hooks requiring Suspense
-function RegisterForm() {
+export default function RegisterClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams?.get("redirect") || "/";
@@ -280,7 +252,7 @@ function RegisterForm() {
                   {formErrors.password}
                 </p>
               ) : (
-                <p className="text-sm text-gray-500 mt-1">Минимум 6 символов</p>
+                <p className="mt-1 text-xs text-gray-500">Минимум 6 символов</p>
               )}
             </div>
 
@@ -317,7 +289,10 @@ function RegisterForm() {
             </div>
 
             <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">
+              <label
+                htmlFor="region"
+                className="block text-gray-700 font-medium mb-2"
+              >
                 Регион *
               </label>
               <div className="relative">
@@ -326,116 +301,64 @@ function RegisterForm() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setRegionsOpen(!regionsOpen)}
-                  className={`w-full pl-10 px-4 py-2 border ${
+                  className={`w-full text-left pl-10 px-4 py-2 border ${
                     formErrors.region ? "border-red-300" : "border-gray-300"
-                  } rounded-md text-left focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white flex justify-between items-center`}
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
+                  onClick={() => setRegionsOpen(!regionsOpen)}
                 >
-                  <span
-                    className={
-                      selectedRegion ? "text-gray-900" : "text-gray-500"
-                    }
-                  >
-                    {selectedRegion ? selectedRegion.name : "Выберите регион"}
-                  </span>
-                  <svg
-                    className={`h-5 w-5 text-gray-400 ${regionsOpen ? "transform rotate-180" : ""}`}
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  {selectedRegion ? selectedRegion.name : "Выберите регион"}
                 </button>
-                {formErrors.region && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {formErrors.region}
-                  </p>
-                )}
                 {regionsOpen && (
-                  <div className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg border border-gray-200">
-                    {regionsLoading ? (
-                      <div className="p-3 text-center text-sm text-gray-500">
-                        Загрузка регионов...
-                      </div>
-                    ) : (
-                      <ul className="max-h-60 overflow-auto">
-                        {regionsData?.regions.map((region: Region) => (
-                          <li
-                            key={region.id}
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm"
-                            onClick={() => handleRegionSelect(region)}
-                          >
-                            {region.name}
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg">
+                    <ul className="py-1 max-h-60 overflow-auto">
+                      {regionsLoading ? (
+                        <li className="px-4 py-2 text-gray-500">Загрузка...</li>
+                      ) : regionsData?.regions?.length ? (
+                        regionsData.regions.map((region: Region) => (
+                          <li key={region.id}>
+                            <button
+                              type="button"
+                              className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                              onClick={() => handleRegionSelect(region)}
+                            >
+                              {region.name}
+                            </button>
                           </li>
-                        ))}
-                      </ul>
-                    )}
+                        ))
+                      ) : (
+                        <li className="px-4 py-2 text-gray-500">
+                          Нет доступных регионов
+                        </li>
+                      )}
+                    </ul>
                   </div>
                 )}
               </div>
+              {formErrors.region && (
+                <p className="mt-1 text-sm text-red-600">{formErrors.region}</p>
+              )}
             </div>
 
             <button
               type="submit"
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
-              className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-400 transition-colors"
             >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Регистрация...
-                </span>
-              ) : (
-                "Зарегистрироваться"
-              )}
+              {loading ? "Регистрация..." : "Зарегистрироваться"}
             </button>
-          </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <div className="mt-6 text-center text-sm text-gray-600">
               Уже есть аккаунт?{" "}
               <Link
                 href={`/login${redirectTo !== "/" ? `?redirect=${redirectTo}` : ""}`}
-                className="text-blue-600 hover:text-blue-800"
+                className="text-blue-600 hover:underline"
               >
                 Войти
               </Link>
-            </p>
-          </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>
-  );
-}
-
-// Export the page component with Suspense boundary
-export default function RegisterPage() {
-  return (
-    <Suspense fallback={<RegisterLoading />}>
-      <RegisterClient />
-    </Suspense>
   );
 }

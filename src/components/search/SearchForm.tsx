@@ -259,7 +259,7 @@ const SearchForm = ({ className = "" }: { className?: string }) => {
       </form>
 
       {isResultsOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-30 max-h-96 overflow-y-auto border border-gray-200 animate-fade-in-down">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto border border-gray-200 animate-fade-in-down">
           {isLoading ? (
             <div className="p-4 text-center text-gray-500">
               <div className="inline-block w-5 h-5 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin mr-2"></div>
