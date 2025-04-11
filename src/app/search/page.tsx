@@ -233,7 +233,7 @@ function SearchPageContent() {
                 <MagnifyingGlassIcon className="h-8 w-8 text-gray-400" />
               </div>
               <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                По запросу "{searchQuery}" ничего не найдено
+                По запросу &quot;{searchQuery}&quot; ничего не найдено
               </h2>
               <p className="text-gray-600 mb-6">
                 Попробуйте изменить поисковый запрос или параметры фильтрации
@@ -253,7 +253,7 @@ function SearchPageContent() {
                   <p className="text-gray-600 mb-3 md:mb-0">
                     {searchQuery && (
                       <span className="font-medium">
-                        По запросу "{searchQuery}"{" "}
+                        По запросу &quot;{searchQuery}&quot;{" "}
                       </span>
                     )}
                     найдено товаров:{" "}

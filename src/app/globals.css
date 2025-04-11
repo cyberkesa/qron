@@ -42,10 +42,16 @@ body {
     font-size: 1.125rem !important;
     line-height: 1.5rem !important;
   }
-  p, li, a, span, div {
+  p,
+  li,
+  a,
+  span,
+  div {
     font-size: 0.875rem !important;
   }
-  .text-xl, .text-2xl, .text-3xl {
+  .text-xl,
+  .text-2xl,
+  .text-3xl {
     font-size: 1.25rem !important;
     line-height: 1.75rem !important;
   }
@@ -53,7 +59,10 @@ body {
     font-size: 1rem !important;
     line-height: 1.5rem !important;
   }
-  button, input, select, textarea {
+  button,
+  input,
+  select,
+  textarea {
     font-size: 0.875rem !important;
   }
 }

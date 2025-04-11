@@ -243,12 +243,12 @@ const SearchForm = ({ className = "" }: { className?: string }) => {
             </div>
           ) : !hasResults ? (
             <div className="p-4 text-center text-gray-500">
-              <p>По запросу "{searchQuery}" ничего не найдено</p>
+              <p>По запросу &quot;{searchQuery}&quot; ничего не найдено</p>
             </div>
           ) : (
             <>
               <div className="py-1 px-3 bg-gray-50 text-xs font-medium text-gray-700">
-                Результаты поиска по "{searchQuery}"
+                Результаты поиска по &quot;{searchQuery}&quot;
               </div>
 
               {searchCategoryResults.length > 0 && (

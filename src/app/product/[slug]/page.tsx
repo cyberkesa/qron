@@ -359,21 +359,21 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   // Получаем текущее количество товара в корзине
   const getCurrentCartQuantity = useCallback(() => {
-    if (!data?.productBySlug) return 0;
-
-    if (userData?.viewer) {
+    if (userData?.viewer && client) {
+      // Для авторизованных пользователей получаем из кэша Apollo
       const cartData = client.readQuery({ query: GET_CART });
       const cartItem = cartData?.cart?.items?.edges?.find(
-        (edge: any) => edge.node.product.id === data.productBySlug.id,
+        (edge: any) => edge?.node?.product?.id === data.productBySlug.id,
       );
       return cartItem?.node?.quantity || 0;
     } else {
+      // Для гостей получаем из унифицированной корзины
       const cartItem = unifiedCart.items.find(
         (item) => item.product.id === data.productBySlug.id,
       );
       return cartItem?.quantity || 0;
     }
-  }, [data?.productBySlug?.id, userData?.viewer, unifiedCart, client]);
+  }, [userData?.viewer, unifiedCart.items, client, data.productBySlug.id]);
 
   const currentCartQuantity = useMemo(
     () => getCurrentCartQuantity(),
@@ -389,6 +389,26 @@ export default function ProductPage({ params }: ProductPageProps) {
     [],
   );
 
+  // Функция для форматирования цены
+  const formatPrice = useCallback((price: number) => {
+    return new Intl.NumberFormat("ru-RU", {
+      style: "currency",
+      currency: "RUB",
+      maximumFractionDigits: 0,
+    }).format(price);
+  }, []);
+
+  // Обработчик изменения количества
+  const handleQuantityChange = useCallback(
+    (newQuantity: number) => {
+      if (data?.productBySlug) {
+        setQuantity(newQuantity);
+      }
+    },
+    [data?.productBySlug],
+  );
+
+  // Добавление товара в корзину
   const handleAddToCart = useCallback(async () => {
     if (!data || !data.productBySlug || isAddingToCart) return;
 
@@ -428,7 +448,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       setIsAddingToCart(false);
     }
   }, [
-    data?.productBySlug,
+    data,
     quantity,
     isAddingToCart,
     userData?.viewer,
@@ -687,21 +707,13 @@ export default function ProductPage({ params }: ProductPageProps) {
             <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-100">
               <div className="flex flex-wrap items-end gap-3 mb-4">
                 <span className="text-3xl font-bold text-gray-900">
-                  {new Intl.NumberFormat("ru-RU", {
-                    style: "currency",
-                    currency: "RUB",
-                    maximumFractionDigits: 0,
-                  }).format(product.price)}
+                  {formatPrice(product.price)}
                 </span>
 
                 {product.oldPrice && product.oldPrice > product.price && (
                   <div className="flex items-center gap-2">
                     <span className="text-lg text-gray-500 line-through">
-                      {new Intl.NumberFormat("ru-RU", {
-                        style: "currency",
-                        currency: "RUB",
-                        maximumFractionDigits: 0,
-                      }).format(product.oldPrice)}
+                      {formatPrice(product.oldPrice)}
                     </span>
                     <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
                       -
@@ -1047,11 +1059,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         <div className="flex items-center gap-3">
           <div className="flex-shrink-0">
             <span className="text-xl font-bold text-gray-900">
-              {new Intl.NumberFormat("ru-RU", {
-                style: "currency",
-                currency: "RUB",
-                maximumFractionDigits: 0,
-              }).format(product.price)}
+              {formatPrice(product.price)}
             </span>
           </div>
           {currentCartQuantity > 0 ? (
