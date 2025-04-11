@@ -1,7 +1,9 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from "react";
 
 type ImageCacheEntry = {
-  url: string; loadedAt: number; element: HTMLImageElement;
+  url: string;
+  loadedAt: number;
+  element: HTMLImageElement;
 };
 
 /**
@@ -25,14 +27,18 @@ const MAX_CACHE_SIZE = 100;
  * @param options - Configuration options
  * @returns Object with loading states for each image
  */
-export function useCachedImages(urls: string[], options: {
-  priority?: boolean;
-  onLoad?: (url: string) => void;
-  onError?: (url: string, error: ErrorEvent) => void;
-  placeholder?: string;
-} = {}) {
-  const [loadingStates, setLoadingStates] =
-      useState<Record<string, 'loading'|'loaded'|'error'>>({});
+export function useCachedImages(
+  urls: string[],
+  options: {
+    priority?: boolean;
+    onLoad?: (url: string) => void;
+    onError?: (url: string, error: ErrorEvent) => void;
+    placeholder?: string;
+  } = {},
+) {
+  const [loadingStates, setLoadingStates] = useState<
+    Record<string, "loading" | "loaded" | "error">
+  >({});
 
   // Cleanup expired cache entries
   useEffect(() => {
@@ -66,10 +72,10 @@ export function useCachedImages(urls: string[], options: {
   useEffect(() => {
     if (!urls.length) return;
 
-    const initialStates: Record<string, 'loading'|'loaded'|'error'> = {};
+    const initialStates: Record<string, "loading" | "loaded" | "error"> = {};
 
     // Initialize loading states
-    urls.forEach(url => {
+    urls.forEach((url) => {
       // Skip invalid URLs
       if (!url) return;
 
@@ -80,7 +86,7 @@ export function useCachedImages(urls: string[], options: {
 
         // If not expired, mark as loaded
         if (now - cachedEntry.loadedAt < CACHE_EXPIRATION) {
-          initialStates[url] = 'loaded';
+          initialStates[url] = "loaded";
           return;
         } else {
           // Remove expired entry
@@ -88,29 +94,29 @@ export function useCachedImages(urls: string[], options: {
         }
       }
 
-      initialStates[url] = 'loading';
+      initialStates[url] = "loading";
     });
 
     setLoadingStates(initialStates);
 
     // Preload images not in cache
-    urls.forEach(url => {
-      if (!url || (initialStates[url] && initialStates[url] === 'loaded')) {
+    urls.forEach((url) => {
+      if (!url || (initialStates[url] && initialStates[url] === "loaded")) {
         return;
       }
 
       const img = new Image();
 
       if (options.priority) {
-        img.fetchPriority = 'high';
+        img.fetchPriority = "high";
       }
 
       img.onload = () => {
         // Add to cache
-        imageCache.set(url, {url, loadedAt: Date.now(), element: img});
+        imageCache.set(url, { url, loadedAt: Date.now(), element: img });
 
         // Update loading state
-        setLoadingStates(prev => ({...prev, [url]: 'loaded'}));
+        setLoadingStates((prev) => ({ ...prev, [url]: "loaded" }));
 
         if (options.onLoad) {
           options.onLoad(url);
@@ -119,21 +125,22 @@ export function useCachedImages(urls: string[], options: {
 
       img.onerror = () => {
         // Update loading state
-        setLoadingStates(prev => ({...prev, [url]: 'error'}));
+        setLoadingStates((prev) => ({ ...prev, [url]: "error" }));
 
         if (options.onError) {
           // Create a synthetic error event since the actual error event might
           // be complex
-          const errorEvent = new ErrorEvent(
-              'error',
-              {message: `Failed to load image: ${url}`, filename: url});
+          const errorEvent = new ErrorEvent("error", {
+            message: `Failed to load image: ${url}`,
+            filename: url,
+          });
           options.onError(url, errorEvent);
         }
       };
 
       img.src = url;
     });
-  }, [urls, options.priority, options.onLoad, options.onError]);
+  }, [urls, options]);
 
   /**
    * Get the best URL to use:
@@ -141,27 +148,27 @@ export function useCachedImages(urls: string[], options: {
    * - If loading failed, use the placeholder
    * - If still loading, use undefined to show loading state
    */
-  const getImageUrl = (url: string): string|undefined => {
+  const getImageUrl = (url: string): string | undefined => {
     const state = loadingStates[url];
 
-    if (state === 'loaded') {
+    if (state === "loaded") {
       return url;
-    } else if (state === 'error' && options.placeholder) {
+    } else if (state === "error" && options.placeholder) {
       return options.placeholder;
-    } else if (state === 'loading') {
+    } else if (state === "loading") {
       // Still loading, could return undefined or a tiny placeholder
       return undefined;
     }
 
-    return url;  // Fallback to original
+    return url; // Fallback to original
   };
 
   return {
     loadingStates,
     getImageUrl,
-    isLoaded: (url: string) => loadingStates[url] === 'loaded',
-    isLoading: (url: string) => loadingStates[url] === 'loading',
-    hasError: (url: string) => loadingStates[url] === 'error',
+    isLoaded: (url: string) => loadingStates[url] === "loaded",
+    isLoading: (url: string) => loadingStates[url] === "loading",
+    hasError: (url: string) => loadingStates[url] === "error",
   };
 }
 
@@ -170,13 +177,13 @@ export function useCachedImages(urls: string[], options: {
  * Useful for preloading images that will be needed soon
  */
 export function preloadImages(urls: string[]): void {
-  urls.forEach(url => {
+  urls.forEach((url) => {
     if (!url || imageCache.has(url)) return;
 
     const img = new Image();
 
     img.onload = () => {
-      imageCache.set(url, {url, loadedAt: Date.now(), element: img});
+      imageCache.set(url, { url, loadedAt: Date.now(), element: img });
     };
 
     img.src = url;

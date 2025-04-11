@@ -61,20 +61,20 @@ export default function ProfileLayout({
       { label: "Личный кабинет", path: "/profile" },
     ];
 
-    if (pathname.includes("/profile/orders")) {
+    if (pathname && pathname.includes("/profile/orders")) {
       items.push({ label: "Мои заказы", path: "/profile/orders" });
-    } else if (pathname.includes("/profile/addresses")) {
+    } else if (pathname && pathname.includes("/profile/addresses")) {
       items.push({ label: "Мои адреса", path: "/profile/addresses" });
 
-      if (pathname.includes("/new")) {
+      if (pathname && pathname.includes("/new")) {
         items.push({
           label: "Добавление адреса",
           path: "/profile/addresses/new",
         });
-      } else if (pathname.includes("/edit")) {
+      } else if (pathname && pathname.includes("/edit")) {
         items.push({ label: "Редактирование адреса", path: pathname });
       }
-    } else if (pathname.includes("/profile/edit")) {
+    } else if (pathname && pathname.includes("/profile/edit")) {
       items.push({ label: "Редактирование профиля", path: "/profile/edit" });
     }
 
@@ -241,17 +241,21 @@ export default function ProfileLayout({
                   <Link
                     href="/profile/addresses"
                     className={`flex items-center ${
-                      pathname.includes("/profile/addresses")
+                      pathname && pathname.includes("/profile/addresses")
                         ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
                         : "text-gray-700 hover:bg-gray-50"
                     } transition-colors duration-200 rounded-lg p-3`}
                   >
                     <MapPinIcon
-                      className={`w-5 h-5 mr-3 ${pathname.includes("/profile/addresses") ? "" : "text-gray-500"}`}
+                      className={`w-5 h-5 mr-3 ${
+                        pathname && pathname.includes("/profile/addresses")
+                          ? ""
+                          : "text-gray-500"
+                      }`}
                     />
                     <span
                       className={
-                        pathname.includes("/profile/addresses")
+                        pathname && pathname.includes("/profile/addresses")
                           ? "font-medium"
                           : ""
                       }

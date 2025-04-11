@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import { useEffect, useRef } from "react";
 
 interface RenderOptimizerOptions {
   /**
@@ -61,68 +61,64 @@ export function useRenderOptimizer({
   detectFrequentRenders = true,
   frequentRenderWindow = 100,
   dependencies = [],
-  enabled = process.env.NODE_ENV === 'development'
+  enabled = process.env.NODE_ENV === "development",
 }: RenderOptimizerOptions) {
   const renderCount = useRef(0);
   const lastRenderTime = useRef(0);
   const renderStartTime = useRef(0);
   const prevDependencies = useRef<any[]>([]);
 
-  // Skip everything if not enabled (in production)
-  if (!enabled) {
-    return;
-  }
-
-  // Start timing the render
+  // Initialize render timing regardless of enabled state
   renderStartTime.current = performance.now();
 
-  // Increment render count
+  // Always increment render count for accurate tracking
   renderCount.current += 1;
 
   // Find which dependency changed and caused the re-render
-  const changedDeps =
-      dependencies
-          .map((dep, index) => {
-            const prevDep = prevDependencies.current[index];
-            return prevDep !== dep && prevDependencies.current.length > 0;
-          })
-          .filter(Boolean);
+  const changedDeps = dependencies
+    .map((dep, index) => {
+      const prevDep = prevDependencies.current[index];
+      return prevDep !== dep && prevDependencies.current.length > 0;
+    })
+    .filter(Boolean);
 
+  // Main effect for optimization reporting
   useEffect(() => {
-    // Skip in production
+    // Skip tracking and reporting if feature is disabled
     if (!enabled) return;
 
     const renderDuration = performance.now() - renderStartTime.current;
     const timeSinceLastRender =
-        renderStartTime.current - lastRenderTime.current;
+      renderStartTime.current - lastRenderTime.current;
 
     // Warning for slow renders
     if (renderDuration > renderTimeThreshold) {
       console.warn(
-          `[RenderOptimizer] Slow render detected in ${componentName}: ${
-              renderDuration.toFixed(
-                  2,
-                  )}ms` +
-              ` (threshold: ${renderTimeThreshold}ms)`,
+        `[RenderOptimizer] Slow render detected in ${componentName}: ${renderDuration.toFixed(
+          2,
+        )}ms` + ` (threshold: ${renderTimeThreshold}ms)`,
       );
     }
 
     // Warning for too many renders
     if (renderCount.current > renderCountThreshold) {
       console.warn(
-          `[RenderOptimizer] High render count for ${componentName}: ${
-              renderCount.current} renders` +
-              ` (threshold: ${renderCountThreshold})`,
+        `[RenderOptimizer] High render count for ${componentName}: ${
+          renderCount.current
+        } renders` + ` (threshold: ${renderCountThreshold})`,
       );
     }
 
     // Warning for frequent renders
-    if (detectFrequentRenders && timeSinceLastRender < frequentRenderWindow &&
-        lastRenderTime.current > 0) {
+    if (
+      detectFrequentRenders &&
+      timeSinceLastRender < frequentRenderWindow &&
+      lastRenderTime.current > 0
+    ) {
       console.warn(
-          `[RenderOptimizer] Frequent renders detected in ${componentName}: ` +
-              `${timeSinceLastRender.toFixed(2)}ms between renders` +
-              ` (threshold: ${frequentRenderWindow}ms)`,
+        `[RenderOptimizer] Frequent renders detected in ${componentName}: ` +
+          `${timeSinceLastRender.toFixed(2)}ms between renders` +
+          ` (threshold: ${frequentRenderWindow}ms)`,
       );
     }
 
@@ -131,12 +127,14 @@ export function useRenderOptimizer({
       console.log(`[RenderOptimizer] ${componentName} rendered:`, {
         renderCount: renderCount.current,
         renderDuration: `${renderDuration.toFixed(2)}ms`,
-        timeSinceLastRender: lastRenderTime.current > 0 ?
-            `${timeSinceLastRender.toFixed(2)}ms` :
-            'First render',
-        changedDependencies: changedDeps.length > 0 ?
-            `${changedDeps.length} dependencies changed` :
-            'No tracked dependencies changed',
+        timeSinceLastRender:
+          lastRenderTime.current > 0
+            ? `${timeSinceLastRender.toFixed(2)}ms`
+            : "First render",
+        changedDependencies:
+          changedDeps.length > 0
+            ? `${changedDeps.length} dependencies changed`
+            : "No tracked dependencies changed",
       });
     }
 

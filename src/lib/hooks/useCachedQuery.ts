@@ -1,9 +1,17 @@
-import {DocumentNode, OperationVariables, QueryHookOptions, QueryResult, TypedDocumentNode, useQuery, WatchQueryFetchPolicy} from '@apollo/client';
-import {useEffect, useRef} from 'react';
+import {
+  DocumentNode,
+  OperationVariables,
+  QueryHookOptions,
+  QueryResult,
+  TypedDocumentNode,
+  useQuery,
+  WatchQueryFetchPolicy,
+} from "@apollo/client";
+import { useEffect, useRef } from "react";
 
 // Cache structure to store query results
 interface QueryCache {
-  [key: string]: {data: any; timestamp: number;};
+  [key: string]: { data: any; timestamp: number };
 }
 
 // Global cache for queries
@@ -16,8 +24,9 @@ const inFlightQueries = new Set<string>();
  * Options for the useCachedQuery hook
  */
 export interface CachedQueryOptions<
-    TData, TVariables extends OperationVariables> extends
-    QueryHookOptions<TData, TVariables> {
+  TData,
+  TVariables extends OperationVariables,
+> extends QueryHookOptions<TData, TVariables> {
   /**
    * Cache time in milliseconds. Data older than this will be refetched.
    * @default 5 minutes (300000ms)
@@ -50,12 +59,13 @@ export interface CachedQueryOptions<
 function getOperationName(query: DocumentNode): string {
   // Safe access of the operation name
   try {
-    const definition =
-        query.definitions.find(def => def.kind === 'OperationDefinition');
+    const definition = query.definitions.find(
+      (def) => def.kind === "OperationDefinition",
+    );
     // @ts-ignore - We're safely handling property access
-    return definition?.name?.value || 'query';
+    return definition?.name?.value || "query";
   } catch (e) {
-    return 'query';
+    return "query";
   }
 }
 
@@ -67,12 +77,14 @@ function getOperationName(query: DocumentNode): string {
  * @returns Query result with the same interface as useQuery
  */
 export function useCachedQuery<
-    TData = any, TVariables extends OperationVariables = OperationVariables>(
-    query: DocumentNode|TypedDocumentNode<TData, TVariables>,
-    options: CachedQueryOptions<TData, TVariables> = {}):
-    QueryResult<TData, TVariables> {
+  TData = any,
+  TVariables extends OperationVariables = OperationVariables,
+>(
+  query: DocumentNode | TypedDocumentNode<TData, TVariables>,
+  options: CachedQueryOptions<TData, TVariables> = {},
+): QueryResult<TData, TVariables> {
   const {
-    cacheTime = 5 * 60 * 1000,  // 5 minutes by default
+    cacheTime = 5 * 60 * 1000, // 5 minutes by default
     cacheKey: customCacheKey,
     logErrors = true,
     deduplicate = true,
@@ -83,12 +95,14 @@ export function useCachedQuery<
   const operationName = getOperationName(query);
 
   // Use custom cache key or generate one from operation name and variables
-  const cacheKey = customCacheKey ||
-      `${operationName}:${JSON.stringify(apolloOptions.variables || {})}`;
+  const cacheKey =
+    customCacheKey ||
+    `${operationName}:${JSON.stringify(apolloOptions.variables || {})}`;
 
   // Track if we should deduplicate this query
-  const shouldDeduplicate =
-      useRef(deduplicate && inFlightQueries.has(cacheKey));
+  const shouldDeduplicate = useRef(
+    deduplicate && inFlightQueries.has(cacheKey),
+  );
 
   // Standard Apollo useQuery with some modifications
   const result = useQuery<TData, TVariables>(query, {
@@ -97,11 +111,13 @@ export function useCachedQuery<
     skip: shouldDeduplicate.current || apolloOptions.skip,
     // Prefer network if cache is expired
     fetchPolicy: getCacheFetchPolicy(
-        cacheKey, cacheTime,
-        apolloOptions.fetchPolicy as WatchQueryFetchPolicy),
+      cacheKey,
+      cacheTime,
+      apolloOptions.fetchPolicy as WatchQueryFetchPolicy,
+    ),
     onCompleted: (data) => {
       // Store in our cache
-      queryCache[cacheKey] = {data, timestamp: Date.now()};
+      queryCache[cacheKey] = { data, timestamp: Date.now() };
 
       // Remove from in-flight set
       if (deduplicate) {
@@ -128,7 +144,7 @@ export function useCachedQuery<
       if (apolloOptions.onError) {
         apolloOptions.onError(error);
       }
-    }
+    },
   });
 
   // Add query to in-flight set when it starts
@@ -149,14 +165,15 @@ export function useCachedQuery<
   return {
     ...result,
     // Override data to use cached value when loading if available
-    data: result.loading && queryCache[cacheKey]?.data ?
-        queryCache[cacheKey].data :
-        result.data,
+    data:
+      result.loading && queryCache[cacheKey]?.data
+        ? queryCache[cacheKey].data
+        : result.data,
     // Enhanced refetch that clears cache
     refetch: async (variables) => {
       delete queryCache[cacheKey];
       return result.refetch(variables);
-    }
+    },
   };
 }
 
@@ -168,12 +185,12 @@ export function useCachedQuery<
 export function clearQueryCache(cacheKeys?: string[]): void {
   if (!cacheKeys || cacheKeys.length === 0) {
     // Clear entire cache
-    Object.keys(queryCache).forEach(key => {
+    Object.keys(queryCache).forEach((key) => {
       delete queryCache[key];
     });
   } else {
     // Clear specific keys
-    cacheKeys.forEach(key => {
+    cacheKeys.forEach((key) => {
       delete queryCache[key];
     });
   }
@@ -183,21 +200,23 @@ export function clearQueryCache(cacheKeys?: string[]): void {
  * Determine the appropriate fetch policy based on cache status
  */
 function getCacheFetchPolicy(
-    cacheKey: string, cacheTime: number,
-    originalPolicy: WatchQueryFetchPolicy|undefined): WatchQueryFetchPolicy {
+  cacheKey: string,
+  cacheTime: number,
+  originalPolicy: WatchQueryFetchPolicy | undefined,
+): WatchQueryFetchPolicy {
   // If a fetch policy is explicitly set, respect it
-  if (originalPolicy && originalPolicy !== 'cache-first') {
+  if (originalPolicy && originalPolicy !== "cache-first") {
     return originalPolicy;
   }
 
   // If we have a recent cache entry, use it
   const cachedData = queryCache[cacheKey];
   if (cachedData && Date.now() - cachedData.timestamp < cacheTime) {
-    return 'cache-first';
+    return "cache-first";
   }
 
   // Otherwise prefer network
-  return 'network-only';
+  return "network-only";
 }
 
 export default useCachedQuery;

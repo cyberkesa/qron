@@ -39,90 +39,61 @@ interface PerformanceMarkerProps {
 }
 
 /**
- * A component that measures the render time of its children
- * Only works in development mode
+ * Component to measure and track rendering performance
+ * Provides timing data for component renders
  */
-export default function PerformanceMarker({
+const PerformanceMarker: React.FC<PerformanceMarkerProps> = ({
   componentName,
   enabled = true,
   warnThreshold = 16,
   verbose = false,
   reportToTelemetry = false,
   children,
-}: PerformanceMarkerProps) {
-  const renderStartTime = useRef<number>(0);
-  const renderEndTime = useRef<number>(0);
-  const renderCount = useRef<number>(0);
-  const isDevMode = process.env.NODE_ENV === "development";
+}) => {
+  const startTime = useRef(performance.now());
+  const mounted = useRef(false);
+  const renderCount = useRef(0);
 
-  // Don't do anything in production unless explicitly enabled
-  if (!isDevMode && !enabled) {
-    return <>{children}</>;
-  }
+  // Skip measurement if not enabled or not in development
+  const shouldMeasure =
+    enabled && (process.env.NODE_ENV === "development" || reportToTelemetry);
 
-  // Start timing at render start
-  if (enabled) {
-    renderStartTime.current = performance.now();
-    renderCount.current += 1;
-  }
+  // Increment render count on each render
+  renderCount.current += 1;
 
   useEffect(() => {
-    if (!enabled) return;
+    // Skip if measurement is disabled
+    if (!shouldMeasure) return;
 
-    // Measure render completion time
-    renderEndTime.current = performance.now();
-    const renderTime = renderEndTime.current - renderStartTime.current;
+    // This is the initial render
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
 
-    // Only log if verbose or above threshold
-    if (verbose || renderTime > warnThreshold) {
-      const style =
-        renderTime > warnThreshold
-          ? "color: red; font-weight: bold"
-          : "color: green";
-      console.log(
-        `%c[PerformanceMarker] ${componentName} render #${renderCount.current}: ${renderTime.toFixed(2)}ms`,
-        style,
+    // Calculate render time
+    const endTime = performance.now();
+    const renderTime = endTime - startTime.current;
+
+    // Log slow renders or all renders if verbose
+    if (renderTime > warnThreshold || verbose) {
+      const severity = renderTime > warnThreshold ? "warn" : "log";
+      console[severity](
+        `[PerformanceMarker] ${componentName} rendered in ${renderTime.toFixed(
+          2,
+        )}ms (render #${renderCount.current})`,
       );
     }
 
-    // Report to telemetry system if enabled
-    if (reportToTelemetry) {
-      // This would send data to your analytics or monitoring system
-      try {
-        // Example implementation:
-        // window.dataLayer?.push({
-        //   event: 'componentRender',
-        //   componentName,
-        //   renderTime,
-        //   renderCount: renderCount.current,
-        // });
-      } catch (error) {
-        console.error("Failed to report performance data:", error);
-      }
-    }
-
-    // Help detect slow components in the React DevTools
-    if (renderTime > warnThreshold) {
-      // This creates a marker in the Performance tab
-      performance.mark(`${componentName}-slow-render-${renderCount.current}`);
-    }
-
-    // Check for multiple renders in the same frame
-    return () => {
-      if (!enabled) return;
-      const unmountTime = performance.now();
-      const lifetimeMs = unmountTime - renderStartTime.current;
-
-      if (lifetimeMs < 32 && renderCount.current > 1) {
-        console.warn(
-          `[PerformanceMarker] ${componentName} rendered ${renderCount.current} times within ${lifetimeMs.toFixed(2)}ms - possible render loop!`,
-        );
-      }
-    };
+    // Update start time for next render
+    startTime.current = performance.now();
   });
 
+  // Simply render children
   return <>{children}</>;
-}
+};
+
+export default PerformanceMarker;
 
 /**
  * HOC that wraps a component with performance measurement

@@ -5,87 +5,70 @@ import Image, { ImageProps } from "next/image";
 import useCachedImages from "@/lib/hooks/useCachedImages";
 
 export interface LazyImageProps extends Omit<ImageProps, "src" | "onError"> {
-  /**
-   * Image URL to display
-   */
+  /** Image source URL */
   src: string;
-
-  /**
-   * Fallback image URL to use when the main image fails to load
-   * @default "/images/product-placeholder.png"
-   */
+  /** Fallback image URL when loading fails */
   fallbackSrc?: string;
-
-  /**
-   * Whether to add blur-up effect when loading
-   * @default true
-   */
-  enableBlurEffect?: boolean;
-
-  /**
-   * Whether to use image preloading via our cache system
-   * @default true
-   */
+  /** Whether to use blur effect during loading */
+  useBlur?: boolean;
+  /** Whether to preload and cache image */
   useImagePreloading?: boolean;
-
-  /**
-   * Callback when image loads successfully
-   */
+  /** Function called when image loads */
   onLoad?: () => void;
-
-  /**
-   * Callback when image fails to load
-   */
+  /** Function called when image fails to load */
   onError?: () => void;
 }
 
 /**
- * Enhanced image component with lazy loading, caching, blur-up effect and error handling
+ * Enhanced image component with caching, preloading, and error handling
  */
-export const LazyImage: React.FC<LazyImageProps> = ({
+const LazyImage: React.FC<LazyImageProps> = ({
   src,
-  fallbackSrc = "/images/product-placeholder.png",
+  fallbackSrc = "/images/placeholder.jpg",
   alt,
   width,
   height,
   className = "",
-  enableBlurEffect = true,
+  useBlur = true,
   useImagePreloading = true,
+  priority = false,
   onLoad,
   onError,
-  ...imageProps
+  ...props
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [currentSrc, setCurrentSrc] = useState(src);
   const imageRef = useRef<HTMLImageElement>(null);
 
-  // Use our image caching hook if preloading is enabled
-  const { getImageUrl, isLoading } = useImagePreloading
-    ? useCachedImages([src], {
-        placeholder: fallbackSrc,
-        onLoad: () => {
+  // Initialize image caching hook regardless of useImagePreloading setting
+  // to ensure we always have the hook available in the component
+  const {
+    getImageUrl,
+    isLoaded: isCachedImageLoaded,
+    hasError: hasCachedImageError,
+  } = useCachedImages([src], {
+    priority,
+    placeholder: fallbackSrc,
+    onLoad: useImagePreloading
+      ? () => {
           setIsLoaded(true);
           onLoad?.();
-        },
-        onError: () => {
+        }
+      : undefined,
+    onError: useImagePreloading
+      ? () => {
           setHasError(true);
           setCurrentSrc(fallbackSrc);
           onError?.();
-        },
-      })
-    : { getImageUrl: () => src, isLoading: true };
+        }
+      : undefined,
+  });
 
   // Set up blur effect class
-  const blurEffectClass =
-    enableBlurEffect && !isLoaded && !hasError
-      ? "animate-pulse filter blur-[2px] scale-105 bg-gray-100"
-      : "scale-100";
-
-  // Set up base class
-  const baseClass = `transition-all duration-300 ease-in-out ${blurEffectClass}`;
-
-  // Combine with custom class
+  const blurClass = useBlur && !isLoaded ? "blur-sm" : "";
+  const loadingClass = !isLoaded ? "animate-pulse" : "";
+  const baseClass = `transition-all duration-300 ${blurClass} ${loadingClass}`;
   const finalClassName = `${baseClass} ${className}`;
 
   // Handle manual image loading events when not using preloading
@@ -127,23 +110,26 @@ export const LazyImage: React.FC<LazyImageProps> = ({
     };
   }, [isLoaded]);
 
+  // Determine the final source URL to use
+  const finalSrc = useImagePreloading
+    ? getImageUrl(src) || fallbackSrc
+    : hasError
+      ? fallbackSrc
+      : currentSrc;
+
   return (
     <div className="relative overflow-hidden" ref={imageRef}>
       <Image
-        src={hasError ? fallbackSrc : currentSrc}
+        src={finalSrc}
         alt={alt}
         width={width}
         height={height}
         className={finalClassName}
         onLoad={handleLoad}
         onError={handleError}
-        loading="lazy"
-        {...imageProps}
+        priority={priority}
+        {...props}
       />
-
-      {!isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-gray-100 animate-pulse" />
-      )}
     </div>
   );
 };

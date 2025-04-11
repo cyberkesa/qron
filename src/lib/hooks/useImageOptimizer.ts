@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface ImageOptimizerOptions {
   /**
@@ -50,13 +50,13 @@ interface ImageOptimizerOptions {
    * Format for image optimization
    * @default "webp"
    */
-  format?: 'jpeg'|'png'|'webp'|'avif';
+  format?: "jpeg" | "png" | "webp" | "avif";
 
   /**
    * Placeholder to show before the image is loaded (blur, empty, etc.)
    * @default "empty"
    */
-  placeholder?: 'blur'|'empty'|'color';
+  placeholder?: "blur" | "empty" | "color";
 
   /**
    * Placeholder color when placeholder is "color"
@@ -89,7 +89,7 @@ interface ImageOptimizerResult {
   /**
    * Error message if loading failed
    */
-  error: string|null;
+  error: string | null;
 
   /**
    * Ref to attach to the image container for lazy loading
@@ -99,7 +99,7 @@ interface ImageOptimizerResult {
   /**
    * Aspect ratio of the image (height / width)
    */
-  aspectRatio: number|null;
+  aspectRatio: number | null;
 
   /**
    * CSS style object for the aspect ratio container
@@ -123,20 +123,20 @@ interface ImageOptimizerResult {
 export function useImageOptimizer({
   src,
   lazyLoad = true,
-  rootMargin = '200px',
+  rootMargin = "200px",
   threshold = 0.1,
   width,
   height,
   preload = false,
   quality = 75,
-  format = 'webp',
-  placeholder = 'empty',
-  placeholderColor = '#f3f4f6'
+  format = "webp",
+  placeholder = "empty",
+  placeholderColor = "#f3f4f6",
 }: ImageOptimizerOptions): ImageOptimizerResult {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
-  const [error, setError] = useState<string|null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [shouldLoad, setShouldLoad] = useState<boolean>(!lazyLoad || preload);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -152,10 +152,10 @@ export function useImageOptimizer({
       // In a real app, you might use imgix, Cloudinary, or other services
       return src;
     } catch (error) {
-      console.error('Error optimizing image URL:', error);
+      console.error("Error optimizing image URL:", error);
       return src;
     }
-  }, [src, quality, format]);
+  }, [src]);
 
   // Manually load the image
   const loadImage = useCallback(() => {
@@ -168,12 +168,15 @@ export function useImageOptimizer({
       return;
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setShouldLoad(true);
-        observer.disconnect();
-      }
-    }, {rootMargin, threshold});
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin, threshold },
+    );
 
     observer.observe(ref.current);
 
@@ -209,9 +212,9 @@ export function useImageOptimizer({
 
     // Preload high priority images
     if (preload) {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
       link.href = optimizedSrc;
       document.head.appendChild(link);
 
@@ -223,23 +226,25 @@ export function useImageOptimizer({
 
   // Container styles for aspect ratio
   const containerStyle: React.CSSProperties = {
-    position: 'relative',
-    overflow: 'hidden',
-    ...(aspectRatio ? {paddingBottom: `${aspectRatio * 100}%`} : {}),
-    ...(placeholder === 'color' ? {backgroundColor: placeholderColor} : {})
+    position: "relative",
+    overflow: "hidden",
+    ...(aspectRatio ? { paddingBottom: `${aspectRatio * 100}%` } : {}),
+    ...(placeholder === "color" ? { backgroundColor: placeholderColor } : {}),
   };
 
   // Container class name based on state
   const containerClassName = [
-    'image-container',
-    isLoading ? 'image-loading' : '',
-    isLoaded ? 'image-loaded' : '',
-    hasError ? 'image-error' : '',
-    placeholder === 'blur' ? 'image-blur-placeholder' : '',
-  ].filter(Boolean).join(' ');
+    "image-container",
+    isLoading ? "image-loading" : "",
+    isLoaded ? "image-loaded" : "",
+    hasError ? "image-error" : "",
+    placeholder === "blur" ? "image-blur-placeholder" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return {
-    imageSrc: shouldLoad ? optimizedSrc : '',
+    imageSrc: shouldLoad ? optimizedSrc : "",
     isLoading,
     isLoaded,
     hasError,
@@ -248,7 +253,7 @@ export function useImageOptimizer({
     aspectRatio,
     containerStyle,
     containerClassName,
-    loadImage
+    loadImage,
   };
 }
 

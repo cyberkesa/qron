@@ -1,27 +1,8 @@
-import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
+// ВАЖНО: Этот файл устарел и оставлен для совместимости.
+// Используйте импорт из apollo-client.ts вместо этого файла
+import { client as apolloClient } from "./apollo-client";
 
-let client: ApolloClient<any> | null = null;
+// Реэкспортируем клиент из apollo-client.ts для совместимости
+export const getClient = () => apolloClient;
 
-export const getClient = () => {
-  if (!client || typeof window === "undefined") {
-    client = new ApolloClient({
-      cache: new InMemoryCache(),
-      link: new HttpLink({
-        uri: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/graphql",
-        // you can disable result caching here if you want to
-        fetchOptions: { cache: "no-store" },
-      }),
-      defaultOptions: {
-        watchQuery: {
-          fetchPolicy: "no-cache",
-          errorPolicy: "ignore",
-        },
-        query: {
-          fetchPolicy: "no-cache",
-          errorPolicy: "all",
-        },
-      },
-    });
-  }
-  return client;
-};
+export default getClient;

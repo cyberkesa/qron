@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
+import Image from "next/image";
 import PerformanceMarker, {
   withPerformanceMarking,
 } from "@/components/debug/PerformanceMarker";
@@ -73,7 +74,7 @@ const ExampleComponent: React.FC = () => {
             <h3 className="text-lg font-medium mb-2">
               Regular Image (for comparison)
             </h3>
-            <img
+            <Image
               src="https://images.qron.ru/example-image.jpg"
               alt="Example regular image"
               width={300}

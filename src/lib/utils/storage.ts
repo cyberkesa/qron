@@ -3,7 +3,7 @@
  * with proper error handling and type safety
  */
 
-const isClient = typeof window !== 'undefined';
+const isClient = typeof window !== "undefined";
 
 /**
  * Safe wrapper for localStorage get operations
@@ -11,7 +11,10 @@ const isClient = typeof window !== 'undefined';
  * @param defaultValue Optional default value if key doesn't exist
  * @returns The stored value or defaultValue if not found
  */
-export function getItem<T>(key: string, defaultValue?: T): T|null|undefined {
+export function getItem<T>(
+  key: string,
+  defaultValue?: T,
+): T | null | undefined {
   if (!isClient) return defaultValue ?? null;
 
   try {
@@ -41,7 +44,7 @@ export function setItem(key: string, value: unknown): boolean {
 
   try {
     const valueToStore =
-        typeof value === 'string' ? value : JSON.stringify(value);
+      typeof value === "string" ? value : JSON.stringify(value);
 
     localStorage.setItem(key, valueToStore);
     return true;
@@ -79,7 +82,7 @@ export function clearStorage(): boolean {
     localStorage.clear();
     return true;
   } catch (error) {
-    console.error('Error clearing storage:', error);
+    console.error("Error clearing storage:", error);
     return false;
   }
 }
@@ -95,17 +98,17 @@ export const Storage = {
   setGuestToken: (token: string) => setItem("guestToken", token),
 
   // Region related
-  getRegion: () => getItem<{id: string; name: string}>('selectedRegion'),
-  setRegion: (region: {id: string; name: string}) =>
-      setItem('selectedRegion', region),
-  getTokenRegionId: () => getItem<string>('tokenRegionId'),
-  setTokenRegionId: (id: string) => setItem('tokenRegionId', id),
+  getRegion: () => getItem<{ id: string; name: string }>("selectedRegion"),
+  setRegion: (region: { id: string; name: string }) =>
+    setItem("selectedRegion", region),
+  getTokenRegionId: () => getItem<string>("tokenRegionId"),
+  setTokenRegionId: (id: string) => setItem("tokenRegionId", id),
 
   // Clear auth data
   clearAuth: () => {
-    removeItem('accessToken');
-    removeItem('refreshToken');
-    removeItem('guestToken');
+    removeItem("accessToken");
+    removeItem("refreshToken");
+    removeItem("guestToken");
     return true;
   },
 };
