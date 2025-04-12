@@ -28,32 +28,17 @@ module.exports = {
       },
       keyframes: {
         fadeIn: {
-          '0%': { opacity: 0 },
-          '100%': { opacity: 1 },
-        },
-        fadeInUp: {
-          '0%': { opacity: 0, transform: 'translateY(10px)' },
-          '100%': { opacity: 1, transform: 'translateY(0)' },
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         fadeOut: {
-          '0%': { opacity: 1 },
-          '100%': { opacity: 0 },
-        },
-        slideDownIn: {
-          from: { opacity: 0, transform: 'translate(-50%, -20px)' },
-          to: { opacity: 1, transform: 'translate(-50%, 0)' },
-        },
-        slideUpOut: {
-          from: { opacity: 1, transform: 'translate(-50%, 0)' },
-          to: { opacity: 0, transform: 'translate(-50%, -20px)' },
+          '0%': { opacity: '1', transform: 'translateY(0)' },
+          '100%': { opacity: '0', transform: 'translateY(-10px)' },
         },
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
-        'fade-in-up': 'fadeInUp 0.3s ease-out',
         'fade-out': 'fadeOut 0.3s ease-in-out',
-        'slide-down-in': 'slideDownIn 0.4s ease-out forwards',
-        'slide-up-out': 'slideUpOut 0.4s ease-in forwards',
       },
       scale: {
         98: '0.98',

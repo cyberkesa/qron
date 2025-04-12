@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import Image from "next/image";
+import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import {
   TruckIcon,
   CreditCardIcon,
@@ -12,7 +12,7 @@ import {
   BanknotesIcon,
   CreditCardIcon as CreditCardOutlineIcon,
   GlobeEuropeAfricaIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
 export default function DeliveryPage() {
   return (

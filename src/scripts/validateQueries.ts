@@ -1,16 +1,16 @@
-import { gql } from "@apollo/client";
-import * as fs from "fs";
-import * as glob from "glob";
+import { gql } from '@apollo/client';
+import * as fs from 'fs';
+import * as glob from 'glob';
 import {
   DocumentNode,
   FragmentDefinitionNode,
   Kind,
   OperationDefinitionNode,
   parse,
-} from "graphql";
-import * as path from "path";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+} from 'graphql';
+import * as path from 'path';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -32,12 +32,12 @@ interface ValidationContext {
 }
 
 // Load schema
-const schemaPath = path.join(__dirname, "../../schema.json");
-const schema = JSON.parse(fs.readFileSync(schemaPath, "utf-8"));
+const schemaPath = path.join(__dirname, '../../schema.json');
+const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf-8'));
 
 // Import queries
-const queriesPath = path.join(__dirname, "../lib/queries.ts");
-const queriesContent = fs.readFileSync(queriesPath, "utf-8");
+const queriesPath = path.join(__dirname, '../lib/queries.ts');
+const queriesContent = fs.readFileSync(queriesPath, 'utf-8');
 
 // Extract queries from the content
 const queryRegex = /gql`([\s\S]*?)`/g;
@@ -61,10 +61,10 @@ function getTypeFromSchema(typeName: string): any {
 function getFieldType(field: any): any {
   if (!field || !field.type) return null;
 
-  if (field.type.kind === "NON_NULL") {
+  if (field.type.kind === 'NON_NULL') {
     return getFieldType({ type: field.type.ofType });
   }
-  if (field.type.kind === "LIST") {
+  if (field.type.kind === 'LIST') {
     return getFieldType({ type: field.type.ofType });
   }
   return field.type;
@@ -80,21 +80,21 @@ function validateField(
   typeName: string,
   fieldName: string,
   path: string[],
-  context: ValidationContext,
+  context: ValidationContext
 ): boolean {
   const type = getTypeFromSchema(typeName);
   if (!type) {
     context.errors.push(
-      `Тип ${typeName} не найден в схеме (путь: ${path.join(".")})`,
+      `Тип ${typeName} не найден в схеме (путь: ${path.join('.')})`
     );
     return false;
   }
 
   // Проверяем дубликаты полей
-  const fieldPath = path.concat(fieldName).join(".");
+  const fieldPath = path.concat(fieldName).join('.');
   if (context.seenFields.has(fieldPath)) {
     context.warnings.push(
-      `Дубликат поля ${fieldName} найден в пути ${fieldPath}`,
+      `Дубликат поля ${fieldName} найден в пути ${fieldPath}`
     );
   }
   context.seenFields.add(fieldPath);
@@ -106,7 +106,7 @@ function validateField(
       context.errors.push(
         `Поле ${fieldName} не найдено в типе ${
           typeName
-        } (путь: ${path.join(".")})`,
+        } (путь: ${path.join('.')})`
       );
       return false;
     }
@@ -115,8 +115,8 @@ function validateField(
     if (field.isDeprecated) {
       context.warnings.push(
         `Поле ${fieldName} помечено как устаревшее (путь: ${path.join(
-          ".",
-        )}). Причина: ${field.deprecationReason || "не указана"}`,
+          '.'
+        )}). Причина: ${field.deprecationReason || 'не указана'}`
       );
     }
 
@@ -130,14 +130,14 @@ function validateField(
 // Функция для проверки фрагмента
 function validateFragment(
   fragment: FragmentDefinitionNode,
-  context: ValidationContext,
+  context: ValidationContext
 ): boolean {
   const typeName = fragment.typeCondition.name.value;
   return validateSelectionSet(
     fragment.selectionSet,
     typeName,
     [fragment.name.value],
-    context,
+    context
   );
 }
 
@@ -146,7 +146,7 @@ function validateSelectionSet(
   selectionSet: any,
   typeName: string,
   path: string[],
-  context: ValidationContext,
+  context: ValidationContext
 ): boolean {
   if (!selectionSet || !selectionSet.selections) return true;
 
@@ -155,7 +155,7 @@ function validateSelectionSet(
 
   if (!type) {
     context.errors.push(
-      `Тип ${typeName} не найден в схеме (путь: ${path.join(".")})`,
+      `Тип ${typeName} не найден в схеме (путь: ${path.join('.')})`
     );
     return false;
   }
@@ -166,7 +166,7 @@ function validateSelectionSet(
       const currentPath = [...path, fieldName];
 
       // Пропускаем служебные поля
-      if (fieldName === "__typename") continue;
+      if (fieldName === '__typename') continue;
 
       // Проверяем существование поля
       if (!validateField(typeName, fieldName, currentPath, context)) {
@@ -180,25 +180,25 @@ function validateSelectionSet(
         if (field && field.args) {
           for (const arg of selection.arguments) {
             const argDef = field.args.find(
-              (a: any) => a.name === arg.name.value,
+              (a: any) => a.name === arg.name.value
             );
             if (!argDef) {
               context.errors.push(
                 `Неизвестный аргумент ${arg.name.value} для поля ${
                   fieldName
-                } (путь: ${currentPath.join(".")})`,
+                } (путь: ${currentPath.join('.')})`
               );
               isValid = false;
             } else if (
               arg.value.kind === Kind.ENUM &&
-              argDef.type.kind === "ENUM"
+              argDef.type.kind === 'ENUM'
             ) {
               const enumType = getTypeFromSchema(argDef.type.name);
               if (!validateEnumValue(enumType, arg.value.value)) {
                 context.errors.push(
                   `Неверное значение enum ${arg.value.value} для аргумента ${
                     arg.name.value
-                  } (путь: ${currentPath.join(".")})`,
+                  } (путь: ${currentPath.join('.')})`
                 );
                 isValid = false;
               }
@@ -220,16 +220,14 @@ function validateSelectionSet(
             selection.selectionSet,
             fieldType.name,
             currentPath,
-            context,
+            context
           ) && isValid;
       }
     } else if (selection.kind === Kind.FRAGMENT_SPREAD) {
       const fragment = context.fragments.get(selection.name.value);
       if (!fragment) {
         context.errors.push(
-          `Фрагмент ${
-            selection.name.value
-          } не найден (путь: ${path.join(".")})`,
+          `Фрагмент ${selection.name.value} не найден (путь: ${path.join('.')})`
         );
         isValid = false;
       } else {
@@ -245,7 +243,7 @@ function validateSelectionSet(
           selection.selectionSet,
           fragmentTypeName,
           path,
-          context,
+          context
         ) && isValid;
     }
   }
@@ -257,19 +255,19 @@ function validateSelectionSet(
 function validateVariableType(variableType: any, schemaType: any): boolean {
   if (!variableType || !schemaType) return false;
 
-  if (variableType.kind === "NonNullType" && schemaType.kind === "NON_NULL") {
+  if (variableType.kind === 'NonNullType' && schemaType.kind === 'NON_NULL') {
     return validateVariableType(variableType.type, schemaType.ofType);
   }
 
-  if (variableType.kind === "ListType" && schemaType.kind === "LIST") {
+  if (variableType.kind === 'ListType' && schemaType.kind === 'LIST') {
     return validateVariableType(variableType.type, schemaType.ofType);
   }
 
   if (
-    variableType.kind === "NamedType" &&
-    (schemaType.kind === "SCALAR" ||
-      schemaType.kind === "INPUT_OBJECT" ||
-      schemaType.kind === "ENUM")
+    variableType.kind === 'NamedType' &&
+    (schemaType.kind === 'SCALAR' ||
+      schemaType.kind === 'INPUT_OBJECT' ||
+      schemaType.kind === 'ENUM')
   ) {
     return variableType.name.value === schemaType.name;
   }
@@ -303,17 +301,17 @@ function validateQuery(queryString: string): {
     for (const definition of ast.definitions) {
       if (definition.kind === Kind.OPERATION_DEFINITION) {
         const operationType = definition.operation;
-        let rootType = "";
+        let rootType = '';
 
         switch (operationType) {
-          case "query":
-            rootType = "Query";
+          case 'query':
+            rootType = 'Query';
             break;
-          case "mutation":
-            rootType = "Mutation";
+          case 'mutation':
+            rootType = 'Mutation';
             break;
-          case "subscription":
-            rootType = "Subscription";
+          case 'subscription':
+            rootType = 'Subscription';
             break;
           default:
             context.errors.push(`Неизвестный тип операции: ${operationType}`);
@@ -344,7 +342,7 @@ function validateQuery(queryString: string): {
 
 // Функция для поиска GraphQL файлов
 async function findGraphQLFiles(): Promise<string[]> {
-  return glob.glob("src/**/*.{ts,tsx}");
+  return glob.glob('src/**/*.{ts,tsx}');
 }
 
 // Основная функция для валидации всех запросов
@@ -354,50 +352,50 @@ async function validateQueries() {
   let totalQueries = 0;
   let validQueries = 0;
 
-  console.log(colors.cyan("\nНачинаю валидацию GraphQL запросов...\n"));
+  console.log(colors.cyan('\nНачинаю валидацию GraphQL запросов...\n'));
 
   for (const file of files) {
-    const content = await fs.promises.readFile(file, "utf8");
+    const content = await fs.promises.readFile(file, 'utf8');
     const matches = content.match(queryRegex);
 
     if (!matches) continue;
 
     for (const match of matches) {
       totalQueries++;
-      const queryString = match.replace(/^gql`/, "").replace(/`$/, "");
+      const queryString = match.replace(/^gql`/, '').replace(/`$/, '');
       const result = validateQuery(queryString);
 
       if (result.isValid) {
         validQueries++;
         console.log(
-          `${colors.green("✓")} ${colors.gray(file)}: ${colors.green(
-            "Валидный запрос",
-          )}`,
+          `${colors.green('✓')} ${colors.gray(file)}: ${colors.green(
+            'Валидный запрос'
+          )}`
         );
       } else {
         hasErrors = true;
         console.log(
-          `${colors.red("✗")} ${colors.gray(file)}: ${colors.red(
-            "Ошибки в запросе",
-          )}`,
+          `${colors.red('✗')} ${colors.gray(file)}: ${colors.red(
+            'Ошибки в запросе'
+          )}`
         );
         for (const error of result.errors) {
-          console.log(`  ${colors.red("•")} ${error}`);
+          console.log(`  ${colors.red('•')} ${error}`);
         }
       }
 
       if (result.warnings.length > 0) {
         for (const warning of result.warnings) {
-          console.log(`  ${colors.yellow("!")} ${warning}`);
+          console.log(`  ${colors.yellow('!')} ${warning}`);
         }
       }
     }
   }
 
   console.log(
-    `\n${colors.cyan("Итоги валидации:")} ${validQueries}/${
+    `\n${colors.cyan('Итоги валидации:')} ${validQueries}/${
       totalQueries
-    } запросов валидны\n`,
+    } запросов валидны\n`
   );
 
   return !hasErrors;

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { ReactNode, useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { ReactNode, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -10,7 +10,7 @@ interface PageTransitionProps {
 
 export function PageTransition({
   children,
-  className = "",
+  className = '',
 }: PageTransitionProps) {
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
@@ -50,8 +50,8 @@ export function PageTransition({
     <div
       className={`transition-all duration-300 ${
         isVisible
-          ? "opacity-100 transform translate-y-0"
-          : "opacity-0 transform translate-y-4"
+          ? 'opacity-100 transform translate-y-0'
+          : 'opacity-0 transform translate-y-4'
       } ${className}`}
     >
       {content}

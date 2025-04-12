@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { Category } from "@/types/api";
+import React from 'react';
+import Link from 'next/link';
+import { ChevronRightIcon } from '@heroicons/react/24/outline';
+import { Category } from '@/types/api';
 
 export interface BreadcrumbItem {
   title: string;
@@ -19,7 +19,7 @@ interface BreadcrumbsProps {
 /**
  * Компонент хлебных крошек, показывающий путь навигации
  */
-export function Breadcrumbs({ items, className = "" }: BreadcrumbsProps) {
+export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
   if (!items || items.length === 0) return null;
 
   return (
@@ -32,7 +32,7 @@ export function Breadcrumbs({ items, className = "" }: BreadcrumbsProps) {
           <li
             key={`${item.href}-${index}`}
             className={
-              index > 0 ? "flex items-center" : "inline-flex items-center"
+              index > 0 ? 'flex items-center' : 'inline-flex items-center'
             }
           >
             {index > 0 && (
@@ -64,17 +64,17 @@ export function Breadcrumbs({ items, className = "" }: BreadcrumbsProps) {
  */
 export function buildCategoryBreadcrumbs(
   category: Category | undefined,
-  includeCategory = true,
+  includeCategory = true
 ): BreadcrumbItem[] {
   const breadcrumbs: BreadcrumbItem[] = [
-    { title: "Главная", href: "/" },
-    { title: "Категории", href: "/categories" },
+    { title: 'Главная', href: '/' },
+    { title: 'Категории', href: '/categories' },
   ];
 
   if (!category) return breadcrumbs;
 
   // Если это NonRootLeafCategory
-  if (category.__typename === "NonRootLeafCategory") {
+  if (category.__typename === 'NonRootLeafCategory') {
     // Если есть массив предков, добавляем их
     if (category.ancestors && category.ancestors.length > 0) {
       // Добавляем предков в хлебные крошки
@@ -114,8 +114,8 @@ export function buildProductBreadcrumbs(product: any): BreadcrumbItem[] {
 
   // Базовые хлебные крошки, которые всегда есть
   const breadcrumbs: BreadcrumbItem[] = [
-    { title: "Главная", href: "/" },
-    { title: "Категории", href: "/categories" },
+    { title: 'Главная', href: '/' },
+    { title: 'Категории', href: '/categories' },
   ];
 
   // Если у продукта есть категория
@@ -124,7 +124,7 @@ export function buildProductBreadcrumbs(product: any): BreadcrumbItem[] {
 
     // Проверяем наличие ancestors или parent
     if (
-      category.__typename === "NonRootLeafCategory" &&
+      category.__typename === 'NonRootLeafCategory' &&
       category.ancestors &&
       category.ancestors.length > 0
     ) {
@@ -136,7 +136,7 @@ export function buildProductBreadcrumbs(product: any): BreadcrumbItem[] {
         });
       }
     } else if (
-      category.__typename === "NonRootLeafCategory" &&
+      category.__typename === 'NonRootLeafCategory' &&
       category.parent
     ) {
       // Если нет предков, но есть родитель

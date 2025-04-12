@@ -49,11 +49,11 @@ const getIconsByType = (type: NotificationType) => {
 const getBgColorByType = (type: NotificationType) => {
   switch (type) {
     case 'success':
-      return 'bg-gradient-to-r from-green-50 to-green-100';
+      return 'bg-green-50';
     case 'error':
-      return 'bg-gradient-to-r from-red-50 to-red-100';
+      return 'bg-red-50';
     case 'warning':
-      return 'bg-gradient-to-r from-amber-50 to-amber-100';
+      return 'bg-amber-50';
     case 'info':
     default:
       return 'bg-gradient-to-r from-blue-50 to-blue-100';
@@ -127,7 +127,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   const borderColor = getBorderColorByType(notification.type);
   const textColor = getTextColorByType(notification.type);
   const iconColor = getIconColorByType(notification.type);
-  const glowColor = getGlowColorByType(notification.type);
   const icons = getIconsByType(notification.type);
 
   // Автоматическое закрытие с анимацией
@@ -139,7 +138,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           // Задержка перед удалением для анимации
           setTimeout(() => {
             onDismiss(notification.id);
-          }, 500);
+          }, 300);
         }
       }, notification.timeout);
 
@@ -151,60 +150,39 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     setIsExiting(true);
     setTimeout(() => {
       onDismiss(notification.id);
-    }, 500);
+    }, 300);
   };
 
   // Вычисление анимации и стилей
   const animationClass = isExiting
-    ? 'animate-slide-out-right opacity-0'
-    : 'animate-slide-in-right';
+    ? 'animate-fade-out opacity-0'
+    : 'animate-fade-in';
 
-  const animationDelay = index * 100;
+  const animationDelay = index * 50;
 
   return (
     <div
-      className={`${bgColor} px-3 py-2 rounded-lg shadow-md ${glowColor} backdrop-blur-md ${animationClass} transition-all duration-500 w-full max-w-[280px] hover:shadow-lg border border-white/10 mb-2`}
+      className={`${bgColor} px-3 py-2 rounded-md shadow-sm ${animationClass} transition-all duration-300 w-full max-w-[280px] border border-gray-200/50 bg-opacity-80`}
       role="alert"
       style={{
         animationDelay: `${animationDelay}ms`,
-        backdropFilter: 'blur(12px)',
-        transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+        backdropFilter: 'blur(4px)',
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-start">
-        <div
-          className={`flex-shrink-0 mr-2.5 ${iconColor} transition-transform duration-300 ${isHovered ? 'scale-110' : ''}`}
-        >
-          {isHovered ? icons.solid : icons.outline}
-        </div>
-        <div
-          className={`flex-1 ${textColor} font-medium text-xs leading-relaxed`}
-        >
+      <div className="flex items-center">
+        <div className={`flex-shrink-0 mr-2 ${iconColor}`}>{icons.outline}</div>
+        <div className={`flex-1 ${textColor} font-medium text-xs`}>
           {notification.message}
         </div>
         <button
           onClick={handleDismiss}
-          className={`flex-shrink-0 ml-2 hover:bg-opacity-20 hover:bg-gray-500 rounded-full p-1 transition-all ${textColor} transform hover:scale-110 hover:rotate-90 active:scale-90`}
+          className={`flex-shrink-0 ml-1 hover:bg-opacity-20 hover:bg-gray-500 rounded-full p-0.5 transition-all ${textColor}`}
           aria-label="Закрыть уведомление"
         >
-          <XMarkIcon className="h-4 w-4" />
+          <XMarkIcon className="h-3.5 w-3.5" />
         </button>
-      </div>
-      <div className="h-1 w-full bg-gray-100/50 rounded-full mt-2 overflow-hidden">
-        <div
-          className={`h-full ${borderColor.replace('border', 'bg')} rounded-full`}
-          style={{
-            width: isHovered ? '100%' : '0%',
-            transition: isHovered
-              ? 'none'
-              : `width ${notification.timeout || 3000}ms cubic-bezier(0.4, 0, 0.2, 1)`,
-            boxShadow: `0 0 5px ${borderColor
-              .replace('border', 'rgb')
-              .replace('-400', '')}`,
-          }}
-        />
       </div>
     </div>
   );
@@ -222,7 +200,7 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = ({
   if (notifications.length === 0) return null;
 
   return (
-    <div className="fixed top-24 right-5 z-[9999] w-auto flex flex-col items-end gap-3 px-4">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] w-auto flex flex-col items-center gap-2">
       {notifications.map((notification, index) => (
         <NotificationItem
           key={notification.id}

@@ -19,23 +19,8 @@ import { useNotificationContext } from '@/lib/providers/NotificationProvider';
 const formatCategoryPath = (category: Category) => {
   if (!category) return '';
 
-  let path = category.title;
-
-  // Если это NonRootLeafCategory и есть предки или родитель
-  if (category.__typename === 'NonRootLeafCategory') {
-    // Если есть предки
-    if (category.ancestors && category.ancestors.length > 0) {
-      // Показываем только последнего предка для компактности
-      const lastAncestor = category.ancestors[category.ancestors.length - 1];
-      path = `${lastAncestor.title} / ${path}`;
-    }
-    // Иначе используем родителя, если он есть
-    else if (category.parent) {
-      path = `${category.parent.title} / ${path}`;
-    }
-  }
-
-  return path;
+  // Всегда показываем только текущую категорию (подкатегорию)
+  return category.title;
 };
 
 interface ProductCardProps {

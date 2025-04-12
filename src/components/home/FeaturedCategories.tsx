@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { useLazyQuery } from "@apollo/client";
-import { GET_CATEGORIES, GET_PRODUCTS_BY_CATEGORY } from "@/lib/queries";
-import { Product, Category, ProductSortOrder } from "@/types/api";
-import Link from "next/link";
-import { ProductCard } from "@/components/product/ProductCard";
-import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { ErrorMessage } from "@/components/ui/ErrorMessage";
-import { useCachedQuery } from "@/lib/hooks/useCachedQuery";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useLazyQuery } from '@apollo/client';
+import { GET_CATEGORIES, GET_PRODUCTS_BY_CATEGORY } from '@/lib/queries';
+import { Product, Category, ProductSortOrder } from '@/types/api';
+import Link from 'next/link';
+import { ProductCard } from '@/components/product/ProductCard';
+import { ChevronRightIcon } from '@heroicons/react/24/outline';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { useCachedQuery } from '@/lib/hooks/useCachedQuery';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface FeaturedCategoryProps {
   category: Category;
@@ -66,21 +66,21 @@ export const FeaturedCategories = () => {
     error: categoriesError,
     refetch: refetchCategories,
   } = useCachedQuery(GET_CATEGORIES, {
-    fetchPolicy: "cache-first",
+    fetchPolicy: 'cache-first',
     cacheTime: 60 * 60 * 1000, // 1 hour cache
-    cacheKey: "featured_categories",
+    cacheKey: 'featured_categories',
     deduplicate: true,
     logErrors: true,
   });
 
   // Lazy query for getting products by category with cache
   const [getProductsByCategory] = useLazyQuery(GET_PRODUCTS_BY_CATEGORY, {
-    fetchPolicy: "cache-first",
+    fetchPolicy: 'cache-first',
   });
 
   // Create stable seed for consistent shuffling
   const stableSeed = useMemo(() => {
-    const today = new Date().toISOString().split("T")[0]; // Use current date as seed
+    const today = new Date().toISOString().split('T')[0]; // Use current date as seed
     return [...today].reduce((acc, char) => acc + char.charCodeAt(0), 0);
   }, []);
 
@@ -106,7 +106,7 @@ export const FeaturedCategories = () => {
 
       return result;
     },
-    [stableSeed],
+    [stableSeed]
   );
 
   // Function to fetch products for a category
@@ -117,7 +117,7 @@ export const FeaturedCategories = () => {
           variables: {
             categoryId: category.id,
             first: 8, // Request more products to have buffer after filtering duplicates
-            sortOrder: "NEWEST_FIRST" as ProductSortOrder,
+            sortOrder: 'NEWEST_FIRST' as ProductSortOrder,
           },
         });
 
@@ -139,12 +139,12 @@ export const FeaturedCategories = () => {
       } catch (err) {
         console.error(
           `Error loading products for category ${category.title}:`,
-          err,
+          err
         );
         return [];
       }
     },
-    [getProductsByCategory],
+    [getProductsByCategory]
   );
 
   // Main data loading function
@@ -176,7 +176,7 @@ export const FeaturedCategories = () => {
 
       // If no categories found, show error
       if (allCategories.length === 0) {
-        setError("Категории не найдены");
+        setError('Категории не найдены');
         setIsLoading(false);
         return;
       }
@@ -190,7 +190,7 @@ export const FeaturedCategories = () => {
 
       // Load products for each category in parallel
       const productPromises = randomCategories.map((category) =>
-        fetchProductsForCategory(category, seenProductIds),
+        fetchProductsForCategory(category, seenProductIds)
       );
 
       // Early return if aborted
@@ -218,7 +218,7 @@ export const FeaturedCategories = () => {
 
       // If no categories with products found, show empty state
       if (categoriesWithProducts.length === 0) {
-        setError("Не найдено товаров в выбранных категориях");
+        setError('Не найдено товаров в выбранных категориях');
       } else {
         setFeaturedCategories(categoriesWithProducts);
       }
@@ -226,8 +226,8 @@ export const FeaturedCategories = () => {
       setIsLoading(false);
     } catch (err) {
       if (!signal.aborted) {
-        console.error("Error loading featured categories:", err);
-        setError("Не удалось загрузить категории товаров");
+        console.error('Error loading featured categories:', err);
+        setError('Не удалось загрузить категории товаров');
         setIsLoading(false);
       }
       // Reset flag to allow retry
@@ -243,7 +243,7 @@ export const FeaturedCategories = () => {
   // Load categories and products
   useEffect(() => {
     if (categoriesError) {
-      setError("Ошибка при загрузке категорий товаров");
+      setError('Ошибка при загрузке категорий товаров');
       setIsLoading(false);
     } else {
       loadFeaturedCategories();

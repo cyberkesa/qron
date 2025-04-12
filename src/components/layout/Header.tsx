@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   useState,
@@ -9,34 +9,34 @@ import {
   memo,
   lazy,
   Suspense,
-} from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import { useQuery, useMutation } from "@apollo/client";
-import { GET_CART, GET_VIEWER, GET_CATEGORIES, LOGOUT } from "@/lib/queries";
-import SearchForm from "@/components/search/SearchForm";
+} from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
+import { useQuery, useMutation } from '@apollo/client';
+import { GET_CART, GET_VIEWER, GET_CATEGORIES, LOGOUT } from '@/lib/queries';
+import SearchForm from '@/components/search/SearchForm';
 import RegionSelector, {
   REGION_CONTACTS,
-} from "@/components/region/RegionSelector";
+} from '@/components/region/RegionSelector';
 import {
   UserIcon,
   Bars3Icon,
   XMarkIcon,
   ChevronDownIcon,
   ShoppingCartIcon,
-} from "@heroicons/react/24/outline";
-import { Category } from "@/types/api";
-import { useCartContext } from "@/lib/providers/CartProvider";
+} from '@heroicons/react/24/outline';
+import { Category } from '@/types/api';
+import { useCartContext } from '@/lib/providers/CartProvider';
 
 // Импортируем выделенные компоненты
-import TopBar from "./header/TopBar";
-import CategoryNav from "./header/CategoryNav";
-import MobileNavLink from "./header/MobileNavLink";
+import TopBar from './header/TopBar';
+import CategoryNav from './header/CategoryNav';
+import MobileNavLink from './header/MobileNavLink';
 
 // Lazy load components that aren't immediately visible
-const LazyUserMenu = lazy(() => import("./header/UserMenu"));
-const LazyMobileMenu = lazy(() => import("./header/MobileMenu"));
+const LazyUserMenu = lazy(() => import('./header/UserMenu'));
+const LazyMobileMenu = lazy(() => import('./header/MobileMenu'));
 
 // Компонент для главной части хедера с логотипом, поиском и корзиной
 const MainHeader = memo(
@@ -103,10 +103,10 @@ const MainHeader = memo(
         </div>
       </div>
     </div>
-  ),
+  )
 );
 
-MainHeader.displayName = "MainHeader";
+MainHeader.displayName = 'MainHeader';
 
 export default memo(function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -121,13 +121,13 @@ export default memo(function Header() {
 
   // Use fetchPolicy: "cache-first" for data that doesn't change often during a session
   const { data: cartData } = useQuery(GET_CART, {
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
   });
   const { data: userData } = useQuery(GET_VIEWER, {
-    fetchPolicy: "cache-first",
+    fetchPolicy: 'cache-first',
   });
   const { data: categoriesData } = useQuery(GET_CATEGORIES, {
-    fetchPolicy: "cache-first",
+    fetchPolicy: 'cache-first',
   });
   const [logout] = useMutation(LOGOUT);
   const { cart: unifiedCart } = useCartContext();
@@ -135,12 +135,12 @@ export default memo(function Header() {
   // Memoized data to prevent unnecessary renders
   const categories = useMemo(
     () => categoriesData?.rootCategories || [],
-    [categoriesData],
+    [categoriesData]
   );
 
   const cartItemsCount = useMemo(
     () => cartData?.cart?.items?.edges?.length || 0,
-    [cartData],
+    [cartData]
   );
 
   const userInfo = useMemo(
@@ -148,7 +148,7 @@ export default memo(function Header() {
       name: userData?.viewer?.name,
       email: userData?.viewer?.emailAddress,
     }),
-    [userData],
+    [userData]
   );
 
   // Event handler functions
@@ -168,20 +168,20 @@ export default memo(function Header() {
   const handleLogout = useCallback(async () => {
     try {
       const result = await logout();
-      if (result.data?.logOut?.__typename === "LogOutSuccessResult") {
+      if (result.data?.logOut?.__typename === 'LogOutSuccessResult') {
         // Clear all tokens and data
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("selectedRegion");
-        localStorage.removeItem("guestToken");
-        localStorage.removeItem("tokenRegionId");
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('selectedRegion');
+        localStorage.removeItem('guestToken');
+        localStorage.removeItem('tokenRegionId');
 
         // Close menus and redirect to login page
         handleCloseMenus();
-        router.push("/login");
+        router.push('/login');
       }
     } catch (error) {
-      console.error("Error during logout:", error);
+      console.error('Error during logout:', error);
     }
   }, [logout, handleCloseMenus, router]);
 
@@ -189,7 +189,7 @@ export default memo(function Header() {
     setExpandedCategories((prev) =>
       prev.includes(categoryId)
         ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId],
+        : [...prev, categoryId]
     );
   }, []);
 
@@ -197,9 +197,9 @@ export default memo(function Header() {
   useEffect(() => {
     // Проверка авторизации
     const checkAuth = () => {
-      const accessToken = localStorage.getItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
-      const guestToken = localStorage.getItem("guestToken");
+      const accessToken = localStorage.getItem('accessToken');
+      const refreshToken = localStorage.getItem('refreshToken');
+      const guestToken = localStorage.getItem('guestToken');
 
       const isAuthenticated =
         !!accessToken &&
@@ -211,18 +211,18 @@ export default memo(function Header() {
 
     // Загрузка региона и установка контактов
     const loadRegion = () => {
-      if (typeof window !== "undefined") {
-        const savedRegion = localStorage.getItem("selectedRegion");
+      if (typeof window !== 'undefined') {
+        const savedRegion = localStorage.getItem('selectedRegion');
         if (savedRegion) {
           try {
             const parsedRegion = JSON.parse(savedRegion);
             setRegionContacts(
-              parsedRegion.name.includes("Ставрополь")
+              parsedRegion.name.includes('Ставрополь')
                 ? REGION_CONTACTS.STAVROPOL
-                : REGION_CONTACTS.MOSCOW,
+                : REGION_CONTACTS.MOSCOW
             );
           } catch (e) {
-            console.error("Ошибка при разборе сохраненного региона:", e);
+            console.error('Ошибка при разборе сохраненного региона:', e);
           }
         }
       }
@@ -252,18 +252,18 @@ export default memo(function Header() {
     };
 
     const handleEscapeKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         setIsUserMenuOpen(false);
         setIsMenuOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscapeKey);
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscapeKey);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscapeKey);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
     };
   }, [isMenuOpen]);
 
@@ -280,7 +280,7 @@ export default memo(function Header() {
           >
             <UserIcon className="w-6 h-6" />
             <span className="ml-1 hidden md:inline font-medium">
-              {userInfo.name || "Профиль"}
+              {userInfo.name || 'Профиль'}
             </span>
             <ChevronDownIcon className="h-4 w-4 ml-1 hidden md:inline" />
           </button>
@@ -380,7 +380,7 @@ export default memo(function Header() {
             <Suspense fallback={<div className="p-4">Loading menu...</div>}>
               <LazyMobileMenu
                 isOpen={true}
-                currentPath={pathname || ""}
+                currentPath={pathname || ''}
                 categories={categories}
                 onClose={handleCloseMenus}
                 isAuthenticated={isLoggedIn}

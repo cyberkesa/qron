@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useQuery } from "@apollo/client";
-import { GET_CATEGORIES } from "@/lib/queries";
-import { Category } from "@/types/api";
+import Link from 'next/link';
+import { useQuery } from '@apollo/client';
+import { GET_CATEGORIES } from '@/lib/queries';
+import { Category } from '@/types/api';
 import {
   PhoneIcon,
   EnvelopeIcon,
   MapPinIcon,
   ClockIcon,
   ChevronRightIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useQuery } from "@apollo/client";
-import { GET_REGIONS, GET_CURRENT_REGION } from "@/lib/queries";
-import { MapPinIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useState, useEffect } from 'react';
+import { useQuery } from '@apollo/client';
+import { GET_REGIONS, GET_CURRENT_REGION } from '@/lib/queries';
+import { MapPinIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface Region {
   id: string;
@@ -23,7 +23,7 @@ export default function RegionSwitchModal() {
 
   useEffect(() => {
     // Проверяем, есть ли сохраненный выбор региона
-    const savedRegion = localStorage.getItem("selectedRegion");
+    const savedRegion = localStorage.getItem('selectedRegion');
 
     if (savedRegion) {
       const region = JSON.parse(savedRegion);
@@ -35,8 +35,8 @@ export default function RegionSwitchModal() {
 
       // Сохраняем регион из API
       localStorage.setItem(
-        "selectedRegion",
-        JSON.stringify(viewerData.viewer.region),
+        'selectedRegion',
+        JSON.stringify(viewerData.viewer.region)
       );
     }
     // Если нет ни сохраненного выбора, ни данных от сервера - открываем модальное окно
@@ -51,37 +51,69 @@ export default function RegionSwitchModal() {
   }, [viewerData, viewerLoading, regionsData, regionsLoading]);
 
   const handleRegionSelect = (region: Region) => {
-    console.log("RegionSwitchModal: выбран регион:", region.name);
+    console.log('RegionSwitchModal: выбран регион:', region.name);
     setSelectedRegionId(region.id);
 
     // Сохраняем выбранный регион в localStorage
-    localStorage.setItem("selectedRegion", JSON.stringify(region));
+    localStorage.setItem('selectedRegion', JSON.stringify(region));
 
-    // Очищаем токены для принудительной реаутентификации с новым регионом
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("guestToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("tokenRegionId");
-    console.log(
-      "RegionSwitchModal: токены авторизации очищены для принудительного обновления",
-    );
+    // Проверяем, находимся ли мы на странице логина
+    const isLogin = window.location.pathname.includes('/login');
+
+    if (isLogin) {
+      // На странице логина просто сохраняем регион без перезагрузки
+      console.log(
+        'RegionSwitchModal: на странице логина, сохраняем регион без перезагрузки'
+      );
+      localStorage.setItem('tokenRegionId', region.id);
+      setIsOpen(false);
+      return;
+    }
+
+    // Для остальных страниц - проверяем, изменился ли регион
+    const tokenRegionId = localStorage.getItem('tokenRegionId');
+    const hasAuth = localStorage.getItem('accessToken');
+
+    // Если регион не изменился, просто закрываем модальное окно
+    if (region.id === tokenRegionId) {
+      console.log('RegionSwitchModal: регион не изменился');
+      setIsOpen(false);
+      return;
+    }
+
+    // Если есть авторизация и регион изменился - сбрасываем токены
+    if (hasAuth) {
+      console.log(
+        'RegionSwitchModal: сбрасываем токены авторизации при смене региона'
+      );
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('guestToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('tokenRegionId');
+    } else {
+      // Если нет авторизации, просто обновляем ID региона токена
+      localStorage.setItem('tokenRegionId', region.id);
+    }
 
     setIsOpen(false);
 
-    // Перезагружаем страницу для применения нового региона
+    // Перезагружаем страницу только если регион изменился
+    console.log(
+      'RegionSwitchModal: перезагружаем страницу для применения нового региона'
+    );
     window.location.reload();
   };
 
   // Закрытие модального окна без выбора региона не должно быть возможно для новых пользователей
   const handleCloseModal = () => {
-    const savedRegion = localStorage.getItem("selectedRegion");
+    const savedRegion = localStorage.getItem('selectedRegion');
 
     if (savedRegion || selectedRegionId) {
       // Если регион ранее был выбран, можно закрыть
       setIsOpen(false);
     } else if (regionsData?.regions && regionsData.regions.length > 0) {
       // Показываем предупреждение, что выбор региона обязателен
-      alert("Пожалуйста, выберите регион для продолжения");
+      alert('Пожалуйста, выберите регион для продолжения');
     }
   };
 
@@ -121,8 +153,8 @@ export default function RegionSwitchModal() {
               onClick={() => handleRegionSelect(region)}
               className={`px-4 py-3 rounded-md text-left ${
                 selectedRegionId === region.id
-                  ? "bg-blue-50 text-blue-700 border border-blue-200 font-medium"
-                  : "border border-gray-200 hover:bg-gray-50 text-gray-700"
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200 font-medium'
+                  : 'border border-gray-200 hover:bg-gray-50 text-gray-700'
               }`}
             >
               {region.name}

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useQuery } from "@apollo/client";
-import { GET_ORDER } from "@/lib/queries";
-import Link from "next/link";
-import { OrderItem } from "@/types/api";
-import { formatDate } from "@/lib/utils";
+import React from 'react';
+import { useQuery } from '@apollo/client';
+import { GET_ORDER } from '@/lib/queries';
+import Link from 'next/link';
+import { OrderItem } from '@/types/api';
+import { formatDate } from '@/lib/utils';
 
 interface Order {
   id: string;
@@ -35,23 +35,23 @@ export default function OrderDetailsPage({
   const order = data?.order as Order | undefined;
 
   const formatPrice = (price: string) => {
-    return new Intl.NumberFormat("ru-RU", {
-      style: "currency",
-      currency: "RUB",
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
       minimumFractionDigits: 2,
     }).format(parseFloat(price));
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "CREATED":
-        return "Создан";
-      case "PAID":
-        return "Оплачен";
-      case "DELIVERED":
-        return "Доставлен";
-      case "CANCELLED":
-        return "Отменен";
+      case 'CREATED':
+        return 'Создан';
+      case 'PAID':
+        return 'Оплачен';
+      case 'DELIVERED':
+        return 'Доставлен';
+      case 'CANCELLED':
+        return 'Отменен';
       default:
         return status;
     }
@@ -126,21 +126,21 @@ export default function OrderDetailsPage({
             <h2 className="text-lg font-semibold mb-2">Информация о заказе</h2>
             <div className="space-y-2">
               <p>
-                <span className="text-gray-600">Статус:</span>{" "}
+                <span className="text-gray-600">Статус:</span>{' '}
                 <span
                   className={`px-3 py-1 rounded-full text-sm ${
-                    order.status === "DELIVERED"
-                      ? "bg-green-100 text-green-800"
-                      : order.status === "CANCELLED"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-blue-100 text-blue-800"
+                    order.status === 'DELIVERED'
+                      ? 'bg-green-100 text-green-800'
+                      : order.status === 'CANCELLED'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-blue-100 text-blue-800'
                   }`}
                 >
                   {getStatusText(order.status)}
                 </span>
               </p>
               <p>
-                <span className="text-gray-600">Дата создания:</span>{" "}
+                <span className="text-gray-600">Дата создания:</span>{' '}
                 {formatDate(order.creationDatetime)}
               </p>
             </div>
@@ -164,9 +164,7 @@ export default function OrderDetailsPage({
               </div>
               <p className="font-medium">
                 {formatPrice(
-                  (
-                    parseFloat(item.decimalUnitPrice) * item.quantity
-                  ).toString(),
+                  (parseFloat(item.decimalUnitPrice) * item.quantity).toString()
                 )}
               </p>
             </div>

@@ -57,10 +57,10 @@ src/lib/analytics.ts
 Tracks custom events in Yandex.Metrika.
 
 ```typescript
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent } from '@/lib/analytics';
 
 // Track a custom event
-trackEvent("button_click", { button_name: "add_to_cart" });
+trackEvent('button_click', { button_name: 'add_to_cart' });
 ```
 
 #### `trackPageView(url, options)`
@@ -68,10 +68,10 @@ trackEvent("button_click", { button_name: "add_to_cart" });
 Manually tracks page views (useful for virtual pages).
 
 ```typescript
-import { trackPageView } from "@/lib/analytics";
+import { trackPageView } from '@/lib/analytics';
 
 // Track a virtual page view
-trackPageView("/virtual-page");
+trackPageView('/virtual-page');
 ```
 
 #### `trackOrder(orderId, items, total)`
@@ -79,21 +79,21 @@ trackPageView("/virtual-page");
 Tracks completed orders for e-commerce analytics.
 
 ```typescript
-import { trackOrder } from "@/lib/analytics";
+import { trackOrder } from '@/lib/analytics';
 
 // Track a completed order
 trackOrder(
-  "order-123",
+  'order-123',
   [
     {
-      id: "product-1",
-      name: "Product Name",
+      id: 'product-1',
+      name: 'Product Name',
       price: 100,
       quantity: 2,
-      category: "Category Name",
+      category: 'Category Name',
     },
   ],
-  200,
+  200
 );
 ```
 
@@ -112,11 +112,11 @@ src/app/checkout/page.tsx
 To track product views, add the following to product pages:
 
 ```typescript
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent } from '@/lib/analytics';
 
 // Inside your product page component
 useEffect(() => {
-  trackEvent("product_view", {
+  trackEvent('product_view', {
     product_id: product.id,
     product_name: product.name,
     product_price: product.price,

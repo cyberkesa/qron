@@ -1,7 +1,7 @@
-import { Product } from "@/types/api";
-import { useCallback, useEffect, useState } from "react";
+import { Product } from '@/types/api';
+import { useCallback, useEffect, useState } from 'react';
 
-const VIEW_HISTORY_KEY = "kron_view_history";
+const VIEW_HISTORY_KEY = 'kron_view_history';
 const MAX_HISTORY_ITEMS = 20;
 
 interface ViewHistoryItem {
@@ -19,7 +19,7 @@ export function useViewHistory() {
       try {
         setHistory(JSON.parse(savedHistory));
       } catch (error) {
-        console.error("Error loading view history:", error);
+        console.error('Error loading view history:', error);
         localStorage.removeItem(VIEW_HISTORY_KEY);
       }
     }
@@ -38,7 +38,7 @@ export function useViewHistory() {
 
       // Удаляем дубликаты
       const filteredHistory = prevHistory.filter(
-        (item) => item.product.id !== product.id,
+        (item) => item.product.id !== product.id
       );
 
       // Добавляем новый товар в начало
@@ -63,7 +63,7 @@ export function useViewHistory() {
     (count: number = 5) => {
       return history.slice(0, count).map((item) => item.product);
     },
-    [history],
+    [history]
   );
 
   const getSimilarProducts = useCallback(
@@ -76,7 +76,7 @@ export function useViewHistory() {
       const sameCategoryProducts = history.filter(
         (item) =>
           item.product.category?.id === currentProduct.category?.id &&
-          item.product.id !== currentProduct.id,
+          item.product.id !== currentProduct.id
       );
 
       // Сортируем по времени просмотра
@@ -85,7 +85,7 @@ export function useViewHistory() {
         .slice(0, count)
         .map((item) => item.product);
     },
-    [history],
+    [history]
   );
 
   return {

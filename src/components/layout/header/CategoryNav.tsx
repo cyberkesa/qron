@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState, memo } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import { Category } from "@/types/api";
+import { useState, memo } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { Category } from '@/types/api';
 
 // Компонент для категорий в навигации
 const CategoryNav = memo(({ categories }: { categories: Category[] }) => {
@@ -33,14 +33,14 @@ const CategoryNav = memo(({ categories }: { categories: Category[] }) => {
           >
             <button
               className={`flex items-center gap-1 text-gray-700 hover:text-blue-600 py-2 px-3 rounded-md ${
-                showCategories ? "bg-blue-50 text-blue-600" : ""
+                showCategories ? 'bg-blue-50 text-blue-600' : ''
               }`}
               onClick={toggleCategories}
             >
               <span className="font-medium">Категории</span>
               <ChevronDownIcon
                 className={`h-4 w-4 transition-transform ${
-                  showCategories ? "rotate-180" : ""
+                  showCategories ? 'rotate-180' : ''
                 }`}
               />
             </button>
@@ -86,6 +86,6 @@ const CategoryNav = memo(({ categories }: { categories: Category[] }) => {
   );
 });
 
-CategoryNav.displayName = "CategoryNav";
+CategoryNav.displayName = 'CategoryNav';
 
 export default CategoryNav;

@@ -13,7 +13,12 @@ import {
   GET_CART,
 } from '@/lib/queries';
 import { ProductStockAvailabilityStatus, Region } from '@/types/api';
-import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import {
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+  ChartBarIcon,
+  MapPinIcon,
+} from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useViewHistory } from '@/lib/hooks/useViewHistory';
 import { SimilarProducts } from '@/components/product-list/SimilarProducts';
@@ -62,7 +67,6 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   // Состояния компонента
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<TabType>('description');
   const [currentRegion, setCurrentRegion] = useState<Region | null>(() => {
     if (typeof window === 'undefined') return null;
@@ -122,13 +126,6 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
   }, [data?.productBySlug, currentRegion]); // Include the full product object
 
-  // Устанавливаем начальное количество только при первой загрузке товара
-  useEffect(() => {
-    if (data?.productBySlug?.quantityMultiplicity && quantity === 1) {
-      setQuantity(data.productBySlug.quantityMultiplicity);
-    }
-  }, [data?.productBySlug?.quantityMultiplicity, quantity, setQuantity]);
-
   useEffect(() => {
     if (data?.productBySlug) {
       addToHistory(data.productBySlug);
@@ -177,22 +174,14 @@ export default function ProductPage({ params }: ProductPageProps) {
     }).format(price);
   }, []);
 
-  // Обработчик изменения количества
-  const handleQuantityChange = useCallback(
-    (newQuantity: number) => {
-      if (data?.productBySlug) {
-        setQuantity(newQuantity);
-      }
-    },
-    [data?.productBySlug]
-  );
-
   // Добавление товара в корзину
   const handleAddToCart = useCallback(async () => {
     if (!data || !data.productBySlug || isAddingToCart) return;
 
     try {
       setIsAddingToCart(true);
+
+      const quantity = data.productBySlug.quantityMultiplicity || 1;
 
       if (userData?.viewer) {
         const result = await addToCart({
@@ -227,7 +216,6 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
   }, [
     data,
-    quantity,
     isAddingToCart,
     userData?.viewer,
     addToCart,
@@ -237,6 +225,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     showError,
   ]);
 
+  // Добавляем или исправляем функцию обновления количества товара в корзине
   const handleUpdateQuantity = useCallback(
     async (delta: number) => {
       if (!data?.productBySlug || isAddingToCart) return;
@@ -266,6 +255,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         }
       } catch (error) {
         console.error('Error updating cart:', error);
+        showError('Не удалось обновить количество товара');
       } finally {
         setIsAddingToCart(false);
       }
@@ -278,6 +268,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       addToCart,
       client,
       unifiedAddToCart,
+      showError,
     ]
   );
 
@@ -370,38 +361,71 @@ export default function ProductPage({ params }: ProductPageProps) {
           </div>
 
           {/* Информация о товаре */}
-          <ProductInfo
-            product={product}
-            currentRegion={currentRegion}
-            currentCartQuantity={currentCartQuantity}
-            isAddingToCart={isAddingToCart}
-            notAvailableInRegion={notAvailableInRegion}
-            onAddToCart={handleAddToCart}
-            onUpdateQuantity={handleUpdateQuantity}
-            onRegionChange={() => setShowRegionModal(true)}
-            formatPrice={formatPrice}
-          />
-        </div>
+          <div className="flex flex-col space-y-6">
+            <ProductInfo
+              product={product}
+              currentRegion={currentRegion}
+              currentCartQuantity={currentCartQuantity}
+              isAddingToCart={isAddingToCart}
+              notAvailableInRegion={notAvailableInRegion}
+              onAddToCart={handleAddToCart}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRegionChange={() => setShowRegionModal(true)}
+              formatPrice={formatPrice}
+            />
 
-        {/* Вкладки с информацией */}
-        <ProductTabs
-          description={product.description}
-          attributes={productAttributes}
-          currentRegion={currentRegion}
-          onRegionChange={() => setShowRegionModal(true)}
-        />
+            {/* Добавляем описание продукта прямо сюда */}
+            {product.description && (
+              <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 p-4">
+                <h2 className="text-lg font-semibold mb-3 text-gray-900 flex items-center">
+                  <InformationCircleIcon className="h-5 w-5 mr-2 text-blue-600" />
+                  Описание
+                </h2>
+                <div className="prose prose-sm max-w-none text-gray-700">
+                  <div
+                    dangerouslySetInnerHTML={{ __html: product.description }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Характеристики товара */}
+            {productAttributes && productAttributes.length > 0 && (
+              <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 p-4">
+                <h2 className="text-lg font-semibold mb-3 text-gray-900 flex items-center">
+                  <ChartBarIcon className="h-5 w-5 mr-2 text-blue-600" />
+                  Характеристики
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                  {productAttributes.map((attribute) => (
+                    <div
+                      key={attribute.name}
+                      className="py-1 border-b border-gray-100 last:border-0"
+                    >
+                      <div className="text-sm font-medium text-gray-500">
+                        {attribute.name}
+                      </div>
+                      <div className="text-base font-medium text-gray-900 mt-1">
+                        {attribute.value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* "Липкая" панель покупки для мобильных устройств */}
       <MobileAddToCart
         price={product.price}
         formatPrice={formatPrice}
-        currentCartQuantity={currentCartQuantity}
         isAddingToCart={isAddingToCart}
         notAvailableInRegion={notAvailableInRegion}
-        quantityMultiplicity={product.quantityMultiplicity || 1}
         onAddToCart={handleAddToCart}
         onUpdateQuantity={handleUpdateQuantity}
+        currentCartQuantity={currentCartQuantity}
       />
 
       {/* Блоки рекомендаций */}

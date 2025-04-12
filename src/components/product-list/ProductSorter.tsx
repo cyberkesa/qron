@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-import { ProductSortOrder } from "@/types/api";
-import { ChevronDownIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { useState, useRef, useEffect } from 'react';
+import { ProductSortOrder } from '@/types/api';
+import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 interface ProductSorterProps {
   value: ProductSortOrder;
@@ -10,16 +10,16 @@ interface ProductSorterProps {
 
 // Опции сортировки с удобочитаемыми названиями
 const sortOptions = [
-  { value: "NEWEST_FIRST", label: "Сначала новинки" },
-  { value: "CHEAPEST_FIRST", label: "Сначала дешевлe" },
-  { value: "EXPENSIVE_FIRST", label: "Сначала дороже" },
-  { value: "ALPHABETICALLY", label: "По алфавиту" },
+  { value: 'NEWEST_FIRST', label: 'Сначала новинки' },
+  { value: 'CHEAPEST_FIRST', label: 'Сначала дешевлe' },
+  { value: 'EXPENSIVE_FIRST', label: 'Сначала дороже' },
+  { value: 'ALPHABETICALLY', label: 'По алфавиту' },
 ];
 
 export const ProductSorter = ({
   value,
   onChange,
-  className = "",
+  className = '',
 }: ProductSorterProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -39,9 +39,9 @@ export const ProductSorter = ({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -64,7 +64,7 @@ export const ProductSorter = ({
           <span className="text-gray-800">{selectedOption.label}</span>
           <ChevronDownIcon
             className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
-              isOpen ? "transform rotate-180" : ""
+              isOpen ? 'transform rotate-180' : ''
             }`}
           />
         </button>
@@ -81,8 +81,8 @@ export const ProductSorter = ({
               }
               className={`w-full text-left px-4 py-2.5 flex items-center justify-between hover:bg-gray-50 ${
                 option.value === value
-                  ? "bg-blue-50 text-blue-700"
-                  : "text-gray-800"
+                  ? 'bg-blue-50 text-blue-700'
+                  : 'text-gray-800'
               }`}
               role="option"
               aria-selected={option.value === value}

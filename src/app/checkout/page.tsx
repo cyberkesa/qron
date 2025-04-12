@@ -1,37 +1,35 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { useQuery, useMutation } from "@apollo/client";
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery, useMutation } from '@apollo/client';
 import {
   GET_CART,
   GET_DELIVERY_ADDRESSES,
   CHECK_OUT,
   GET_VIEWER,
-} from "@/lib/queries";
+} from '@/lib/queries';
 import {
   DeliveryMethod,
   PaymentMethod,
   DeliveryAddress,
   CartItem,
-} from "@/types/api";
-import Link from "next/link";
-import Image from "next/image";
+} from '@/types/api';
+import Link from 'next/link';
+import Image from 'next/image';
 import {
   ShoppingCartIcon,
   MapPinIcon,
-  CreditCardIcon,
-  TruckIcon,
   UserIcon,
   ArrowRightIcon,
-} from "@heroicons/react/24/outline";
-import { trackOrder } from "@/lib/analytics";
+} from '@heroicons/react/24/outline';
+import { trackOrder } from '@/lib/analytics';
 
 // Функция для форматирования цены
 const formatPrice = (price: string) => {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(parseFloat(price));
@@ -39,28 +37,23 @@ const formatPrice = (price: string) => {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
-    PaymentMethod.CARD,
-  );
-  const [selectedDeliveryMethod, setSelectedDeliveryMethod] =
-    useState<DeliveryMethod>(DeliveryMethod.DELIVERY);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Добавляем состояние для телефона (если телефон не привязан к аккаунту)
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const [phoneError, setPhoneError] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [phoneError, setPhoneError] = useState<string>('');
 
   const { data: cartData, loading: cartLoading } = useQuery(GET_CART);
   const { data: addressesData, loading: addressesLoading } = useQuery(
-    GET_DELIVERY_ADDRESSES,
+    GET_DELIVERY_ADDRESSES
   );
   const { data: userData, loading: userLoading } = useQuery(GET_VIEWER);
   const [checkout, { loading: checkoutLoading }] = useMutation(CHECK_OUT);
 
   // Определяем, авторизован ли пользователь
   const isRegisteredUser = useMemo(() => {
-    return userData?.viewer?.__typename === "RegisteredViewer";
+    return userData?.viewer?.__typename === 'RegisteredViewer';
   }, [userData]);
 
   // Автоматически устанавливаем телефон из профиля, если он есть
@@ -79,14 +72,14 @@ export default function CheckoutPage() {
   const cartItems = useMemo(() => {
     return (
       cartData?.cart?.items?.edges?.map(
-        (edge: { node: CartItem }) => edge.node,
+        (edge: { node: CartItem }) => edge.node
       ) || []
     );
   }, [cartData]);
 
   // Получаем общую сумму
   const cartTotal = useMemo(() => {
-    return cartData?.cart?.items?.decimalTotalPrice || "0";
+    return cartData?.cart?.items?.decimalTotalPrice || '0';
   }, [cartData]);
 
   // Если есть адрес по умолчанию, выбираем его
@@ -101,33 +94,33 @@ export default function CheckoutPage() {
     const phoneRegex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
 
     if (!phone.trim()) {
-      setPhoneError("Телефон обязателен для заказа");
+      setPhoneError('Телефон обязателен для заказа');
       return false;
     }
 
     if (!phoneRegex.test(phone)) {
-      setPhoneError("Введите телефон в формате +7 (999) 123-45-67");
+      setPhoneError('Введите телефон в формате +7 (999) 123-45-67');
       return false;
     }
 
-    setPhoneError("");
+    setPhoneError('');
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
-    setPhoneError("");
+    setErrorMessage('');
+    setPhoneError('');
 
     // Валидация
     if (cartItems.length === 0) {
-      setErrorMessage("Ваша корзина пуста");
+      setErrorMessage('Ваша корзина пуста');
       return;
     }
 
     if (!isRegisteredUser) {
       // Если пользователь не авторизован, перенаправляем на страницу входа
-      router.push("/login?redirect=checkout");
+      router.push('/login?redirect=checkout');
       return;
     }
 
@@ -135,11 +128,8 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (
-      selectedDeliveryMethod === DeliveryMethod.DELIVERY &&
-      !selectedAddressId
-    ) {
-      setErrorMessage("Для доставки необходимо выбрать адрес");
+    if (!selectedAddressId) {
+      setErrorMessage('Для оформления заказа необходимо выбрать адрес');
       return;
     }
 
@@ -147,8 +137,8 @@ export default function CheckoutPage() {
       const result = await checkout({
         variables: {
           deliveryAddressId: selectedAddressId,
-          paymentMethod,
-          deliveryMethod: selectedDeliveryMethod,
+          paymentMethod: PaymentMethod.CARD,
+          deliveryMethod: DeliveryMethod.DELIVERY,
           phoneNumber: phoneNumber,
         },
       });
@@ -162,7 +152,7 @@ export default function CheckoutPage() {
           name: item.product.name,
           price: item.product.price,
           quantity: item.quantity,
-          category: item.product.category?.title || "",
+          category: item.product.category?.title || '',
         }));
 
         trackOrder(order.id, orderItems, parseFloat(cartTotal));
@@ -175,7 +165,7 @@ export default function CheckoutPage() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Произошла ошибка при оформлении заказа";
+          : 'Произошла ошибка при оформлении заказа';
       setErrorMessage(errorMessage);
     }
   };
@@ -271,9 +261,9 @@ export default function CheckoutPage() {
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-gray-900">
-                      {new Intl.NumberFormat("ru-RU").format(
-                        item.product.price * item.quantity,
-                      )}{" "}
+                      {new Intl.NumberFormat('ru-RU').format(
+                        item.product.price * item.quantity
+                      )}{' '}
                       ₽
                     </p>
                   </div>
@@ -283,7 +273,7 @@ export default function CheckoutPage() {
             <div className="mt-6 flex justify-between items-center border-t border-gray-200 pt-4">
               <p className="font-medium text-gray-800">Итого:</p>
               <p className="text-xl font-bold text-blue-600">
-                {new Intl.NumberFormat("ru-RU").format(parseFloat(cartTotal))} ₽
+                {new Intl.NumberFormat('ru-RU').format(parseFloat(cartTotal))} ₽
               </p>
             </div>
           </div>
@@ -345,7 +335,7 @@ export default function CheckoutPage() {
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="+7 (999) 123-45-67"
                   className={`w-full px-4 py-2 border ${
-                    phoneError ? "border-red-300" : "border-gray-300"
+                    phoneError ? 'border-red-300' : 'border-gray-300'
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
                 {phoneError && (
@@ -380,8 +370,8 @@ export default function CheckoutPage() {
                       key={address.id}
                       className={`block border p-4 rounded-md cursor-pointer transition-all ${
                         selectedAddressId === address.id
-                          ? "border-blue-500 bg-blue-50 shadow-sm"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? 'border-blue-500 bg-blue-50 shadow-sm'
+                          : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <div className="flex items-start">
@@ -424,138 +414,6 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            {/* Способ доставки */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-gray-100">
-                <TruckIcon className="h-6 w-6 text-blue-600" />
-                <h2 className="text-xl font-semibold">Способ доставки</h2>
-              </div>
-
-              <div className="space-y-4">
-                <label
-                  className={`block border p-4 rounded-md cursor-pointer transition-all ${
-                    selectedDeliveryMethod === DeliveryMethod.DELIVERY
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start">
-                    <input
-                      type="radio"
-                      name="deliveryMethod"
-                      value={DeliveryMethod.DELIVERY}
-                      checked={
-                        selectedDeliveryMethod === DeliveryMethod.DELIVERY
-                      }
-                      onChange={() =>
-                        setSelectedDeliveryMethod(DeliveryMethod.DELIVERY)
-                      }
-                      className="mt-1 mr-3"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        Доставка курьером
-                      </p>
-                      <p className="text-gray-600 text-sm">
-                        Доставка заказа по указанному адресу
-                      </p>
-                    </div>
-                  </div>
-                </label>
-
-                <label
-                  className={`block border p-4 rounded-md cursor-pointer transition-all ${
-                    selectedDeliveryMethod === DeliveryMethod.PICKUP
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start">
-                    <input
-                      type="radio"
-                      name="deliveryMethod"
-                      value={DeliveryMethod.PICKUP}
-                      checked={selectedDeliveryMethod === DeliveryMethod.PICKUP}
-                      onChange={() =>
-                        setSelectedDeliveryMethod(DeliveryMethod.PICKUP)
-                      }
-                      className="mt-1 mr-3"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-800">Самовывоз</p>
-                      <p className="text-gray-600 text-sm">
-                        Самовывоз заказа из пункта выдачи
-                      </p>
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* Способ оплаты */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-gray-100">
-                <CreditCardIcon className="h-6 w-6 text-blue-600" />
-                <h2 className="text-xl font-semibold">Способ оплаты</h2>
-              </div>
-
-              <div className="space-y-4">
-                <label
-                  className={`block border p-4 rounded-md cursor-pointer transition-all ${
-                    paymentMethod === PaymentMethod.CARD
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value={PaymentMethod.CARD}
-                      checked={paymentMethod === PaymentMethod.CARD}
-                      onChange={() => setPaymentMethod(PaymentMethod.CARD)}
-                      className="mt-1 mr-3"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        Банковской картой онлайн
-                      </p>
-                      <p className="text-gray-600 text-sm">
-                        Оплата картой на сайте через защищенное соединение
-                      </p>
-                    </div>
-                  </div>
-                </label>
-
-                <label
-                  className={`block border p-4 rounded-md cursor-pointer transition-all ${
-                    paymentMethod === PaymentMethod.CASH
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value={PaymentMethod.CASH}
-                      checked={paymentMethod === PaymentMethod.CASH}
-                      onChange={() => setPaymentMethod(PaymentMethod.CASH)}
-                      className="mt-1 mr-3"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        Наличными при получении
-                      </p>
-                      <p className="text-gray-600 text-sm">
-                        Оплата наличными курьеру при доставке
-                      </p>
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
-
             <button
               type="submit"
               disabled={checkoutLoading || addresses.length === 0}
@@ -586,7 +444,7 @@ export default function CheckoutPage() {
                   Оформляем заказ...
                 </span>
               ) : (
-                "Оформить заказ"
+                'Оформить заказ'
               )}
             </button>
           </form>
@@ -619,9 +477,9 @@ export default function CheckoutPage() {
                         {item.quantity} шт.
                       </p>
                       <p className="font-medium text-gray-900 text-sm">
-                        {new Intl.NumberFormat("ru-RU").format(
-                          item.product.price * item.quantity,
-                        )}{" "}
+                        {new Intl.NumberFormat('ru-RU').format(
+                          item.product.price * item.quantity
+                        )}{' '}
                         ₽
                       </p>
                     </div>
@@ -634,7 +492,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between text-gray-600">
                 <span>Товары ({cartItems.length}):</span>
                 <span>
-                  {new Intl.NumberFormat("ru-RU").format(parseFloat(cartTotal))}{" "}
+                  {new Intl.NumberFormat('ru-RU').format(parseFloat(cartTotal))}{' '}
                   ₽
                 </span>
               </div>
@@ -648,7 +506,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-lg">Итого:</span>
                 <span className="font-bold text-xl text-blue-600">
-                  {new Intl.NumberFormat("ru-RU").format(parseFloat(cartTotal))}{" "}
+                  {new Intl.NumberFormat('ru-RU').format(parseFloat(cartTotal))}{' '}
                   ₽
                 </span>
               </div>

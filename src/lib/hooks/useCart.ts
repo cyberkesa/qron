@@ -1,8 +1,14 @@
-import {useNotificationContext} from '@/lib/providers/NotificationProvider';
-import {ADD_TO_CART, GET_CART, GET_VIEWER, REMOVE_FROM_CART, UPDATE_CART_ITEM_QUANTITY,} from '@/lib/queries';
-import {Cart, CartItem, CartItemEdge, Product} from '@/types/api';
-import {useApolloClient, useMutation, useQuery} from '@apollo/client';
-import {useCallback, useEffect, useState} from 'react';
+import { useNotificationContext } from '@/lib/providers/NotificationProvider';
+import {
+  ADD_TO_CART,
+  GET_CART,
+  GET_VIEWER,
+  REMOVE_FROM_CART,
+  UPDATE_CART_ITEM_QUANTITY,
+} from '@/lib/queries';
+import { Cart, CartItem, CartItemEdge, Product } from '@/types/api';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client';
+import { useCallback, useEffect, useState } from 'react';
 
 // Ключ для хранения гостевой корзины в localStorage
 const GUEST_CART_KEY = 'kron_guest_cart';
@@ -29,7 +35,7 @@ export interface CartUnified {
 interface UseCartResult {
   cart: CartUnified;
   isLoading: boolean;
-  error: Error|null;
+  error: Error | null;
   addToCart: (product: Product, quantity: number) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   removeFromCart: (productId: string) => Promise<void>;
@@ -44,9 +50,9 @@ interface UseCartResult {
  * @returns Скорректированное количество
  */
 export function adjustQuantityByMultiplicity(
-    quantity: number,
-    multiplicity: number = 1,
-    ): number {
+  quantity: number,
+  multiplicity: number = 1
+): number {
   // Убеждаемся, что количество кратно шагу
   const adjustedQuantity = Math.round(quantity / multiplicity) * multiplicity;
   // Проверяем, что количество не меньше минимального
@@ -75,11 +81,11 @@ export function useCart(): UseCartResult {
   });
 
   // Проверка авторизации пользователя
-  const {data: userData} = useQuery(GET_VIEWER);
+  const { data: userData } = useQuery(GET_VIEWER);
   const isAuthenticated = !!userData?.viewer;
 
   // Интеграция с системой уведомлений
-  const {showSuccess, showError} = useNotificationContext();
+  const { showSuccess, showError } = useNotificationContext();
 
   // Загрузка корзины для авторизованного пользователя
   const {
@@ -97,7 +103,7 @@ export function useCart(): UseCartResult {
   // Мутации для работы с корзиной на сервере
   const [addToCartMutation] = useMutation(ADD_TO_CART);
   const [updateCartItemQuantityMutation] = useMutation(
-      UPDATE_CART_ITEM_QUANTITY,
+    UPDATE_CART_ITEM_QUANTITY
   );
   const [removeFromCartMutation] = useMutation(REMOVE_FROM_CART);
 
@@ -111,58 +117,55 @@ export function useCart(): UseCartResult {
   // Функция для преобразования данных корзины с сервера в унифицированный
   // формат
   const transformCartData = useCallback(
-      (serverCart: Cart|null):
-          CartUnified => {
-            if (!serverCart || !serverCart.items?.edges) {
-              return {items: [], totalPrice: 0, totalItems: 0, isEmpty: true};
-            }
+    (serverCart: Cart | null): CartUnified => {
+      if (!serverCart || !serverCart.items?.edges) {
+        return { items: [], totalPrice: 0, totalItems: 0, isEmpty: true };
+      }
 
-            const items =
-                serverCart.items.edges.map((edge) => ({
-                                             id: edge.node.id,
-                                             product: edge.node.product,
-                                             quantity: edge.node.quantity,
-                                           }));
+      const items = serverCart.items.edges.map((edge) => ({
+        id: edge.node.id,
+        product: edge.node.product,
+        quantity: edge.node.quantity,
+      }));
 
-            const totalItems = items.reduce(
-                (total, item) => total + item.quantity,
-                0,
-            );
-            const totalPrice =
-                parseFloat(serverCart.items.decimalTotalPrice || '0');
+      const totalItems = items.reduce(
+        (total, item) => total + item.quantity,
+        0
+      );
+      const totalPrice = parseFloat(serverCart.items.decimalTotalPrice || '0');
 
-            return {items, totalPrice, totalItems, isEmpty: items.length === 0};
-          },
-      [],
+      return { items, totalPrice, totalItems, isEmpty: items.length === 0 };
+    },
+    []
   );
 
   // Преобразование гостевой корзины в унифицированный формат
   const transformGuestCart = useCallback((): CartUnified => {
     const items = (guestCart || []).map((item) => ({
-                                          id: item.product.id,
-                                          product: item.product,
-                                          quantity: item.quantity,
-                                        }));
+      id: item.product.id,
+      product: item.product,
+      quantity: item.quantity,
+    }));
 
     const totalItems = items.reduce((total, item) => total + item.quantity, 0);
     const totalPrice = items.reduce(
-        (total, item) => total + item.product.price * item.quantity,
-        0,
+      (total, item) => total + item.product.price * item.quantity,
+      0
     );
 
-    return {items, totalPrice, totalItems, isEmpty: items.length === 0};
+    return { items, totalPrice, totalItems, isEmpty: items.length === 0 };
   }, [guestCart]);
 
   // Получение унифицированной корзины в зависимости от авторизации
-  const unifiedCart = isAuthenticated ?
-      transformCartData(cartData?.cart || null) :
-      transformGuestCart();
+  const unifiedCart = isAuthenticated
+    ? transformCartData(cartData?.cart || null)
+    : transformGuestCart();
 
   // Добавление товара в корзину
-  const addToCart = async(
-      product: Product,
-      quantity: number,
-      ): Promise<void> => {
+  const addToCart = async (
+    product: Product,
+    quantity: number
+  ): Promise<void> => {
     // Получаем шаг товара (по умолчанию 1)
     const step = product.quantityMultiplicity || 1;
     // Корректируем количество с учетом кратности
@@ -172,12 +175,12 @@ export function useCart(): UseCartResult {
       if (isAuthenticated) {
         // Для авторизованного пользователя используем мутацию
         const result = await addToCartMutation({
-          variables: {productId: product.id, quantity: adjustedQuantity},
-          update(cache, {data}) {
+          variables: { productId: product.id, quantity: adjustedQuantity },
+          update(cache, { data }) {
             if (data?.updateCartItemQuantity?.cart) {
               cache.writeQuery({
                 query: GET_CART,
-                data: {cart: data.updateCartItemQuantity.cart},
+                data: { cart: data.updateCartItemQuantity.cart },
               });
             }
           },
@@ -191,27 +194,27 @@ export function useCart(): UseCartResult {
         // Для гостя обновляем локальное состояние
         setGuestCart((prevCart) => {
           const existingItem = prevCart.find(
-              (item) => item.product.id === product.id,
+            (item) => item.product.id === product.id
           );
 
           if (existingItem) {
             // Если товар уже в корзине, обновляем количество
             const newQuantity = adjustQuantityByMultiplicity(
-                existingItem.quantity + adjustedQuantity,
-                step,
+              existingItem.quantity + adjustedQuantity,
+              step
             );
 
-            return prevCart.map(
-                (item) => item.product.id === product.id ?
-                    {...item, quantity: newQuantity} :
-                    item,
+            return prevCart.map((item) =>
+              item.product.id === product.id
+                ? { ...item, quantity: newQuantity }
+                : item
             );
           }
 
           // Добавляем новый товар
           return [
             ...prevCart,
-            {product, quantity: Math.max(adjustedQuantity, step)},
+            { product, quantity: Math.max(adjustedQuantity, step) },
           ];
         });
       }
@@ -227,19 +230,16 @@ export function useCart(): UseCartResult {
   };
 
   // Обновление количества товара в корзине
-  const updateQuantity = async(
-      productId: string,
-      quantity: number,
-      ): Promise<void> => {
+  const updateQuantity = async (
+    productId: string,
+    quantity: number
+  ): Promise<void> => {
     try {
       if (isAuthenticated) {
         // Для авторизованного пользователя
-        const cartItem =
-            cartData?.cart?.items?.edges
-                .find(
-                    (edge: CartItemEdge) => edge.node.product.id === productId,
-                    )
-                ?.node;
+        const cartItem = cartData?.cart?.items?.edges.find(
+          (edge: CartItemEdge) => edge.node.product.id === productId
+        )?.node;
 
         if (!cartItem) return;
 
@@ -252,12 +252,12 @@ export function useCart(): UseCartResult {
         if (adjustedQuantity === cartItem.quantity) return;
 
         await updateCartItemQuantityMutation({
-          variables: {productId, quantity: adjustedQuantity},
-          update(cache, {data}) {
+          variables: { productId, quantity: adjustedQuantity },
+          update(cache, { data }) {
             if (data?.updateCartItemQuantity?.cart) {
               cache.writeQuery({
                 query: GET_CART,
-                data: {cart: data.updateCartItemQuantity.cart},
+                data: { cart: data.updateCartItemQuantity.cart },
               });
             }
           },
@@ -282,10 +282,10 @@ export function useCart(): UseCartResult {
           // Показываем уведомление об обновлении количества
           showSuccess(`Количество товара изменено`);
 
-          return prevCart.map(
-              (item) => item.product.id === productId ?
-                  {...item, quantity: adjustedQuantity} :
-                  item,
+          return prevCart.map((item) =>
+            item.product.id === productId
+              ? { ...item, quantity: adjustedQuantity }
+              : item
           );
         });
       }
@@ -297,23 +297,20 @@ export function useCart(): UseCartResult {
   };
 
   // Удаление товара из корзины
-  const removeFromCart = async(productId: string): Promise<void> => {
+  const removeFromCart = async (productId: string): Promise<void> => {
     try {
       // Находим товар для уведомления
       let productName = 'Товар';
       if (isAuthenticated) {
-        const cartItem =
-            cartData?.cart?.items?.edges
-                .find(
-                    (edge: CartItemEdge) => edge.node.product.id === productId,
-                    )
-                ?.node;
+        const cartItem = cartData?.cart?.items?.edges.find(
+          (edge: CartItemEdge) => edge.node.product.id === productId
+        )?.node;
         if (cartItem) {
           productName = cartItem.product.name;
         }
       } else {
         const cartItem = guestCart.find(
-            (item) => item.product.id === productId,
+          (item) => item.product.id === productId
         );
         if (cartItem) {
           productName = cartItem.product.name;
@@ -324,14 +321,14 @@ export function useCart(): UseCartResult {
         // Для авторизованного пользователя
         try {
           const result = await removeFromCartMutation({
-            variables: {productId},
+            variables: { productId },
             // Безопасно обрабатываем ответ от мутации
-            update(cache, {data}) {
+            update(cache, { data }) {
               // Проверяем что данные определены и имеют ожидаемую структуру
               if (data?.updateCartItemQuantity?.cart) {
                 cache.writeQuery({
                   query: GET_CART,
-                  data: {cart: data.updateCartItemQuantity.cart},
+                  data: { cart: data.updateCartItemQuantity.cart },
                 });
               }
             },
@@ -371,9 +368,8 @@ export function useCart(): UseCartResult {
         }
       } else {
         // Для гостя
-        setGuestCart(
-            (prevCart) =>
-                prevCart.filter((item) => item.product.id !== productId),
+        setGuestCart((prevCart) =>
+          prevCart.filter((item) => item.product.id !== productId)
         );
 
         // Показываем уведомление об удалении товара
@@ -386,7 +382,7 @@ export function useCart(): UseCartResult {
   };
 
   // Очистка корзины
-  const clearCart = async(): Promise<void> => {
+  const clearCart = async (): Promise<void> => {
     try {
       if (isAuthenticated) {
         // Для авторизованного пользователя поочередно удаляем все товары
@@ -402,20 +398,20 @@ export function useCart(): UseCartResult {
           // для избежания конфликтов в кэше и снижения нагрузки на сервер
           for (const edge of edges) {
             await removeFromCartMutation({
-              variables: {productId: edge.node.product.id},
-              update(cache, {data}) {
+              variables: { productId: edge.node.product.id },
+              update(cache, { data }) {
                 if (data?.updateCartItemQuantity?.cart) {
                   // Обновляем кеш после каждого удаления
                   cache.writeQuery({
                     query: GET_CART,
-                    data: {cart: data.updateCartItemQuantity.cart},
+                    data: { cart: data.updateCartItemQuantity.cart },
                   });
                 }
               },
               onError: (error) => {
                 console.error(
-                    `Failed to remove item ${edge.node.product.id}:`,
-                    error,
+                  `Failed to remove item ${edge.node.product.id}:`,
+                  error
                 );
                 // Не выбрасываем ошибку, чтобы продолжить удаление остальных
                 // товаров

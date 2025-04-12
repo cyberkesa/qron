@@ -1,8 +1,8 @@
-import { Product } from "@/types/api";
-import { useViewHistory } from "@/lib/hooks/useViewHistory";
-import { useMemo } from "react";
-import { ProductCard } from "@/components/product/ProductCard";
-import { ClockIcon } from "@heroicons/react/24/outline";
+import { Product } from '@/types/api';
+import { useViewHistory } from '@/lib/hooks/useViewHistory';
+import { useMemo } from 'react';
+import { ProductCard } from '@/components/product/ProductCard';
+import { ClockIcon } from '@heroicons/react/24/outline';
 
 interface RecentlyViewedProps {
   excludeProductId?: string; // ID товара, который не нужно показывать (текущий товар)

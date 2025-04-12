@@ -1,15 +1,15 @@
-import { gql } from "@apollo/client";
-import fs from "fs";
-import { buildSchema, GraphQLSchema, print } from "graphql";
-import path from "path";
+import { gql } from '@apollo/client';
+import fs from 'fs';
+import { buildSchema, GraphQLSchema, print } from 'graphql';
+import path from 'path';
 
 // Функция для загрузки схемы из файла
 export function loadSchema(schemaPath: string): GraphQLSchema {
   try {
-    const schemaContent = fs.readFileSync(schemaPath, "utf-8");
+    const schemaContent = fs.readFileSync(schemaPath, 'utf-8');
     return buildSchema(schemaContent);
   } catch (error) {
-    console.error("Ошибка при загрузке схемы:", error);
+    console.error('Ошибка при загрузке схемы:', error);
     throw error;
   }
 }
@@ -17,7 +17,7 @@ export function loadSchema(schemaPath: string): GraphQLSchema {
 // Функция для проверки запроса на соответствие схеме
 export function validateQuery(
   schema: GraphQLSchema,
-  query: string,
+  query: string
 ): { isValid: boolean; errors: string[] } {
   try {
     // Здесь будет логика проверки запроса
@@ -25,8 +25,8 @@ export function validateQuery(
     // логику с использованием GraphQL-валидатора
 
     // Для демонстрации просто проверим, что запрос не пустой
-    if (!query || query.trim() === "") {
-      return { isValid: false, errors: ["Пустой запрос"] };
+    if (!query || query.trim() === '') {
+      return { isValid: false, errors: ['Пустой запрос'] };
     }
 
     // В реальном приложении здесь будет полная валидация
@@ -34,7 +34,7 @@ export function validateQuery(
   } catch (error) {
     return {
       isValid: false,
-      errors: [error instanceof Error ? error.message : "Неизвестная ошибка"],
+      errors: [error instanceof Error ? error.message : 'Неизвестная ошибка'],
     };
   }
 }
@@ -43,13 +43,13 @@ export function validateQuery(
 export function validateProfileQueries(): void {
   try {
     // Загрузка схемы
-    const schemaPath = path.resolve(process.cwd(), "schema.json");
+    const schemaPath = path.resolve(process.cwd(), 'schema.json');
     const schema = loadSchema(schemaPath);
 
     // Список запросов для проверки
     const queries = [
       {
-        name: "GET_VIEWER",
+        name: 'GET_VIEWER',
         query: gql`
           query GetViewer {
             viewer {
@@ -74,7 +74,7 @@ export function validateProfileQueries(): void {
         `,
       },
       {
-        name: "GET_ORDERS",
+        name: 'GET_ORDERS',
         query: gql`
           query GetOrders {
             orders {
@@ -112,7 +112,7 @@ export function validateProfileQueries(): void {
         `,
       },
       {
-        name: "LOGOUT",
+        name: 'LOGOUT',
         query: gql`
           mutation LogOut {
             logOut {
@@ -127,7 +127,7 @@ export function validateProfileQueries(): void {
         `,
       },
       {
-        name: "GET_DELIVERY_ADDRESSES",
+        name: 'GET_DELIVERY_ADDRESSES',
         query: gql`
           query GetDeliveryAddresses {
             deliveryAddresses {
@@ -138,7 +138,7 @@ export function validateProfileQueries(): void {
         `,
       },
       {
-        name: "DELETE_DELIVERY_ADDRESS",
+        name: 'DELETE_DELIVERY_ADDRESS',
         query: gql`
           mutation DeleteDeliveryAddress($id: ID!) {
             deleteDeliveryAddress(id: $id) {
@@ -153,7 +153,7 @@ export function validateProfileQueries(): void {
         `,
       },
       {
-        name: "EDIT_DELIVERY_ADDRESS",
+        name: 'EDIT_DELIVERY_ADDRESS',
         query: gql`
           mutation EditDeliveryAddress($id: ID!, $fullAddress: String!) {
             editDeliveryAddress(id: $id, fullAddress: $fullAddress) {
@@ -174,7 +174,7 @@ export function validateProfileQueries(): void {
         `,
       },
       {
-        name: "CREATE_DELIVERY_ADDRESS",
+        name: 'CREATE_DELIVERY_ADDRESS',
         query: gql`
           mutation CreateDeliveryAddress($input: CreateDeliveryAddressInput!) {
             createDeliveryAddress(input: $input) {
@@ -192,7 +192,7 @@ export function validateProfileQueries(): void {
         `,
       },
       {
-        name: "GET_DELIVERY_ADDRESS",
+        name: 'GET_DELIVERY_ADDRESS',
         query: gql`
           query GetDeliveryAddress($id: ID!) {
             deliveryAddress(id: $id) {
@@ -208,7 +208,7 @@ export function validateProfileQueries(): void {
         `,
       },
       {
-        name: "SET_DEFAULT_DELIVERY_ADDRESS",
+        name: 'SET_DEFAULT_DELIVERY_ADDRESS',
         query: gql`
           mutation SetDefaultDeliveryAddress($id: ID!) {
             setDefaultDeliveryAddress(id: $id) {
@@ -228,8 +228,8 @@ export function validateProfileQueries(): void {
     ];
 
     // Проверка каждого запроса
-    console.log("Проверка запросов в профиле:");
-    console.log("--------------------------------");
+    console.log('Проверка запросов в профиле:');
+    console.log('--------------------------------');
 
     let allValid = true;
 
@@ -239,25 +239,25 @@ export function validateProfileQueries(): void {
 
       console.log(`Запрос: ${name}`);
       console.log(
-        `Статус: ${result.isValid ? "✅ Валидный" : "❌ Невалидный"}`,
+        `Статус: ${result.isValid ? '✅ Валидный' : '❌ Невалидный'}`
       );
 
       if (result.errors.length > 0) {
-        console.log("Ошибки:");
+        console.log('Ошибки:');
         result.errors.forEach((error) => console.log(`  - ${error}`));
         allValid = false;
       }
 
-      console.log("--------------------------------");
+      console.log('--------------------------------');
     }
 
     console.log(
       `Общий результат: ${
-        allValid ? "✅ Все запросы валидны" : "❌ Обнаружены ошибки"
-      }`,
+        allValid ? '✅ Все запросы валидны' : '❌ Обнаружены ошибки'
+      }`
     );
   } catch (error) {
-    console.error("Ошибка при проверке запросов:", error);
+    console.error('Ошибка при проверке запросов:', error);
   }
 }
 

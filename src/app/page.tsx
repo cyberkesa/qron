@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
-import { useQuery } from "@apollo/client";
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
+import { useQuery } from '@apollo/client';
 import {
   GET_PRODUCTS,
   GET_CATEGORIES,
   GET_VIEWER,
   GET_BEST_DEAL_PRODUCTS,
   GET_CURRENT_REGION,
-} from "@/lib/queries";
-import { ProductCard } from "@/components/product/ProductCard";
-import { ProductFilters } from "@/components/product-list/ProductFilters";
+} from '@/lib/queries';
+import { ProductCard } from '@/components/product/ProductCard';
+import { ProductFilters } from '@/components/product-list/ProductFilters';
 import {
   ProductSortOrder,
   Product,
   ProductStockAvailabilityStatus,
   Category,
-} from "@/types/api";
-import Link from "next/link";
+} from '@/types/api';
+import Link from 'next/link';
 import {
   ShoppingCartIcon,
   UserIcon,
@@ -26,13 +26,13 @@ import {
   ArrowRightIcon,
   BuildingStorefrontIcon,
   ChevronRightIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
-import { ProductCarousel } from "@/components/product/ProductCarousel";
-import { FeaturedCategories } from "@/components/home/FeaturedCategories";
-import Image from "next/image";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
+import { ProductCarousel } from '@/components/product/ProductCarousel';
+import { FeaturedCategories } from '@/components/home/FeaturedCategories';
+import Image from 'next/image';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll';
 
 // Мемоизированный компонент для списка товаров
 const ProductGrid = memo(({ products }: { products: Product[] }) => {
@@ -48,7 +48,7 @@ const ProductGrid = memo(({ products }: { products: Product[] }) => {
   );
 });
 
-ProductGrid.displayName = "ProductGrid";
+ProductGrid.displayName = 'ProductGrid';
 
 // Мемоизированный компонент для лучших предложений
 const BestDeals = memo(({ products }: { products: Product[] }) => {
@@ -89,7 +89,7 @@ const BestDeals = memo(({ products }: { products: Product[] }) => {
   );
 });
 
-BestDeals.displayName = "BestDeals";
+BestDeals.displayName = 'BestDeals';
 
 // Мемоизированный компонент для баннера
 const Banner = memo(() => {
@@ -140,12 +140,12 @@ const Banner = memo(() => {
   );
 });
 
-Banner.displayName = "Banner";
+Banner.displayName = 'Banner';
 
 export default function Home() {
   // Состояния компонента
-  const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<ProductSortOrder>('NEWEST_FIRST');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [currentRegion, setCurrentRegion] = useState<{
@@ -161,11 +161,11 @@ export default function Home() {
   const { data: regionData, error: regionError } = useQuery(
     GET_CURRENT_REGION,
     {
-      fetchPolicy: "cache-and-network",
+      fetchPolicy: 'cache-and-network',
       onError: (error) => {
-        console.error("Ошибка при получении региона:", error);
+        console.error('Ошибка при получении региона:', error);
       },
-    },
+    }
   );
 
   // Запрос товаров с использованием выбранных фильтров
@@ -181,9 +181,9 @@ export default function Home() {
       categoryId: selectedCategory || undefined,
     },
     skip: !currentRegion,
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
     onError: (error) => {
-      console.error("Ошибка при получении товаров:", error);
+      console.error('Ошибка при получении товаров:', error);
     },
   });
 
@@ -193,9 +193,9 @@ export default function Home() {
     loading: categoriesLoading,
     error: categoriesError,
   } = useQuery(GET_CATEGORIES, {
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
     onError: (error) => {
-      console.error("Ошибка при получении категорий:", error);
+      console.error('Ошибка при получении категорий:', error);
     },
   });
 
@@ -206,17 +206,17 @@ export default function Home() {
     error: bestDealsError,
   } = useQuery(GET_BEST_DEAL_PRODUCTS, {
     skip: !currentRegion,
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
     onError: (error) => {
-      console.error("Ошибка при получении лучших предложений:", error);
+      console.error('Ошибка при получении лучших предложений:', error);
     },
   });
 
   // Запрос данных пользователя
   const { data: userData } = useQuery(GET_VIEWER, {
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
     onError: (error) => {
-      console.error("Ошибка при получении данных пользователя:", error);
+      console.error('Ошибка при получении данных пользователя:', error);
     },
   });
 
@@ -228,7 +228,7 @@ export default function Home() {
     try {
       const allProducts =
         productsData?.products?.edges?.map(
-          (edge: { node: Product }) => edge.node,
+          (edge: { node: Product }) => edge.node
         ) || [];
 
       // Если включен фильтр "скрыть товары не в наличии", отфильтровываем их
@@ -238,42 +238,42 @@ export default function Home() {
             product.stockAvailabilityStatus ===
               ProductStockAvailabilityStatus.IN_STOCK ||
             product.stockAvailabilityStatus ===
-              ProductStockAvailabilityStatus.IN_STOCK_SOON,
+              ProductStockAvailabilityStatus.IN_STOCK_SOON
         );
       }
 
       return allProducts;
     } catch (error) {
-      console.error("Ошибка обработки данных товаров:", error);
+      console.error('Ошибка обработки данных товаров:', error);
       return [];
     }
   }, [productsData?.products?.edges, hideOutOfStock]);
 
   const categories = useMemo(
     () => categoriesData?.rootCategories || [],
-    [categoriesData],
+    [categoriesData]
   );
   const bestDeals = useMemo(
     () => bestDealsData?.bestDealProducts || [],
-    [bestDealsData],
+    [bestDealsData]
   );
   const hasMoreProducts = useMemo(
     () => productsData?.products?.pageInfo?.hasNextPage || false,
-    [productsData],
+    [productsData]
   );
   const endCursor = useMemo(
     () => productsData?.products?.pageInfo?.endCursor || null,
-    [productsData],
+    [productsData]
   );
 
   const isDataLoading = useMemo(
     () => productsLoading || categoriesLoading || bestDealsLoading,
-    [productsLoading, categoriesLoading, bestDealsLoading],
+    [productsLoading, categoriesLoading, bestDealsLoading]
   );
 
   const hasError = useMemo(
     () => productsError || categoriesError || bestDealsError || regionError,
-    [productsError, categoriesError, bestDealsError, regionError],
+    [productsError, categoriesError, bestDealsError, regionError]
   );
 
   const errorMessage = useMemo(
@@ -282,7 +282,7 @@ export default function Home() {
       categoriesError?.message ||
       bestDealsError?.message ||
       regionError?.message,
-    [productsError, categoriesError, bestDealsError, regionError],
+    [productsError, categoriesError, bestDealsError, regionError]
   );
 
   // Получаем общее количество товаров
@@ -293,25 +293,25 @@ export default function Home() {
     if (regionData?.viewer?.region) {
       setCurrentRegion(regionData.viewer.region);
 
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         try {
           localStorage.setItem(
-            "selectedRegion",
-            JSON.stringify(regionData.viewer.region),
+            'selectedRegion',
+            JSON.stringify(regionData.viewer.region)
           );
         } catch (error) {
-          console.error("Ошибка при сохранении региона:", error);
+          console.error('Ошибка при сохранении региона:', error);
         }
       }
-    } else if (typeof window !== "undefined") {
+    } else if (typeof window !== 'undefined') {
       try {
-        const savedRegion = localStorage.getItem("selectedRegion");
+        const savedRegion = localStorage.getItem('selectedRegion');
         if (savedRegion) {
           setCurrentRegion(JSON.parse(savedRegion));
         }
       } catch (e) {
-        console.error("Ошибка при разборе сохраненного региона:", e);
-        localStorage.removeItem("selectedRegion");
+        console.error('Ошибка при разборе сохраненного региона:', e);
+        localStorage.removeItem('selectedRegion');
       }
     }
   }, [regionData]);

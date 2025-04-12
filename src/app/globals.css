@@ -45,8 +45,8 @@ body {
 @media (max-width: 640px) {
   button,
   a,
-  input[type="button"],
-  input[type="submit"] {
+  input[type='button'],
+  input[type='submit'] {
     min-height: 44px; /* Apple's recommended minimum touch target size */
     min-width: 44px;
   }
@@ -127,7 +127,7 @@ body {
   text-decoration: underline !important;
 }
 .high-contrast button,
-.high-contrast [role="button"] {
+.high-contrast [role='button'] {
   border: 2px solid var(--border-color) !important;
 }
 .high-contrast input,
@@ -137,7 +137,7 @@ body {
 }
 
 /* Keyboard navigation styles */
-[data-keyboard-nav="true"] *:focus {
+[data-keyboard-nav='true'] *:focus {
   outline: 3px solid #000 !important;
   outline-offset: 2px !important;
 }
@@ -150,13 +150,13 @@ main {
   min-height: 50vh;
 }
 @font-face {
-  font-family: "Inter";
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
   src:
-    local("Inter"),
-    url("/fonts/inter.woff2") format("woff2");
+    local('Inter'),
+    url('/fonts/inter.woff2') format('woff2');
 }
 svg {
   width: 1.5rem;
@@ -388,7 +388,7 @@ svg {
 }
 
 .btn-pulse:after {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -484,7 +484,7 @@ svg {
 }
 
 .nav-link::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -541,7 +541,7 @@ svg {
 }
 
 .category-menu-item::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -605,7 +605,7 @@ svg {
   .animate-slide-down-in {
     animation: slideDownIn 0.4s ease-out forwards;
   }
-  
+
   .animate-slide-up-out {
     animation: slideUpOut 0.4s ease-in forwards;
   }
@@ -645,12 +645,17 @@ svg {
 }
 
 /* Глобальные плавные переходы для элементов */
-button, a, .transition-all {
+button,
+a,
+.transition-all {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 /* Плавные переходы для hover эффектов */
-.hover-element, .btn-pulse, button:not([disabled]), a:not(.no-hover) {
+.hover-element,
+.btn-pulse,
+button:not([disabled]),
+a:not(.no-hover) {
   transition-duration: 300ms;
 }
 

@@ -1,30 +1,30 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo, useEffect } from "react";
-import { useQuery } from "@apollo/client";
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useQuery } from '@apollo/client';
 import {
   GET_PRODUCTS,
   GET_CATEGORIES,
   GET_CURRENT_REGION,
-} from "@/lib/queries";
-import { ProductCard } from "@/components/product/ProductCard";
-import { ProductFilters } from "@/components/product-list/ProductFilters";
+} from '@/lib/queries';
+import { ProductCard } from '@/components/product/ProductCard';
+import { ProductFilters } from '@/components/product-list/ProductFilters';
 import {
   ProductSortOrder,
   Product,
   ProductStockAvailabilityStatus,
-} from "@/types/api";
-import Link from "next/link";
+} from '@/types/api';
+import Link from 'next/link';
 import {
   AdjustmentsHorizontalIcon,
   ChevronRightIcon,
   XMarkIcon,
-} from "@heroicons/react/24/outline";
-import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
+} from '@heroicons/react/24/outline';
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll';
 
 export default function CatalogPage() {
-  const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<ProductSortOrder>('NEWEST_FIRST');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [currentRegion, setCurrentRegion] = useState<{
     id: string;
@@ -35,11 +35,11 @@ export default function CatalogPage() {
   const { data: regionData, error: regionError } = useQuery(
     GET_CURRENT_REGION,
     {
-      fetchPolicy: "cache-and-network",
+      fetchPolicy: 'cache-and-network',
       onError: (error) => {
-        console.error("Ошибка при получении региона:", error);
+        console.error('Ошибка при получении региона:', error);
       },
-    },
+    }
   );
 
   const {
@@ -54,9 +54,9 @@ export default function CatalogPage() {
       categoryId: selectedCategory || undefined,
     },
     skip: !currentRegion,
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
     onError: (error) => {
-      console.error("Ошибка при получении товаров:", error);
+      console.error('Ошибка при получении товаров:', error);
     },
   });
 
@@ -65,9 +65,9 @@ export default function CatalogPage() {
     loading: categoriesLoading,
     error: categoriesError,
   } = useQuery(GET_CATEGORIES, {
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
     onError: (error) => {
-      console.error("Ошибка при получении категорий:", error);
+      console.error('Ошибка при получении категорий:', error);
     },
   });
 
@@ -75,25 +75,25 @@ export default function CatalogPage() {
     if (regionData?.viewer?.region) {
       setCurrentRegion(regionData.viewer.region);
 
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         try {
           localStorage.setItem(
-            "selectedRegion",
-            JSON.stringify(regionData.viewer.region),
+            'selectedRegion',
+            JSON.stringify(regionData.viewer.region)
           );
         } catch (error) {
-          console.error("Ошибка при сохранении региона:", error);
+          console.error('Ошибка при сохранении региона:', error);
         }
       }
-    } else if (typeof window !== "undefined") {
+    } else if (typeof window !== 'undefined') {
       try {
-        const savedRegion = localStorage.getItem("selectedRegion");
+        const savedRegion = localStorage.getItem('selectedRegion');
         if (savedRegion) {
           setCurrentRegion(JSON.parse(savedRegion));
         }
       } catch (e) {
-        console.error("Ошибка при разборе сохраненного региона:", e);
-        localStorage.removeItem("selectedRegion");
+        console.error('Ошибка при разборе сохраненного региона:', e);
+        localStorage.removeItem('selectedRegion');
       }
     }
   }, [regionData]);
@@ -120,7 +120,7 @@ export default function CatalogPage() {
     try {
       const allProducts =
         productsData?.products?.edges?.map(
-          (edge: { node: Product }) => edge.node,
+          (edge: { node: Product }) => edge.node
         ) || [];
 
       return hideOutOfStock
@@ -129,30 +129,30 @@ export default function CatalogPage() {
               product.stockAvailabilityStatus ===
                 ProductStockAvailabilityStatus.IN_STOCK ||
               product.stockAvailabilityStatus ===
-                ProductStockAvailabilityStatus.IN_STOCK_SOON,
+                ProductStockAvailabilityStatus.IN_STOCK_SOON
           )
         : allProducts;
     } catch (error) {
-      console.error("Ошибка обработки данных товаров:", error);
+      console.error('Ошибка обработки данных товаров:', error);
       return [];
     }
   }, [productsData?.products?.edges, hideOutOfStock]);
 
   const categories = useMemo(
     () => categoriesData?.rootCategories || [],
-    [categoriesData],
+    [categoriesData]
   );
 
   const totalProductsCount = useMemo(() => products.length, [products.length]);
 
   const isDataLoading = useMemo(
     () => productsLoading || categoriesLoading,
-    [productsLoading, categoriesLoading],
+    [productsLoading, categoriesLoading]
   );
 
   const hasError = useMemo(
     () => productsError || categoriesError || regionError,
-    [productsError, categoriesError, regionError],
+    [productsError, categoriesError, regionError]
   );
 
   const errorMessage = useMemo(
@@ -160,7 +160,7 @@ export default function CatalogPage() {
       productsError?.message ||
       categoriesError?.message ||
       regionError?.message,
-    [productsError, categoriesError, regionError],
+    [productsError, categoriesError, regionError]
   );
 
   const handleCategoryChange = useCallback((categoryId: string) => {
@@ -180,8 +180,8 @@ export default function CatalogPage() {
   }, []);
 
   const resetFilters = useCallback(() => {
-    setSelectedCategory("");
-    setSortOrder("NEWEST_FIRST");
+    setSelectedCategory('');
+    setSortOrder('NEWEST_FIRST');
     setHideOutOfStock(false);
   }, []);
 
@@ -253,7 +253,7 @@ export default function CatalogPage() {
           <button
             onClick={() => window.location.reload()}
             className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors active:scale-[0.98]"
-            style={{ WebkitTapHighlightColor: "transparent" }}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             Обновить страницу
           </button>
@@ -270,7 +270,7 @@ export default function CatalogPage() {
           <button
             onClick={resetFilters}
             className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors active:scale-[0.98]"
-            style={{ WebkitTapHighlightColor: "transparent" }}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             Сбросить фильтры
           </button>
@@ -293,7 +293,7 @@ export default function CatalogPage() {
                   <button
                     onClick={toggleMobileFilters}
                     className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors active:scale-95"
-                    style={{ WebkitTapHighlightColor: "transparent" }}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     <XMarkIcon className="h-5 w-5" />
                   </button>
@@ -342,7 +342,7 @@ export default function CatalogPage() {
                   <button
                     onClick={toggleMobileFilters}
                     className="lg:hidden flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white hover:bg-gray-50 transition-colors w-1/2 sm:w-auto active:scale-[0.98]"
-                    style={{ WebkitTapHighlightColor: "transparent" }}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     <AdjustmentsHorizontalIcon className="h-5 w-5 mr-1.5 text-gray-600" />
                     Фильтры
@@ -355,7 +355,7 @@ export default function CatalogPage() {
                         handleSortChange(e.target.value as ProductSortOrder)
                       }
                       className="block w-full rounded-lg border border-gray-200 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                      style={{ WebkitAppearance: "none" }}
+                      style={{ WebkitAppearance: 'none' }}
                     >
                       <option value="NEWEST_FIRST">Новинки</option>
                       <option value="PRICE_LOW_TO_HIGH">Сначала дешевле</option>

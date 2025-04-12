@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useQuery } from "@apollo/client";
-import { GET_ORDERS } from "@/lib/queries";
-import { OrdersList } from "@/components/order/OrdersList";
-import { OrderStatus } from "@/types/api";
+import { useState } from 'react';
+import { useQuery } from '@apollo/client';
+import { GET_ORDERS } from '@/lib/queries';
+import { OrdersList } from '@/components/order/OrdersList';
+import { OrderStatus } from '@/types/api';
 
 type StatusOption = {
   value: OrderStatus | null;
@@ -12,16 +12,16 @@ type StatusOption = {
 };
 
 const STATUS_OPTIONS: StatusOption[] = [
-  { value: null, label: "Все" },
-  { value: OrderStatus.PENDING, label: "Ожидает обработки" },
-  { value: OrderStatus.PROCESSING, label: "В обработке" },
-  { value: OrderStatus.SHIPPED, label: "Отправлен" },
-  { value: OrderStatus.DELIVERED, label: "Доставлен" },
-  { value: OrderStatus.CANCELLED, label: "Отменен" },
+  { value: null, label: 'Все' },
+  { value: OrderStatus.PENDING, label: 'Ожидает обработки' },
+  { value: OrderStatus.PROCESSING, label: 'В обработке' },
+  { value: OrderStatus.SHIPPED, label: 'Отправлен' },
+  { value: OrderStatus.DELIVERED, label: 'Доставлен' },
+  { value: OrderStatus.CANCELLED, label: 'Отменен' },
 ];
 
-const ACTIVE_BUTTON_STYLE = "bg-blue-600 text-white";
-const INACTIVE_BUTTON_STYLE = "bg-gray-100 text-gray-700 hover:bg-gray-200";
+const ACTIVE_BUTTON_STYLE = 'bg-blue-600 text-white';
+const INACTIVE_BUTTON_STYLE = 'bg-gray-100 text-gray-700 hover:bg-gray-200';
 
 export default function OrdersPage() {
   const [activeStatus, setActiveStatus] = useState<OrderStatus | null>(null);
@@ -52,7 +52,7 @@ export default function OrdersPage() {
       <div role="tablist" className="mb-6 flex space-x-2 overflow-x-auto pb-2">
         {STATUS_OPTIONS.map((status) => (
           <button
-            key={status.value || "all"}
+            key={status.value || 'all'}
             role="tab"
             aria-selected={activeStatus === status.value}
             onClick={() => setActiveStatus(status.value)}

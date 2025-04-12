@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useQuery } from "@apollo/client";
-import Link from "next/link";
-import Image from "next/image";
-import { GET_CATEGORIES } from "@/lib/queries";
-import { Category } from "@/types/api";
+import { useQuery } from '@apollo/client';
+import Link from 'next/link';
+import Image from 'next/image';
+import { GET_CATEGORIES } from '@/lib/queries';
+import { Category } from '@/types/api';
 
 export default function CategoriesPage() {
   const { data, loading, error } = useQuery(GET_CATEGORIES);

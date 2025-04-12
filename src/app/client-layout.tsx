@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import React, { ReactNode } from "react";
-import { Providers } from "./providers";
-import RegionSwitchModal from "@/components/region/RegionSwitchModal";
-import Header from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { PageTransition } from "@/components/ui/PageTransition";
+import React, { ReactNode } from 'react';
+import { Providers } from './providers';
+import RegionSwitchModal from '@/components/region/RegionSwitchModal';
+import Header from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { PageTransition } from '@/components/ui/PageTransition';
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (

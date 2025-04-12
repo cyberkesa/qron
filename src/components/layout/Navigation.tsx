@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { useQuery } from "@apollo/client";
-import { GET_CART } from "@/lib/queries";
+import Link from 'next/link';
+import { useQuery } from '@apollo/client';
+import { GET_CART } from '@/lib/queries';
 
 export function Navigation() {
   const { data } = useQuery(GET_CART);

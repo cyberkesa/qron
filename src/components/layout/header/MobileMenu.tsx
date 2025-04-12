@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { memo } from "react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { Category } from "@/types/api";
-import MobileNavLink from "./MobileNavLink";
+import { memo } from 'react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import { Category } from '@/types/api';
+import MobileNavLink from './MobileNavLink';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -41,14 +41,14 @@ const MobileMenu = memo(
             <ul className="space-y-2">
               <MobileNavLink
                 href="/"
-                active={currentPath === "/"}
+                active={currentPath === '/'}
                 onClick={onClose}
               >
                 Главная
               </MobileNavLink>
               <MobileNavLink
                 href="/catalog"
-                active={currentPath === "/catalog"}
+                active={currentPath === '/catalog'}
                 onClick={onClose}
               >
                 Каталог
@@ -77,21 +77,21 @@ const MobileMenu = memo(
               </li>
               <MobileNavLink
                 href="/delivery"
-                active={currentPath === "/delivery"}
+                active={currentPath === '/delivery'}
                 onClick={onClose}
               >
                 Доставка
               </MobileNavLink>
               <MobileNavLink
                 href="/about"
-                active={currentPath === "/about"}
+                active={currentPath === '/about'}
                 onClick={onClose}
               >
                 О компании
               </MobileNavLink>
               <MobileNavLink
                 href="/contacts"
-                active={currentPath === "/contacts"}
+                active={currentPath === '/contacts'}
                 onClick={onClose}
               >
                 Контакты
@@ -106,21 +106,21 @@ const MobileMenu = memo(
                   </li>
                   <MobileNavLink
                     href="/profile"
-                    active={currentPath === "/profile"}
+                    active={currentPath === '/profile'}
                     onClick={onClose}
                   >
                     Мой профиль
                   </MobileNavLink>
                   <MobileNavLink
                     href="/orders"
-                    active={currentPath === "/orders"}
+                    active={currentPath === '/orders'}
                     onClick={onClose}
                   >
                     Мои заказы
                   </MobileNavLink>
                   <MobileNavLink
                     href="/wishlist"
-                    active={currentPath === "/wishlist"}
+                    active={currentPath === '/wishlist'}
                     onClick={onClose}
                   >
                     Избранное
@@ -132,9 +132,9 @@ const MobileMenu = memo(
         </div>
       </div>
     );
-  },
+  }
 );
 
-MobileMenu.displayName = "MobileMenu";
+MobileMenu.displayName = 'MobileMenu';
 
 export default MobileMenu;

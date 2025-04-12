@@ -1,9 +1,9 @@
-import { Fragment, ReactNode } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { Fragment, ReactNode } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
 import {
   ExclamationTriangleIcon,
   XMarkIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -25,8 +25,8 @@ export function ConfirmationDialog({
   onConfirm,
   title,
   message,
-  confirmText = "Подтвердить",
-  cancelText = "Отмена",
+  confirmText = 'Подтвердить',
+  cancelText = 'Отмена',
   confirmButtonClass,
   cancelButtonClass,
   icon,
@@ -97,7 +97,7 @@ export function ConfirmationDialog({
 
                     {message && (
                       <div className="mt-2">
-                        {typeof message === "string" ? (
+                        {typeof message === 'string' ? (
                           <p className="text-sm text-gray-600">{message}</p>
                         ) : (
                           message
@@ -112,7 +112,7 @@ export function ConfirmationDialog({
                     type="button"
                     className={
                       cancelButtonClass ||
-                      "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      'px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
                     }
                     onClick={onClose}
                   >
@@ -123,8 +123,8 @@ export function ConfirmationDialog({
                     className={
                       confirmButtonClass ||
                       (isDanger
-                        ? "px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                        : "px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500")
+                        ? 'px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
+                        : 'px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500')
                     }
                     onClick={handleConfirm}
                   >

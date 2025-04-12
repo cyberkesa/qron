@@ -1,9 +1,9 @@
-import { ProductSortOrder, Category } from "@/types/api";
-import Image from "next/image";
-import { ProductSorter } from "@/components/product-list/ProductSorter";
-import { StockFilter } from "@/components/product-list/StockFilter";
-import { XMarkIcon, FunnelIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { ProductSortOrder, Category } from '@/types/api';
+import Image from 'next/image';
+import { ProductSorter } from '@/components/product-list/ProductSorter';
+import { StockFilter } from '@/components/product-list/StockFilter';
+import { XMarkIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 
 interface ProductFiltersProps {
   categories: Category[];
@@ -30,11 +30,11 @@ export function ProductFilters({
 }: ProductFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasActiveFilters =
-    selectedCategory !== "" || sortOrder !== "NEWEST_FIRST" || !hideOutOfStock;
+    selectedCategory !== '' || sortOrder !== 'NEWEST_FIRST' || !hideOutOfStock;
 
   const resetFilters = () => {
-    onCategoryChange("");
-    onSortChange("NEWEST_FIRST");
+    onCategoryChange('');
+    onSortChange('NEWEST_FIRST');
     onStockFilterChange(true);
   };
 
@@ -70,7 +70,7 @@ export function ProductFilters({
           >
             <svg
               className={`h-5 w-5 transition-transform duration-300 ${
-                isExpanded ? "rotate-180" : ""
+                isExpanded ? 'rotate-180' : ''
               }`}
               fill="none"
               viewBox="0 0 24 24"
@@ -90,7 +90,7 @@ export function ProductFilters({
       {/* Содержимое фильтров */}
       <div
         className={`transition-all duration-300 overflow-hidden ${
-          isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+          isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <div className="space-y-5">
@@ -104,10 +104,10 @@ export function ProductFilters({
               <div
                 className={`p-2 rounded-md cursor-pointer flex items-center ${
                   !selectedCategory
-                    ? "bg-blue-50 text-blue-600 border border-blue-100"
-                    : "hover:bg-gray-50 border border-transparent hover:border-gray-100"
+                    ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                    : 'hover:bg-gray-50 border border-transparent hover:border-gray-100'
                 } transition-all duration-200`}
-                onClick={() => onCategoryChange("")}
+                onClick={() => onCategoryChange('')}
               >
                 <span className="ml-1">Все категории</span>
               </div>
@@ -117,8 +117,8 @@ export function ProductFilters({
                   key={category.id}
                   className={`p-2 rounded-md cursor-pointer flex items-center ${
                     selectedCategory === category.id
-                      ? "bg-blue-50 text-blue-600 border border-blue-100"
-                      : "hover:bg-gray-50 border border-transparent hover:border-gray-100"
+                      ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                      : 'hover:bg-gray-50 border border-transparent hover:border-gray-100'
                   } transition-all duration-200`}
                   onClick={() => onCategoryChange(category.id)}
                 >

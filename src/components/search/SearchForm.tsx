@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback, useMemo, useRef, memo } from "react";
-import { useRouter } from "next/navigation";
-import { useQuery } from "@apollo/client";
-import { GET_PRODUCTS, GET_CATEGORIES } from "@/lib/queries";
-import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Product, Category } from "@/types/api";
-import Link from "next/link";
-import Image from "next/image";
+import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery } from '@apollo/client';
+import { GET_PRODUCTS, GET_CATEGORIES } from '@/lib/queries';
+import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Product, Category } from '@/types/api';
+import Link from 'next/link';
+import Image from 'next/image';
 import {
   normalizeSearchString,
   processSearchResults,
-} from "@/components/search/SearchOptimization";
+} from '@/components/search/SearchOptimization';
 
 // Компонент для элемента товара в выпадающем списке результатов
 const ProductResultItem = memo(({ product }: { product: Product }) => (
@@ -32,7 +32,7 @@ const ProductResultItem = memo(({ product }: { product: Product }) => (
             onError={(e) => {
               // Fallback if image fails to load
               (e.target as HTMLImageElement).src =
-                "/images/product-placeholder.png";
+                '/images/product-placeholder.png';
             }}
           />
         </div>
@@ -49,7 +49,7 @@ const ProductResultItem = memo(({ product }: { product: Product }) => (
   </Link>
 ));
 
-ProductResultItem.displayName = "ProductResultItem";
+ProductResultItem.displayName = 'ProductResultItem';
 
 // Компонент для элемента категории в выпадающем списке результатов
 const CategoryResultItem = memo(({ category }: { category: Category }) => (
@@ -70,7 +70,7 @@ const CategoryResultItem = memo(({ category }: { category: Category }) => (
             onError={(e) => {
               // Fallback if image fails to load
               (e.target as HTMLImageElement).src =
-                "/images/category-placeholder.png";
+                '/images/category-placeholder.png';
             }}
           />
         </div>
@@ -87,7 +87,7 @@ const CategoryResultItem = memo(({ category }: { category: Category }) => (
   </Link>
 ));
 
-CategoryResultItem.displayName = "CategoryResultItem";
+CategoryResultItem.displayName = 'CategoryResultItem';
 
 // Компонент для загрузки результатов в виртуализированном списке
 const SearchResults = memo(
@@ -140,7 +140,7 @@ const SearchResults = memo(
               <div
                 key={category.id}
                 className="animate-fade-in-up"
-                style={{ animationDelay: "50ms" }}
+                style={{ animationDelay: '50ms' }}
               >
                 <CategoryResultItem category={category} />
               </div>
@@ -175,10 +175,10 @@ const SearchResults = memo(
         </div>
       </div>
     );
-  },
+  }
 );
 
-SearchResults.displayName = "SearchResults";
+SearchResults.displayName = 'SearchResults';
 
 // Custom hook для дебаунса поискового запроса
 function useDebounce<T>(value: T, delay: number): T {
@@ -198,9 +198,9 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 // Основной компонент формы поиска
-const SearchForm = memo(({ className = "" }: { className?: string }) => {
+const SearchForm = memo(({ className = '' }: { className?: string }) => {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [isResultsOpen, setIsResultsOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -219,13 +219,13 @@ const SearchForm = memo(({ className = "" }: { className?: string }) => {
     {
       variables: {
         first: 8, // Увеличиваем для более полных результатов
-        sortOrder: "NEWEST_FIRST",
+        sortOrder: 'NEWEST_FIRST',
         searchQuery: normalizedQuery,
       },
       skip: !normalizedQuery || normalizedQuery.length < 2,
       // Добавляем политику кэширования для быстрых повторных запросов
-      fetchPolicy: "cache-first",
-    },
+      fetchPolicy: 'cache-first',
+    }
   );
 
   // Запрос категорий и фильтрация их на клиенте
@@ -234,15 +234,15 @@ const SearchForm = memo(({ className = "" }: { className?: string }) => {
     {
       skip: !normalizedQuery || normalizedQuery.length < 2,
       // Это данные, которые редко меняются
-      fetchPolicy: "cache-first",
-    },
+      fetchPolicy: 'cache-first',
+    }
   );
 
   // Обработка результатов поиска товаров
   const searchProductResults = useMemo(() => {
     const products =
       productData?.products?.edges?.map(
-        (edge: { node: Product }) => edge.node,
+        (edge: { node: Product }) => edge.node
       ) || [];
 
     // Используем нашу утилиту для обработки результатов
@@ -259,7 +259,7 @@ const SearchForm = memo(({ className = "" }: { className?: string }) => {
 
     // Фильтруем категории по запросу локально
     const filteredCategories = allCategories.filter((category: Category) =>
-      normalizeSearchString(category.title).includes(normalizedQuery),
+      normalizeSearchString(category.title).includes(normalizedQuery)
     );
 
     // Удаляем дубликаты категорий по ID
@@ -300,7 +300,7 @@ const SearchForm = memo(({ className = "" }: { className?: string }) => {
   // Определяем есть ли результаты для отображения дропдауна
   const shouldShowResults = useMemo(
     () => debouncedSearchQuery.length >= 2 && isResultsOpen,
-    [debouncedSearchQuery, isResultsOpen],
+    [debouncedSearchQuery, isResultsOpen]
   );
 
   const isLoading = productsLoading || categoriesLoading;
@@ -317,12 +317,12 @@ const SearchForm = memo(({ className = "" }: { className?: string }) => {
         setIsResultsOpen(false);
       }
     },
-    [],
+    []
   );
 
   // Очистка поискового запроса
   const clearSearch = useCallback(() => {
-    setSearchQuery("");
+    setSearchQuery('');
     setIsResultsOpen(false);
     if (inputRef.current) {
       inputRef.current.focus();
@@ -335,12 +335,12 @@ const SearchForm = memo(({ className = "" }: { className?: string }) => {
       if (e) e.preventDefault();
       if (searchQuery.trim()) {
         router.push(
-          `/search?q=${encodeURIComponent(searchQuery)}&sort=NEWEST_FIRST`,
+          `/search?q=${encodeURIComponent(searchQuery)}&sort=NEWEST_FIRST`
         );
         setIsResultsOpen(false);
       }
     },
-    [searchQuery, router],
+    [searchQuery, router]
   );
 
   // Закрываем результаты при клике вне компонента
@@ -355,7 +355,7 @@ const SearchForm = memo(({ className = "" }: { className?: string }) => {
     };
 
     const handleEscapeKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         setIsResultsOpen(false);
         if (inputRef.current) {
           inputRef.current.blur();
@@ -363,12 +363,12 @@ const SearchForm = memo(({ className = "" }: { className?: string }) => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscapeKey);
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscapeKey);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscapeKey);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
     };
   }, []);
 
@@ -415,6 +415,6 @@ const SearchForm = memo(({ className = "" }: { className?: string }) => {
   );
 });
 
-SearchForm.displayName = "SearchForm";
+SearchForm.displayName = 'SearchForm';
 
 export default SearchForm;

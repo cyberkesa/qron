@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { useQuery, useMutation } from "@apollo/client";
-import { GET_DELIVERY_ADDRESS, EDIT_DELIVERY_ADDRESS } from "@/lib/queries";
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { useQuery, useMutation } from '@apollo/client';
+import { GET_DELIVERY_ADDRESS, EDIT_DELIVERY_ADDRESS } from '@/lib/queries';
 import {
   MapPinIcon,
   ArrowLeftIcon,
   CheckCircleIcon,
   XCircleIcon,
-} from "@heroicons/react/24/outline";
-import Link from "next/link";
+} from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 export default function EditAddressPage() {
   const router = useRouter();
   const params = useParams();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [fullAddress, setFullAddress] = useState("");
+  const [fullAddress, setFullAddress] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get ID from params and decode it if it's base64 encoded
@@ -40,12 +40,12 @@ export default function EditAddressPage() {
   const [editAddress] = useMutation(EDIT_DELIVERY_ADDRESS, {
     onCompleted: (data) => {
       setIsSubmitting(false);
-      if (data.editDeliveryAddress.__typename === "UnexpectedError") {
+      if (data.editDeliveryAddress.__typename === 'UnexpectedError') {
         setError(data.editDeliveryAddress.message);
       } else {
-        setSuccess("Адрес успешно обновлен");
+        setSuccess('Адрес успешно обновлен');
         setTimeout(() => {
-          router.push("/profile/addresses");
+          router.push('/profile/addresses');
         }, 2000);
       }
     },
@@ -58,7 +58,7 @@ export default function EditAddressPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) {
-      setError("ID адреса не найден");
+      setError('ID адреса не найден');
       return;
     }
 
@@ -75,7 +75,7 @@ export default function EditAddressPage() {
       });
     } catch (error) {
       setIsSubmitting(false);
-      setError("Ошибка при обновлении адреса");
+      setError('Ошибка при обновлении адреса');
     }
   };
 
@@ -185,7 +185,7 @@ export default function EditAddressPage() {
                   Сохранение...
                 </span>
               ) : (
-                "Сохранить"
+                'Сохранить'
               )}
             </button>
           </div>

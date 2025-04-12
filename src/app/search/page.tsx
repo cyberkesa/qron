@@ -1,37 +1,37 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useQuery } from "@apollo/client";
-import { GET_PRODUCTS } from "@/lib/queries";
-import { ProductCard } from "@/components/product/ProductCard";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useQuery } from '@apollo/client';
+import { GET_PRODUCTS } from '@/lib/queries';
+import { ProductCard } from '@/components/product/ProductCard';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
   ProductSortOrder,
   Product,
   ProductStockAvailabilityStatus,
-} from "@/types/api";
+} from '@/types/api';
 import {
   MagnifyingGlassIcon,
   AdjustmentsHorizontalIcon,
   XMarkIcon,
   FunnelIcon,
-} from "@heroicons/react/24/outline";
-import { ProductSorter } from "@/components/product-list/ProductSorter";
-import { StockFilter } from "@/components/product-list/StockFilter";
-import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
+} from '@heroicons/react/24/outline';
+import { ProductSorter } from '@/components/product-list/ProductSorter';
+import { StockFilter } from '@/components/product-list/StockFilter';
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll';
 import {
   normalizeSearchString,
   processSearchResults,
-} from "@/components/search/SearchOptimization";
-import { Suspense } from "react";
+} from '@/components/search/SearchOptimization';
+import { Suspense } from 'react';
 
 // Create a client component that uses useSearchParams
 function SearchPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const searchQuery = searchParams?.get("q") ?? "";
+  const searchQuery = searchParams?.get('q') ?? '';
   const initialSort =
-    (searchParams?.get("sort") as ProductSortOrder) || "NEWEST_FIRST";
+    (searchParams?.get('sort') as ProductSortOrder) || 'NEWEST_FIRST';
 
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>(initialSort);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -66,7 +66,7 @@ function SearchPageContent() {
         (edge: { node: Product; cursor: string }) => ({
           ...edge.node,
           cursor: edge.cursor,
-        }),
+        })
       ) || [];
 
     // Используем нашу утилиту для обработки результатов
@@ -79,7 +79,7 @@ function SearchPageContent() {
       return products.filter(
         (product: Product) =>
           product.stockAvailabilityStatus !==
-          ProductStockAvailabilityStatus.OUT_OF_STOCK,
+          ProductStockAvailabilityStatus.OUT_OF_STOCK
       );
     }
     return products;
@@ -97,11 +97,11 @@ function SearchPageContent() {
   useEffect(() => {
     if (searchQuery) {
       const params = new URLSearchParams();
-      params.set("q", searchQuery);
-      params.set("sort", sortOrder);
+      params.set('q', searchQuery);
+      params.set('sort', sortOrder);
 
       const newUrl = `/search?${params.toString()}`;
-      window.history.replaceState({}, "", newUrl);
+      window.history.replaceState({}, '', newUrl);
     }
   }, [sortOrder, searchQuery]);
 
@@ -118,11 +118,11 @@ function SearchPageContent() {
       e.preventDefault();
       if (searchInputValue.trim()) {
         router.push(
-          `/search?q=${encodeURIComponent(searchInputValue)}&sort=${sortOrder}`,
+          `/search?q=${encodeURIComponent(searchInputValue)}&sort=${sortOrder}`
         );
       }
     },
-    [searchInputValue, sortOrder, router],
+    [searchInputValue, sortOrder, router]
   );
 
   const toggleMobileFilters = useCallback(() => {
@@ -190,7 +190,7 @@ function SearchPageContent() {
           className="flex items-center justify-center w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 font-medium transition-colors duration-200"
         >
           <FunnelIcon className="h-5 w-5 mr-2" />
-          {showMobileFilters ? "Скрыть фильтры" : "Показать фильтры"}
+          {showMobileFilters ? 'Скрыть фильтры' : 'Показать фильтры'}
         </button>
       </div>
 
@@ -198,7 +198,7 @@ function SearchPageContent() {
         {/* Боковая панель с фильтрами */}
         <div
           className={`md:col-span-1 ${
-            showMobileFilters ? "block" : "hidden md:block"
+            showMobileFilters ? 'block' : 'hidden md:block'
           }`}
         >
           <div className="sticky top-4 space-y-6">
@@ -253,7 +253,7 @@ function SearchPageContent() {
                 Попробуйте изменить поисковый запрос или параметры фильтрации
               </p>
               <button
-                onClick={() => setSearchInputValue("")}
+                onClick={() => setSearchInputValue('')}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
               >
                 Очистить поиск
@@ -267,10 +267,10 @@ function SearchPageContent() {
                   <p className="text-gray-600 mb-3 md:mb-0">
                     {searchQuery && (
                       <span className="font-medium">
-                        По запросу &quot;{searchQuery}&quot;{" "}
+                        По запросу &quot;{searchQuery}&quot;{' '}
                       </span>
                     )}
-                    найдено товаров:{" "}
+                    найдено товаров:{' '}
                     <span className="font-medium">{totalProductsCount}</span>
                   </p>
 
@@ -292,7 +292,7 @@ function SearchPageContent() {
                       key={`search-${product.id}-${index}-${Math.random().toString(36).substring(2, 9)}`}
                       product={product}
                     />
-                  ),
+                  )
                 )}
               </div>
 

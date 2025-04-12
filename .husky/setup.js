@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { execSync } from "child_process";
-import { writeFileSync } from "fs";
+import { execSync } from 'child_process';
+import { writeFileSync } from 'fs';
 
 // Создаем pre-commit хук
 const preCommitScript = `#!/bin/sh
@@ -32,9 +32,9 @@ echo "✅ All checks passed! Committing changes..."
 `;
 
 // Записываем скрипт в файл
-writeFileSync(".husky/pre-commit", preCommitScript);
+writeFileSync('.husky/pre-commit', preCommitScript);
 
 // Делаем файл исполняемым
-execSync("chmod +x .husky/pre-commit");
+execSync('chmod +x .husky/pre-commit');
 
-console.log("✅ Husky pre-commit hook has been set up successfully!");
+console.log('✅ Husky pre-commit hook has been set up successfully!');

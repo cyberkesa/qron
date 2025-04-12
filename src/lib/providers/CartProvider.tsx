@@ -1,6 +1,6 @@
-import React, { createContext, useContext } from "react";
-import { useCart, CartUnified } from "@/lib/hooks/useCart";
-import { Product } from "@/types/api";
+import React, { createContext, useContext } from 'react';
+import { useCart, CartUnified } from '@/lib/hooks/useCart';
+import { Product } from '@/types/api';
 
 // Тип контекста корзины
 interface CartContextType {
@@ -21,7 +21,7 @@ const CartContext = createContext<CartContextType | null>(null);
 export const useCartContext = () => {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error("useCartContext must be used within a CartProvider");
+    throw new Error('useCartContext must be used within a CartProvider');
   }
   return context;
 };

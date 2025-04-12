@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { ReactNode } from "react";
-import { ApolloProvider } from "@apollo/client";
-import { client } from "@/lib/apollo-client";
-import { NotificationProvider } from "@/lib/providers/NotificationProvider";
-import { CartProvider } from "@/lib/providers/CartProvider";
+import { ReactNode } from 'react';
+import { ApolloProvider } from '@apollo/client';
+import { client } from '@/lib/apollo-client';
+import { NotificationProvider } from '@/lib/providers/NotificationProvider';
+import { CartProvider } from '@/lib/providers/CartProvider';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (

@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { memo } from "react";
+import Link from 'next/link';
+import { memo } from 'react';
 import {
   PhoneIcon,
   TruckIcon,
   InformationCircleIcon,
   EnvelopeIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 import RegionSelector, {
   REGION_CONTACTS,
-} from "@/components/region/RegionSelector";
+} from '@/components/region/RegionSelector';
 
 // Мемоизированный компонент верхней панели хедера
 const TopBar = memo(
@@ -53,9 +53,9 @@ const TopBar = memo(
         </div>
       </div>
     </div>
-  ),
+  )
 );
 
-TopBar.displayName = "TopBar";
+TopBar.displayName = 'TopBar';
 
 export default TopBar;

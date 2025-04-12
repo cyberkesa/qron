@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import React, { useState, useCallback } from "react";
-import { useQuery } from "@apollo/client";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { GET_PRODUCTS, GET_CATEGORY_BY_SLUG } from "@/lib/queries";
+import React, { useState, useCallback } from 'react';
+import { useQuery } from '@apollo/client';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { GET_PRODUCTS, GET_CATEGORY_BY_SLUG } from '@/lib/queries';
 import {
   ProductSortOrder,
   Product,
   ProductStockAvailabilityStatus,
-} from "@/types/api";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { ProductCard } from "@/components/product/ProductCard";
-import { ProductSorter } from "@/components/product-list/ProductSorter";
-import { StockFilter } from "@/components/product-list/StockFilter";
-import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
+} from '@/types/api';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ProductCard } from '@/components/product/ProductCard';
+import { ProductSorter } from '@/components/product-list/ProductSorter';
+import { StockFilter } from '@/components/product-list/StockFilter';
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll';
 import {
   Breadcrumbs,
   buildCategoryBreadcrumbs,
-} from "@/components/ui/Breadcrumbs";
+} from '@/components/ui/Breadcrumbs';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -28,7 +28,7 @@ interface CategoryPageProps {
 
 export default function CategoryPage({ params }: CategoryPageProps) {
   const router = useRouter();
-  const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
+  const [sortOrder, setSortOrder] = useState<ProductSortOrder>('NEWEST_FIRST');
   const [hideOutOfStock, setHideOutOfStock] = useState(true);
 
   const { slug } = React.use(params);
@@ -60,7 +60,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const category = categoryData?.categoryBySlug || null;
   let products =
     productsData?.products?.edges?.map(
-      (edge: { node: Product; cursor: string }) => edge.node,
+      (edge: { node: Product; cursor: string }) => edge.node
     ) || [];
 
   if (hideOutOfStock) {
@@ -69,7 +69,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         product.stockAvailabilityStatus ===
           ProductStockAvailabilityStatus.IN_STOCK ||
         product.stockAvailabilityStatus ===
-          ProductStockAvailabilityStatus.IN_STOCK_SOON,
+          ProductStockAvailabilityStatus.IN_STOCK_SOON
     );
   }
 
@@ -139,7 +139,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           </h2>
           <p className="mt-2 text-red-700">{categoryError.message}</p>
           <button
-            onClick={() => router.push("/categories")}
+            onClick={() => router.push('/categories')}
             className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800"
           >
             <ArrowLeftIcon className="h-4 w-4 mr-1" />
@@ -159,7 +159,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           </h2>
           <p className="mt-2 text-red-700">{productsError.message}</p>
           <button
-            onClick={() => router.push("/categories")}
+            onClick={() => router.push('/categories')}
             className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800"
           >
             <ArrowLeftIcon className="h-4 w-4 mr-1" />
@@ -249,7 +249,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                     </h3>
                   </div>
                 </Link>
-              ),
+              )
             )}
           </div>
         </div>
@@ -266,7 +266,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" />
             <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z" />
           </svg>
-          Товаров в категории:{" "}
+          Товаров в категории:{' '}
           <span className="font-medium ml-1">{totalProductsCount}</span>
         </p>
 

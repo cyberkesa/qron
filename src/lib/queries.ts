@@ -541,26 +541,24 @@ export const LOGIN = gql`
 
 export const REGISTER = gql`
   mutation Register(
-    $name: String!, 
-    $emailAddress: String!, 
-    $password: String!, 
-    $regionId: ID!,
-    $emailAddressVerificationRequestId: EmailAddressVerificationRequestId!,
+    $name: String!
+    $emailAddress: String!
+    $password: String!
+    $regionId: ID!
+    $emailAddressVerificationRequestId: EmailAddressVerificationRequestId!
     $emailAddressVerificationCode: String!
   ) {
     register(
-      name: $name, 
-      emailAddress: $emailAddress, 
-      password: $password, 
-      regionId: $regionId,
-      emailAddressVerificationRequestId: $emailAddressVerificationRequestId,
+      name: $name
+      emailAddress: $emailAddress
+      password: $password
+      regionId: $regionId
+      emailAddressVerificationRequestId: $emailAddressVerificationRequestId
       emailAddressVerificationCode: $emailAddressVerificationCode
     ) {
+      __typename
       ... on RegisterSuccessResult {
         nothing
-      }
-      ... on UnexpectedError {
-        message
       }
       ... on RegisterErrorDueToEmailAddressAlreadyTaken {
         message
@@ -568,10 +566,13 @@ export const REGISTER = gql`
       ... on RegisterErrorDueToEmailAddressVerificationCodeExpired {
         message
       }
-      ... on RegisterErrorDueToEmailAddressVerificationCodeInvalid {
+      ... on RegisterErrorDueToWrongEmailAddressVerificationCode {
         message
       }
-      ... on RegisterErrorDueToEmailAddressVerificationRequestIdInvalid {
+      ... on RegisterErrorDueToEmailAddressVerificationCodeMaximumEnterAttemptsExceeded {
+        message
+      }
+      ... on UnexpectedError {
         message
       }
     }
@@ -833,6 +834,79 @@ export const GET_PRODUCTS_BY_CATEGORY = gql`
           }
           quantityMultiplicity
         }
+      }
+    }
+  }
+`;
+
+// Обновим мутацию для запроса верификации email
+export const REQUEST_EMAIL_ADDRESS_VERIFICATION = gql`
+  mutation RequestEmailAddressVerification($emailAddress: String!) {
+    requestEmailAddressVerification(emailAddress: $emailAddress) {
+      __typename
+      ... on RequestEmailAddressVerificationSuccessResult {
+        requestId
+      }
+      ... on RequestEmailAddressVerificationErrorDueToEmailAddressAlreadyTaken {
+        message
+      }
+      ... on UnexpectedError {
+        message
+      }
+    }
+  }
+`;
+
+// Мутация для запроса сброса пароля
+export const REQUEST_PASSWORD_RESET = gql`
+  mutation RequestPasswordReset($emailAddress: String!) {
+    requestPasswordReset(emailAddress: $emailAddress) {
+      __typename
+      ... on RequestPasswordResetSuccessResult {
+        requestId
+      }
+      ... on RequestPasswordResetErrorDueToAccountNotFound {
+        message
+      }
+      ... on UnexpectedError {
+        message
+      }
+    }
+  }
+`;
+
+// Мутация для сброса пароля
+export const RESET_PASSWORD = gql`
+  mutation ResetPassword(
+    $passwordResetRequestId: PasswordResetRequestId!
+    $passwordResetCode: String!
+    $newPassword: String!
+    $emailAddress: String!
+  ) {
+    resetPassword(
+      passwordResetRequestId: $passwordResetRequestId
+      passwordResetCode: $passwordResetCode
+      newPassword: $newPassword
+      emailAddress: $emailAddress
+    ) {
+      __typename
+      ... on ResetPasswordSuccessResult {
+        nothing
+      }
+      ... on ResetPasswordErrorDueToPasswordResetCodeAlreadyUsed {
+        message
+      }
+      ... on ResetPasswordErrorDueToPasswordResetCodeExpired {
+        message
+      }
+      ... on ResetPasswordErrorDueToPasswordResetCodeMaximumEnterAttemptsExceeded {
+        message
+      }
+      ... on ResetPasswordErrorDueToWrongPasswordResetCode {
+        message
+      }
+      ... on UnexpectedError {
+        message
       }
     }
   }

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 interface MapProps {
   coordinates: {
@@ -18,12 +18,12 @@ declare global {
 export function Map({
   coordinates,
   zoom,
-  className = "w-full h-[400px] rounded-lg overflow-hidden shadow-lg",
+  className = 'w-full h-[400px] rounded-lg overflow-hidden shadow-lg',
 }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && mapRef.current && window.ymaps) {
+    if (typeof window !== 'undefined' && mapRef.current && window.ymaps) {
       window.ymaps.ready(() => {
         const map = new window.ymaps.Map(mapRef.current, {
           center: [coordinates.lat, coordinates.lng],
@@ -33,8 +33,8 @@ export function Map({
         const placemark = new window.ymaps.Placemark(
           [coordinates.lat, coordinates.lng],
           {
-            balloonContent: "Наш офис",
-          },
+            balloonContent: 'Наш офис',
+          }
         );
 
         map.geoObjects.add(placemark);
