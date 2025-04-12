@@ -1,23 +1,23 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
 import {
   ShoppingBagIcon,
   ArrowRightIcon,
   TrashIcon,
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
-import { useState, useMemo } from "react";
-import { useQuery, useMutation } from "@apollo/client";
+} from '@heroicons/react/24/outline';
+import { useState, useMemo } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import {
   GET_CART,
   REMOVE_FROM_CART,
   UPDATE_CART_ITEM_QUANTITY,
-} from "@/lib/queries";
-import { CartItemUnified } from "@/lib/hooks/useCart";
-import { useCartContext } from "@/lib/providers/CartProvider";
-import { QuantityCounter } from "@/components/ui/QuantityCounter";
-import { ConfirmationDialog } from "@/components/ui/ConfirmationDialog";
+} from '@/lib/queries';
+import { CartItemUnified } from '@/lib/hooks/useCart';
+import { useCartContext } from '@/lib/providers/CartProvider';
+import { QuantityCounter } from '@/components/ui/QuantityCounter';
+import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog';
 
 export function Cart() {
   const { cart, isLoading, updateQuantity, removeFromCart, clearCart, error } =
@@ -26,6 +26,10 @@ export function Cart() {
   // State for confirmation dialogs
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isClearCartDialogOpen, setIsClearCartDialogOpen] = useState(false);
+  const [
+    isRemoveAllUnavailableDialogOpen,
+    setIsRemoveAllUnavailableDialogOpen,
+  ] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   // Локальное состояние для отслеживания операций
@@ -40,7 +44,7 @@ export function Cart() {
 
     cart.items.forEach((item) => {
       if (
-        item.product.stockAvailabilityStatus === "OUT_OF_STOCK" ||
+        item.product.stockAvailabilityStatus === 'OUT_OF_STOCK' ||
         item.product.price <= 0
       ) {
         problematic.push(item);
@@ -56,7 +60,7 @@ export function Cart() {
   const validItemsTotal = useMemo(() => {
     return validItems.reduce(
       (sum, item) => sum + item.product.price * item.quantity,
-      0,
+      0
     );
   }, [validItems]);
 
@@ -76,9 +80,9 @@ export function Cart() {
         await removeFromCart(itemToDelete);
         setItemToDelete(null);
       } catch (error) {
-        console.error("Error when removing item:", error);
+        console.error('Error when removing item:', error);
         setOperationError(
-          "Не удалось удалить товар. Попробуйте еще раз позже.",
+          'Не удалось удалить товар. Попробуйте еще раз позже.'
         );
       } finally {
         setIsRemoving(false);
@@ -92,12 +96,43 @@ export function Cart() {
       setIsClearing(true);
       await clearCart();
     } catch (error) {
-      console.error("Error when clearing cart:", error);
+      console.error('Error when clearing cart:', error);
       setOperationError(
-        "Не удалось очистить корзину. Попробуйте еще раз позже.",
+        'Не удалось очистить корзину. Попробуйте еще раз позже.'
       );
     } finally {
       setIsClearing(false);
+    }
+  };
+
+  // Handler for removing all problematic items
+  const handleRemoveAllProblematicItems = () => {
+    setIsRemoveAllUnavailableDialogOpen(true);
+    setOperationError(null);
+  };
+
+  // Removal of all problematic items after confirmation
+  const confirmRemoveAllProblematicItems = async () => {
+    try {
+      setIsRemoving(true);
+
+      // Последовательно удаляем все проблемные товары
+      for (const item of problematicItems) {
+        await removeFromCart(item.product.id);
+        // Небольшая задержка между удалениями
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      // Показываем уведомление об успешном удалении
+      // (уведомления об отдельных товарах будут показаны в removeFromCart)
+    } catch (error) {
+      console.error('Error removing problematic items:', error);
+      setOperationError(
+        'Не удалось удалить все недоступные товары. Попробуйте еще раз позже.'
+      );
+    } finally {
+      setIsRemoving(false);
+      setIsRemoveAllUnavailableDialogOpen(false);
     }
   };
 
@@ -147,8 +182,8 @@ export function Cart() {
       key={item.id}
       className={`grid md:grid-cols-12 gap-4 p-6 transition-all duration-300 ${
         isProblematic
-          ? "bg-red-50 border-l-4 border-red-400"
-          : "hover:bg-gray-50"
+          ? 'bg-red-50 border-l-4 border-red-400'
+          : 'hover:bg-gray-50'
       }`}
     >
       {/* Изображение и информация о товаре */}
@@ -159,7 +194,7 @@ export function Cart() {
               src={item.product.images[0].url}
               alt={item.product.name}
               fill
-              className={`object-contain rounded-md border ${isProblematic ? "border-red-200 opacity-60" : "border-gray-200"}`}
+              className={`object-contain rounded-md border ${isProblematic ? 'border-red-200 opacity-60' : 'border-gray-200'}`}
             />
           </Link>
         </div>
@@ -168,7 +203,7 @@ export function Cart() {
           <Link
             href={`/product/${item.product.slug}`}
             className={`font-medium hover:text-blue-600 transition-colors line-clamp-2 ${
-              isProblematic ? "text-red-700" : "text-gray-900"
+              isProblematic ? 'text-red-700' : 'text-gray-900'
             }`}
           >
             {item.product.name}
@@ -180,9 +215,9 @@ export function Cart() {
           {isProblematic && (
             <div className="mt-1.5 flex items-center text-sm text-red-600">
               <ExclamationTriangleIcon className="h-4 w-4 mr-1.5" />
-              {item.product.stockAvailabilityStatus === "OUT_OF_STOCK"
-                ? "Нет в наличии"
-                : "Товар недоступен для заказа"}
+              {item.product.stockAvailabilityStatus === 'OUT_OF_STOCK'
+                ? 'Нет в наличии'
+                : 'Товар недоступен для заказа'}
             </div>
           )}
 
@@ -212,9 +247,9 @@ export function Cart() {
           Цена:
         </div>
         <div
-          className={`font-medium ${item.product.price <= 0 ? "text-red-600" : ""}`}
+          className={`font-medium ${item.product.price <= 0 ? 'text-red-600' : ''}`}
         >
-          {new Intl.NumberFormat("ru-RU").format(item.product.price)} ₽
+          {new Intl.NumberFormat('ru-RU').format(item.product.price)} ₽
         </div>
       </div>
 
@@ -230,13 +265,13 @@ export function Cart() {
             onIncrement={() =>
               updateQuantity(
                 item.product.id,
-                item.quantity + (item.product.quantityMultiplicity || 1),
+                item.quantity + (item.product.quantityMultiplicity || 1)
               )
             }
             onDecrement={() =>
               updateQuantity(
                 item.product.id,
-                item.quantity - (item.product.quantityMultiplicity || 1),
+                item.quantity - (item.product.quantityMultiplicity || 1)
               )
             }
             disabled={isProblematic}
@@ -256,11 +291,11 @@ export function Cart() {
           Сумма:
         </div>
         <div
-          className={`font-bold text-lg ${isProblematic ? "text-red-600" : "text-gray-900"}`}
+          className={`font-bold text-lg ${isProblematic ? 'text-red-600' : 'text-gray-900'}`}
         >
-          {new Intl.NumberFormat("ru-RU", {
+          {new Intl.NumberFormat('ru-RU', {
             maximumFractionDigits: 0,
-          }).format(item.product.price * item.quantity)}{" "}
+          }).format(item.product.price * item.quantity)}{' '}
           ₽
         </div>
       </div>
@@ -282,7 +317,7 @@ export function Cart() {
             <div className="ml-3">
               <p className="text-sm text-red-700">
                 {operationError ||
-                  "Произошла ошибка при работе с корзиной. Попробуйте позже."}
+                  'Произошла ошибка при работе с корзиной. Попробуйте позже.'}
               </p>
             </div>
           </div>
@@ -324,11 +359,30 @@ export function Cart() {
       {problematicItems.length > 0 && (
         <div className="mb-4">
           <div className="bg-red-50 px-6 py-3 border-y border-red-200">
-            <div className="flex items-center">
-              <ExclamationCircleIcon className="h-5 w-5 text-red-600 mr-2" />
-              <h3 className="font-medium text-red-800">
-                Товары, недоступные для заказа ({problematicItems.length})
-              </h3>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center">
+                <ExclamationCircleIcon className="h-5 w-5 text-red-600 mr-2 flex-shrink-0" />
+                <h3 className="font-medium text-red-800">
+                  Товары, недоступные для заказа ({problematicItems.length})
+                </h3>
+              </div>
+
+              {/* Кнопка удаления всех недоступных товаров */}
+              <button
+                onClick={handleRemoveAllProblematicItems}
+                disabled={isRemoving}
+                className="flex items-center px-3 py-1.5 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-md hover:bg-red-50 transition-colors shadow-sm"
+              >
+                {isRemoving ? (
+                  <div className="h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                ) : (
+                  <TrashIcon className="h-4 w-4 mr-2" />
+                )}
+                <span className="hidden sm:inline">
+                  Удалить все недоступные
+                </span>
+                <span className="sm:hidden">Удалить все</span>
+              </button>
             </div>
             <p className="text-sm text-red-700 mt-1">
               Следующие товары недоступны для заказа. Рекомендуем удалить их из
@@ -354,9 +408,9 @@ export function Cart() {
         <div className="flex justify-between items-center mb-8">
           <div className="text-gray-600 text-lg">Итого к оплате:</div>
           <div className="text-2xl font-bold text-blue-600">
-            {new Intl.NumberFormat("ru-RU", {
+            {new Intl.NumberFormat('ru-RU', {
               maximumFractionDigits: 0,
-            }).format(validItemsTotal)}{" "}
+            }).format(validItemsTotal)}{' '}
             ₽
           </div>
         </div>
@@ -372,8 +426,8 @@ export function Cart() {
             href="/checkout"
             className={`flex-1 px-6 py-3 rounded-md text-center font-medium flex items-center justify-center ${
               problematicItems.length > 0
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white transition-colors'
             }`}
             onClick={(e) => problematicItems.length > 0 && e.preventDefault()}
           >
@@ -410,6 +464,18 @@ export function Cart() {
         title="Очистка корзины"
         message="Вы уверены, что хотите удалить все товары из корзины? Это действие нельзя будет отменить."
         confirmText="Очистить корзину"
+        cancelText="Отмена"
+        isDanger={true}
+      />
+
+      {/* Remove all unavailable items confirmation dialog */}
+      <ConfirmationDialog
+        isOpen={isRemoveAllUnavailableDialogOpen}
+        onClose={() => setIsRemoveAllUnavailableDialogOpen(false)}
+        onConfirm={confirmRemoveAllProblematicItems}
+        title="Удаление недоступных товаров"
+        message="Вы уверены, что хотите удалить все недоступные для заказа товары из корзины?"
+        confirmText="Удалить все недоступные"
         cancelText="Отмена"
         isDanger={true}
       />

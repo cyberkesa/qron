@@ -1,12 +1,12 @@
 #!/bin/sh
 echo "🔍 Running code checks and validations..."
 
-echo "🧹 Running Prettier on all files..."
-npx prettier --write "**/*.{js,jsx,ts,tsx,json,css,scss,md}"
+echo "🧹 Running Prettier..."
+npx prettier --write .
 
-echo "🧹 Running ESLint with auto-fix..."
+echo "🧹 Running ESLint..."
 npx next lint --fix || {
-  echo "❌ ESLint found errors that couldn't be auto-fixed. Please fix them manually and try again."
+  echo "❌ ESLint found errors. Please fix them and try again."
   exit 1
 }
 

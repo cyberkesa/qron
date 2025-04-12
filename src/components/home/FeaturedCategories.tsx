@@ -58,7 +58,6 @@ export const FeaturedCategories = () => {
   const [error, setError] = useState<string | null>(null);
   const dataFetchedRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const isMounted = useRef(true);
 
   // Get categories with enhanced caching
   const {
@@ -122,9 +121,6 @@ export const FeaturedCategories = () => {
           },
         });
 
-        // Check if component is still mounted
-        if (!isMounted.current) return [];
-
         // Extract products from result and filter duplicates
         const productEdges = getProductEdges(productsData);
         const products = productEdges
@@ -153,19 +149,17 @@ export const FeaturedCategories = () => {
 
   // Main data loading function
   const loadFeaturedCategories = useCallback(async () => {
-    // Skip if categories are still loading or not available
     if (categoriesLoading || !categoriesData?.rootCategories) return;
 
-    // Skip if we already fetched data and there are no errors
-    if (dataFetchedRef.current && !error && featuredCategories.length > 0)
-      return;
+    // Prevent duplicate loading
+    if (dataFetchedRef.current) return;
 
     // Set up a new abort controller for this operation
     abortControllerRef.current = new AbortController();
     const signal = abortControllerRef.current.signal;
 
     try {
-      // Mark that we started fetching data
+      // Indicate loading state
       dataFetchedRef.current = true;
       setIsLoading(true);
       setError(null);
@@ -204,9 +198,6 @@ export const FeaturedCategories = () => {
 
       const productsResults = await Promise.all(productPromises);
 
-      // Check if component is still mounted
-      if (!isMounted.current) return;
-
       // Combine categories with their products
       for (let i = 0; i < randomCategories.length; i++) {
         const products = productsResults[i];
@@ -234,17 +225,17 @@ export const FeaturedCategories = () => {
 
       setIsLoading(false);
     } catch (err) {
-      if (!signal.aborted && isMounted.current) {
+      if (!signal.aborted) {
         console.error("Error loading featured categories:", err);
         setError("Не удалось загрузить категории товаров");
         setIsLoading(false);
       }
+      // Reset flag to allow retry
+      dataFetchedRef.current = false;
     }
   }, [
     categoriesData,
     categoriesLoading,
-    featuredCategories.length,
-    error,
     fetchProductsForCategory,
     seededShuffle,
   ]);
@@ -254,24 +245,27 @@ export const FeaturedCategories = () => {
     if (categoriesError) {
       setError("Ошибка при загрузке категорий товаров");
       setIsLoading(false);
-      return;
+    } else {
+      loadFeaturedCategories();
     }
-
-    loadFeaturedCategories();
-  }, [categoriesError, loadFeaturedCategories]);
-
-  // Effect to track component mounting state
-  useEffect(() => {
-    isMounted.current = true;
 
     // Cleanup on unmount
     return () => {
-      isMounted.current = false;
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
+      // If component unmounts during loading, reset flag
+      if (isLoading) {
+        dataFetchedRef.current = false;
+      }
     };
-  }, []);
+  }, [
+    categoriesData,
+    categoriesLoading,
+    categoriesError,
+    loadFeaturedCategories,
+    isLoading,
+  ]);
 
   // Handle retry
   const handleRetry = () => {

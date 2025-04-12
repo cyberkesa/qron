@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import {gql} from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
   query GetProducts(
@@ -540,12 +540,38 @@ export const LOGIN = gql`
 `;
 
 export const REGISTER = gql`
-  mutation Register($input: RegisterInput!) {
-    register(input: $input) {
+  mutation Register(
+    $name: String!, 
+    $emailAddress: String!, 
+    $password: String!, 
+    $regionId: ID!,
+    $emailAddressVerificationRequestId: EmailAddressVerificationRequestId!,
+    $emailAddressVerificationCode: String!
+  ) {
+    register(
+      name: $name, 
+      emailAddress: $emailAddress, 
+      password: $password, 
+      regionId: $regionId,
+      emailAddressVerificationRequestId: $emailAddressVerificationRequestId,
+      emailAddressVerificationCode: $emailAddressVerificationCode
+    ) {
       ... on RegisterSuccessResult {
         nothing
       }
       ... on UnexpectedError {
+        message
+      }
+      ... on RegisterErrorDueToEmailAddressAlreadyTaken {
+        message
+      }
+      ... on RegisterErrorDueToEmailAddressVerificationCodeExpired {
+        message
+      }
+      ... on RegisterErrorDueToEmailAddressVerificationCodeInvalid {
+        message
+      }
+      ... on RegisterErrorDueToEmailAddressVerificationRequestIdInvalid {
         message
       }
     }
@@ -766,22 +792,11 @@ export const GET_DELIVERY_ADDRESS = gql`
 `;
 
 // Мутация для обновления профиля пользователя
-export const UPDATE_PROFILE = gql`
-  mutation UpdateProfile($name: String!, $phoneNumber: String) {
-    updateProfile(name: $name, phoneNumber: $phoneNumber) {
-      ... on UpdateProfileSuccessResult {
-        viewer {
-          ... on RegisteredViewer {
-            id
-            name
-            emailAddress
-            phoneNumber
-            region {
-              id
-              name
-            }
-          }
-        }
+export const UPDATE_NAME = gql`
+  mutation UpdateName($name: String!) {
+    updateName(name: $name) {
+      ... on UpdateNameSuccessResult {
+        nothing
       }
       ... on UnexpectedError {
         message

@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
   InformationCircleIcon,
   XMarkIcon,
-} from "@heroicons/react/24/outline";
-import { Notification, NotificationType } from "@/lib/hooks/useNotifications";
+  BellAlertIcon,
+} from '@heroicons/react/24/outline';
+import {
+  CheckCircleIcon as CheckCircleIconSolid,
+  ExclamationCircleIcon as ExclamationCircleIconSolid,
+  InformationCircleIcon as InformationCircleIconSolid,
+  BellAlertIcon as BellAlertIconSolid,
+} from '@heroicons/react/24/solid';
+import { Notification, NotificationType } from '@/lib/hooks/useNotifications';
 
 interface NotificationItemProps {
   notification: Notification;
@@ -13,45 +20,99 @@ interface NotificationItemProps {
   index: number;
 }
 
-const getIconByType = (type: NotificationType) => {
+const getIconsByType = (type: NotificationType) => {
   switch (type) {
-    case "success":
-      return <CheckCircleIcon className="h-6 w-6 text-green-500" />;
-    case "error":
-      return <ExclamationCircleIcon className="h-6 w-6 text-red-500" />;
-    case "warning":
-      return <ExclamationCircleIcon className="h-6 w-6 text-yellow-500" />;
-    case "info":
+    case 'success':
+      return {
+        outline: <CheckCircleIcon className="h-4 w-4" />,
+        solid: <CheckCircleIconSolid className="h-4 w-4" />,
+      };
+    case 'error':
+      return {
+        outline: <ExclamationCircleIcon className="h-4 w-4" />,
+        solid: <ExclamationCircleIconSolid className="h-4 w-4" />,
+      };
+    case 'warning':
+      return {
+        outline: <BellAlertIcon className="h-4 w-4" />,
+        solid: <BellAlertIconSolid className="h-4 w-4" />,
+      };
+    case 'info':
     default:
-      return <InformationCircleIcon className="h-6 w-6 text-blue-500" />;
+      return {
+        outline: <InformationCircleIcon className="h-4 w-4" />,
+        solid: <InformationCircleIconSolid className="h-4 w-4" />,
+      };
   }
 };
 
 const getBgColorByType = (type: NotificationType) => {
   switch (type) {
-    case "success":
-      return "bg-green-50 border-green-200";
-    case "error":
-      return "bg-red-50 border-red-200";
-    case "warning":
-      return "bg-yellow-50 border-yellow-200";
-    case "info":
+    case 'success':
+      return 'bg-gradient-to-r from-green-50 to-green-100';
+    case 'error':
+      return 'bg-gradient-to-r from-red-50 to-red-100';
+    case 'warning':
+      return 'bg-gradient-to-r from-amber-50 to-amber-100';
+    case 'info':
     default:
-      return "bg-blue-50 border-blue-200";
+      return 'bg-gradient-to-r from-blue-50 to-blue-100';
+  }
+};
+
+const getGlowColorByType = (type: NotificationType) => {
+  switch (type) {
+    case 'success':
+      return 'shadow-green-300/50';
+    case 'error':
+      return 'shadow-red-300/50';
+    case 'warning':
+      return 'shadow-amber-300/50';
+    case 'info':
+    default:
+      return 'shadow-blue-300/50';
+  }
+};
+
+const getBorderColorByType = (type: NotificationType) => {
+  switch (type) {
+    case 'success':
+      return 'border-green-400';
+    case 'error':
+      return 'border-red-400';
+    case 'warning':
+      return 'border-amber-400';
+    case 'info':
+    default:
+      return 'border-blue-400';
   }
 };
 
 const getTextColorByType = (type: NotificationType) => {
   switch (type) {
-    case "success":
-      return "text-green-800";
-    case "error":
-      return "text-red-800";
-    case "warning":
-      return "text-yellow-800";
-    case "info":
+    case 'success':
+      return 'text-green-700';
+    case 'error':
+      return 'text-red-700';
+    case 'warning':
+      return 'text-amber-700';
+    case 'info':
     default:
-      return "text-blue-800";
+      return 'text-blue-700';
+  }
+};
+
+const getIconColorByType = (type: NotificationType) => {
+  switch (type) {
+    case 'success':
+      return 'text-green-500';
+    case 'error':
+      return 'text-red-500';
+    case 'warning':
+      return 'text-amber-500';
+    case 'info':
+    default:
+      return 'text-blue-500';
   }
 };
 
@@ -61,56 +122,90 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   index,
 }) => {
   const [isExiting, setIsExiting] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const bgColor = getBgColorByType(notification.type);
+  const borderColor = getBorderColorByType(notification.type);
   const textColor = getTextColorByType(notification.type);
+  const iconColor = getIconColorByType(notification.type);
+  const glowColor = getGlowColorByType(notification.type);
+  const icons = getIconsByType(notification.type);
 
   // Автоматическое закрытие с анимацией
   useEffect(() => {
     if (notification.timeout) {
       const timer = setTimeout(() => {
-        setIsExiting(true);
-
-        // Задержка перед удалением для анимации
-        setTimeout(() => {
-          onDismiss(notification.id);
-        }, 300);
+        if (!isHovered) {
+          setIsExiting(true);
+          // Задержка перед удалением для анимации
+          setTimeout(() => {
+            onDismiss(notification.id);
+          }, 500);
+        }
       }, notification.timeout);
 
       return () => clearTimeout(timer);
     }
-  }, [notification, onDismiss]);
+  }, [notification, onDismiss, isHovered]);
 
   const handleDismiss = () => {
     setIsExiting(true);
     setTimeout(() => {
       onDismiss(notification.id);
-    }, 300);
+    }, 500);
   };
 
   // Вычисление анимации и стилей
   const animationClass = isExiting
-    ? "animate-fade-out opacity-0 transform translate-x-4"
-    : "animate-fade-in-right";
+    ? 'animate-slide-out-right opacity-0'
+    : 'animate-slide-in-right';
 
   const animationDelay = index * 100;
 
   return (
     <div
-      className={`${bgColor} border px-4 py-3 rounded-lg shadow-md flex items-start mb-3 ${animationClass} transition-all duration-300`}
+      className={`${bgColor} px-3 py-2 rounded-lg shadow-md ${glowColor} backdrop-blur-md ${animationClass} transition-all duration-500 w-full max-w-[280px] hover:shadow-lg border border-white/10 mb-2`}
       role="alert"
-      style={{ animationDelay: `${animationDelay}ms` }}
+      style={{
+        animationDelay: `${animationDelay}ms`,
+        backdropFilter: 'blur(12px)',
+        transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex-shrink-0 mr-3">
-        {getIconByType(notification.type)}
+      <div className="flex items-start">
+        <div
+          className={`flex-shrink-0 mr-2.5 ${iconColor} transition-transform duration-300 ${isHovered ? 'scale-110' : ''}`}
+        >
+          {isHovered ? icons.solid : icons.outline}
+        </div>
+        <div
+          className={`flex-1 ${textColor} font-medium text-xs leading-relaxed`}
+        >
+          {notification.message}
+        </div>
+        <button
+          onClick={handleDismiss}
+          className={`flex-shrink-0 ml-2 hover:bg-opacity-20 hover:bg-gray-500 rounded-full p-1 transition-all ${textColor} transform hover:scale-110 hover:rotate-90 active:scale-90`}
+          aria-label="Закрыть уведомление"
+        >
+          <XMarkIcon className="h-4 w-4" />
+        </button>
       </div>
-      <div className={`flex-1 ${textColor}`}>{notification.message}</div>
-      <button
-        onClick={handleDismiss}
-        className={`flex-shrink-0 ml-2 hover:bg-opacity-20 hover:bg-gray-500 rounded-full p-1 transition-colors ${textColor} hover-scale`}
-        aria-label="Закрыть уведомление"
-      >
-        <XMarkIcon className="h-5 w-5" />
-      </button>
+      <div className="h-1 w-full bg-gray-100/50 rounded-full mt-2 overflow-hidden">
+        <div
+          className={`h-full ${borderColor.replace('border', 'bg')} rounded-full`}
+          style={{
+            width: isHovered ? '100%' : '0%',
+            transition: isHovered
+              ? 'none'
+              : `width ${notification.timeout || 3000}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+            boxShadow: `0 0 5px ${borderColor
+              .replace('border', 'rgb')
+              .replace('-400', '')}`,
+          }}
+        />
+      </div>
     </div>
   );
 };
@@ -127,7 +222,7 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = ({
   if (notifications.length === 0) return null;
 
   return (
-    <div className="fixed top-5 right-5 z-50 max-w-sm space-y-2 w-full">
+    <div className="fixed top-24 right-5 z-[9999] w-auto flex flex-col items-end gap-3 px-4">
       {notifications.map((notification, index) => (
         <NotificationItem
           key={notification.id}

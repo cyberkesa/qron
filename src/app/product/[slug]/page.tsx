@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useQuery, useMutation, useApolloClient } from "@apollo/client";
-import { useRouter } from "next/navigation";
-import React from "react";
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
+import { useRouter } from 'next/navigation';
+import React from 'react';
 import {
   GET_PRODUCT,
   ADD_TO_CART,
@@ -11,29 +11,29 @@ import {
   GET_REGIONS,
   GET_VIEWER,
   GET_CART,
-} from "@/lib/queries";
-import { ProductStockAvailabilityStatus, Region } from "@/types/api";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
-import Link from "next/link";
-import { useViewHistory } from "@/lib/hooks/useViewHistory";
-import { SimilarProducts } from "@/components/product-list/SimilarProducts";
-import { useCartContext } from "@/lib/providers/CartProvider";
-import { Notification } from "@/components/ui/Notification";
-import { RecentlyViewed } from "@/components/product-list/RecentlyViewed";
+} from '@/lib/queries';
+import { ProductStockAvailabilityStatus, Region } from '@/types/api';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import Link from 'next/link';
+import { useViewHistory } from '@/lib/hooks/useViewHistory';
+import { SimilarProducts } from '@/components/product-list/SimilarProducts';
+import { useCartContext } from '@/lib/providers/CartProvider';
+import { useNotificationContext } from '@/lib/providers/NotificationProvider';
+import { RecentlyViewed } from '@/components/product-list/RecentlyViewed';
 import {
   Breadcrumbs,
   buildProductBreadcrumbs,
-} from "@/components/ui/Breadcrumbs";
-import { trackEvent } from "@/lib/analytics";
+} from '@/components/ui/Breadcrumbs';
+import { trackEvent } from '@/lib/analytics';
 
 // Импортируем созданные компоненты
 import ProductImageGallery, {
   ProductImage,
-} from "@/components/product/ProductImageGallery";
-import ProductInfo from "@/components/product/ProductInfo";
-import ProductTabs from "@/components/product/ProductTabs";
-import MobileAddToCart from "@/components/product/MobileAddToCart";
-import RegionSelector from "@/components/product/RegionSelector";
+} from '@/components/product/ProductImageGallery';
+import ProductInfo from '@/components/product/ProductInfo';
+import ProductTabs from '@/components/product/ProductTabs';
+import MobileAddToCart from '@/components/product/MobileAddToCart';
+import RegionSelector from '@/components/product/RegionSelector';
 
 // Типы для компонента страницы продукта
 interface ProductPageProps {
@@ -43,7 +43,7 @@ interface ProductPageProps {
 }
 
 // Тип для табов
-type TabType = "description" | "specs" | "delivery";
+type TabType = 'description' | 'specs' | 'delivery';
 
 interface ProductAttribute {
   name: string;
@@ -63,20 +63,17 @@ export default function ProductPage({ params }: ProductPageProps) {
   // Состояния компонента
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<TabType>("description");
-  const [showAddedNotification, setShowAddedNotification] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('description');
   const [currentRegion, setCurrentRegion] = useState<Region | null>(() => {
-    if (typeof window === "undefined") return null;
-    const savedRegion = localStorage.getItem("selectedRegion");
+    if (typeof window === 'undefined') return null;
+    const savedRegion = localStorage.getItem('selectedRegion');
     return savedRegion ? JSON.parse(savedRegion) : null;
   });
   const [notAvailableInRegion, setNotAvailableInRegion] = useState(false);
   const [showRegionModal, setShowRegionModal] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState("");
-  const [notificationType, setNotificationType] = useState<
-    "success" | "error" | "info"
-  >("success");
+
+  // Получаем сервис уведомлений
+  const { showSuccess, showError } = useNotificationContext();
 
   // Получаем текущий регион при загрузке страницы
   const { data: regionData } = useQuery(GET_CURRENT_REGION);
@@ -84,14 +81,14 @@ export default function ProductPage({ params }: ProductPageProps) {
   // Получаем данные о продукте, передавая slug из URL
   const { data, loading, error } = useQuery(GET_PRODUCT, {
     variables: { slug: decodeURIComponent(slug) },
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
   });
 
   const { data: regionsData } = useQuery(GET_REGIONS);
 
   const [addToCart] = useMutation(ADD_TO_CART, {
     onError: (error) => {
-      console.error("Error adding to cart:", error);
+      console.error('Error adding to cart:', error);
       setIsAddingToCart(false);
     },
   });
@@ -137,11 +134,11 @@ export default function ProductPage({ params }: ProductPageProps) {
       addToHistory(data.productBySlug);
 
       // Отслеживаем просмотр товара в Яндекс.Метрике
-      trackEvent("product_view", {
+      trackEvent('product_view', {
         product_id: data.productBySlug.id,
         product_name: data.productBySlug.name,
         product_price: data.productBySlug.price,
-        product_category: data.productBySlug.category?.title || "Без категории",
+        product_category: data.productBySlug.category?.title || 'Без категории',
       });
     }
   }, [data?.productBySlug, addToHistory]);
@@ -154,13 +151,13 @@ export default function ProductPage({ params }: ProductPageProps) {
       // Для авторизованных пользователей получаем из кэша Apollo
       const cartData = client.readQuery({ query: GET_CART });
       const cartItem = cartData?.cart?.items?.edges?.find(
-        (edge: any) => edge?.node?.product?.id === data.productBySlug.id,
+        (edge: any) => edge?.node?.product?.id === data.productBySlug.id
       );
       return cartItem?.node?.quantity || 0;
     } else {
       // Для гостей получаем из унифицированной корзины
       const cartItem = unifiedCart.items.find(
-        (item) => item.product.id === data.productBySlug.id,
+        (item) => item.product.id === data.productBySlug.id
       );
       return cartItem?.quantity || 0;
     }
@@ -168,23 +165,14 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   const currentCartQuantity = useMemo(
     () => getCurrentCartQuantity(),
-    [getCurrentCartQuantity],
-  );
-
-  const showNotificationWithMessage = useCallback(
-    (message: string, type: "success" | "error" | "info" = "success") => {
-      setNotificationMessage(message);
-      setNotificationType(type);
-      setShowNotification(true);
-    },
-    [],
+    [getCurrentCartQuantity]
   );
 
   // Функция для форматирования цены
   const formatPrice = useCallback((price: number) => {
-    return new Intl.NumberFormat("ru-RU", {
-      style: "currency",
-      currency: "RUB",
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
       maximumFractionDigits: 0,
     }).format(price);
   }, []);
@@ -196,7 +184,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         setQuantity(newQuantity);
       }
     },
-    [data?.productBySlug],
+    [data?.productBySlug]
   );
 
   // Добавление товара в корзину
@@ -222,20 +210,18 @@ export default function ProductPage({ params }: ProductPageProps) {
         }
 
         await client.refetchQueries({
-          include: ["GetCart"],
+          include: ['GetCart'],
         });
       } else {
         await unifiedAddToCart(data.productBySlug, quantity);
       }
 
-      showNotificationWithMessage("Товар добавлен в корзину");
-      trackEvent("product_added_to_cart", { productId: data.productBySlug.id });
+      // Показываем уведомление через контекст
+      showSuccess(`${data.productBySlug.name} добавлен в корзину`);
+      trackEvent('product_added_to_cart', { productId: data.productBySlug.id });
     } catch (error) {
-      console.error("Error adding to cart:", error);
-      showNotificationWithMessage(
-        "Не удалось добавить товар в корзину",
-        "error",
-      );
+      console.error('Error adding to cart:', error);
+      showError('Не удалось добавить товар в корзину');
     } finally {
       setIsAddingToCart(false);
     }
@@ -247,7 +233,8 @@ export default function ProductPage({ params }: ProductPageProps) {
     addToCart,
     client,
     unifiedAddToCart,
-    showNotificationWithMessage,
+    showSuccess,
+    showError,
   ]);
 
   const handleUpdateQuantity = useCallback(
@@ -272,13 +259,13 @@ export default function ProductPage({ params }: ProductPageProps) {
           });
 
           await client.refetchQueries({
-            include: ["GetCart"],
+            include: ['GetCart'],
           });
         } else {
           await unifiedAddToCart(data.productBySlug, newQuantity);
         }
       } catch (error) {
-        console.error("Error updating cart:", error);
+        console.error('Error updating cart:', error);
       } finally {
         setIsAddingToCart(false);
       }
@@ -291,11 +278,11 @@ export default function ProductPage({ params }: ProductPageProps) {
       addToCart,
       client,
       unifiedAddToCart,
-    ],
+    ]
   );
 
   const handleRegionSelect = useCallback((region: Region) => {
-    localStorage.setItem("selectedRegion", JSON.stringify(region));
+    localStorage.setItem('selectedRegion', JSON.stringify(region));
     setCurrentRegion(region);
     setShowRegionModal(false);
     window.location.reload(); // Перезагрузка для применения нового региона
@@ -417,17 +404,9 @@ export default function ProductPage({ params }: ProductPageProps) {
         onUpdateQuantity={handleUpdateQuantity}
       />
 
-      {/* Всплывающее уведомление о добавлении в корзину */}
-      <Notification
-        message={notificationMessage}
-        type={notificationType}
-        isVisible={showNotification}
-        onClose={() => setShowNotification(false)}
-      />
-
       {/* Блоки рекомендаций */}
       <div className="pb-24 md:pb-8">
-        {" "}
+        {' '}
         {/* Extra padding at bottom for mobile for sticky cart button */}
         {/* Блок с похожими товарами */}
         {data?.productBySlug && (

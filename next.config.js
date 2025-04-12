@@ -1,65 +1,68 @@
-import crypto from "crypto";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
-
-// Получаем __dirname аналог для ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Import bundle analyzer
-import withBundleAnalyzer from "@next/bundle-analyzer";
-
-// Асинхронная функция для загрузки конфигурации
-async function loadConfig() {
-  // Conditionally import Sentry
-  let withSentryConfig;
-  try {
-    ({ withSentryConfig } = await import("@sentry/nextjs"));
-  } catch (e) {
-    withSentryConfig = (config) => config;
-    console.warn("@sentry/nextjs not found, error reporting disabled");
-  }
-
-  /** @type {import('next').NextConfig} */
-  const nextConfig = {
-    reactStrictMode: true,
-    images: {
-      domains: [
-        "backend.qron.ru",
-        "api.qron.ru",
-        "images.qron.ru",
-        "files.tovari-kron.ru",
-      ],
-      remotePatterns: [
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  /* config options here */
+  images: {
+    domains: [
+      'files.tovari-kron.ru',
+      'backend.qron.ru',
+      'api.qron.ru',
+      'images.qron.ru',
+    ],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 3600, // 1 hour cache
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+  // Улучшение производительности и совместимости с Vercel
+  experimental: {
+    serverMinification: true,
+    optimizeCss: true,
+    optimizePackageImports: ['@heroicons/react', 'lodash'],
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  poweredByHeader: false,
+  compress: true, // Enable gzip compression
+  // Cache immutable assets for longer time
+  headers: async () => [
+    {
+      source: '/_next/static/(.*)',
+      headers: [
         {
-          protocol: "https",
-          hostname: "**",
-          port: "",
-          pathname: "/**",
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
         },
       ],
     },
-    poweredByHeader: false,
-    compress: true,
-  };
+    {
+      source: '/images/(.*)',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=86400, stale-while-revalidate=604800',
+        },
+      ],
+    },
+  ],
+  webpack: (config, { dev, isServer }) => {
+    // Remove the problematic optimization setting
+    // config.optimization.usedExports = true;
 
-  // Sentry configuration
-  const sentryWebpackPluginOptions = {
-    silent: true,
-  };
+    // Add bundle analyzer in production build when ANALYZE=true
+    if (process.env.ANALYZE === 'true') {
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+      config.plugins.push(
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'server',
+          analyzerPort: isServer ? 8888 : 8889,
+          openAnalyzer: true,
+        })
+      );
+    }
 
-  // Apply all wrappers
-  const configWithBundleAnalyzer = withBundleAnalyzer({
-    enabled: process.env.ANALYZE === "true",
-    openAnalyzer: true,
-  })(nextConfig);
+    return config;
+  },
+};
 
-  return process.env.NODE_ENV === "production" &&
-    typeof withSentryConfig === "function"
-    ? withSentryConfig(configWithBundleAnalyzer, sentryWebpackPluginOptions)
-    : configWithBundleAnalyzer;
-}
-
-// Загружаем и экспортируем конфиг
-export default await loadConfig();
+export default nextConfig;

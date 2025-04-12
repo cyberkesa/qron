@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation, useQuery } from "@apollo/client";
-import { REGISTER, GET_REGIONS } from "@/lib/queries";
-import Link from "next/link";
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useMutation, useQuery } from '@apollo/client';
+import { REGISTER, GET_REGIONS } from '@/lib/queries';
+import Link from 'next/link';
 import {
   MapPinIcon,
   UserIcon,
   EnvelopeIcon,
   LockClosedIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
 interface Region {
   id: string;
@@ -20,25 +20,31 @@ interface Region {
 export default function RegisterClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams?.get("redirect") || "/";
+  const redirectTo = searchParams?.get('redirect') || '/';
+
+  // State for email verification
+  const [verificationState, setVerificationState] = useState({
+    emailAddressVerificationRequestId: searchParams?.get('requestId') || '',
+    emailAddressVerificationCode: '',
+  });
 
   const [formData, setFormData] = useState({
-    name: "",
-    emailAddress: "",
-    password: "",
-    confirmPassword: "",
+    name: '',
+    emailAddress: '',
+    password: '',
+    confirmPassword: '',
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
   const [regionsOpen, setRegionsOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [register, { loading }] = useMutation(REGISTER);
   const { data: regionsData, loading: regionsLoading } = useQuery(GET_REGIONS);
 
   useEffect(() => {
     // Загружаем выбранный регион из localStorage
-    const savedRegion = localStorage.getItem("selectedRegion");
+    const savedRegion = localStorage.getItem('selectedRegion');
     if (savedRegion) {
       setSelectedRegion(JSON.parse(savedRegion));
     } else if (regionsData?.regions && regionsData.regions.length > 0) {
@@ -49,10 +55,19 @@ export default function RegisterClient() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+
+    // Handle verification code input separately
+    if (name === 'verificationCode') {
+      setVerificationState({
+        ...verificationState,
+        emailAddressVerificationCode: value,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleRegionSelect = (region: Region) => {
@@ -65,29 +80,39 @@ export default function RegisterClient() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!formData.name.trim()) {
-      errors.name = "Имя обязательно для заполнения";
+      errors.name = 'Имя обязательно для заполнения';
     }
 
     if (!formData.emailAddress.trim()) {
-      errors.emailAddress = "Email обязателен для заполнения";
+      errors.emailAddress = 'Email обязателен для заполнения';
     } else if (!emailRegex.test(formData.emailAddress)) {
-      errors.emailAddress = "Введите корректный email";
+      errors.emailAddress = 'Введите корректный email';
     }
 
     if (!formData.password) {
-      errors.password = "Пароль обязателен для заполнения";
+      errors.password = 'Пароль обязателен для заполнения';
     } else if (formData.password.length < 6) {
-      errors.password = "Пароль должен содержать минимум 6 символов";
+      errors.password = 'Пароль должен содержать минимум 6 символов';
     }
 
     if (!formData.confirmPassword) {
-      errors.confirmPassword = "Подтверждение пароля обязательно";
+      errors.confirmPassword = 'Подтверждение пароля обязательно';
     } else if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = "Пароли не совпадают";
+      errors.confirmPassword = 'Пароли не совпадают';
     }
 
     if (!selectedRegion) {
-      errors.region = "Выберите регион";
+      errors.region = 'Выберите регион';
+    }
+
+    // Validate verification code
+    if (!verificationState.emailAddressVerificationCode) {
+      errors.verificationCode = 'Введите код подтверждения';
+    }
+
+    if (!verificationState.emailAddressVerificationRequestId) {
+      errors.verificationRequestId =
+        'Идентификатор запроса отсутствует. Проверьте ссылку из письма';
     }
 
     setFormErrors(errors);
@@ -96,7 +121,7 @@ export default function RegisterClient() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
+    setErrorMessage('');
     setFormErrors({});
 
     if (!validateForm()) {
@@ -106,18 +131,42 @@ export default function RegisterClient() {
     try {
       const result = await register({
         variables: {
-          input: {
-            name: formData.name,
-            emailAddress: formData.emailAddress,
-            password: formData.password,
-            regionId: selectedRegion?.id,
-          },
+          name: formData.name,
+          emailAddress: formData.emailAddress,
+          password: formData.password,
+          regionId: selectedRegion?.id,
+          // Include verification fields from state
+          emailAddressVerificationRequestId:
+            verificationState.emailAddressVerificationRequestId,
+          emailAddressVerificationCode:
+            verificationState.emailAddressVerificationCode,
         },
       });
 
-      if (result.data?.register?.__typename === "RegisterSuccessResult") {
-        // Показываем успешное сообщение и перенаправляем на страницу входа
+      if (result.data?.register?.__typename === 'RegisterSuccessResult') {
+        // Redirect to login page after successful registration
         router.push(`/login?registered=true&redirect=${redirectTo}`);
+      } else if (
+        result.data?.register?.__typename ===
+        'RegisterErrorDueToEmailAddressVerificationCodeExpired'
+      ) {
+        setErrorMessage(
+          'Код подтверждения истек. Пожалуйста, запросите новый код.'
+        );
+      } else if (
+        result.data?.register?.__typename ===
+        'RegisterErrorDueToEmailAddressVerificationCodeInvalid'
+      ) {
+        setErrorMessage(
+          'Неверный код подтверждения. Пожалуйста, проверьте код и попробуйте снова.'
+        );
+      } else if (
+        result.data?.register?.__typename ===
+        'RegisterErrorDueToEmailAddressVerificationRequestIdInvalid'
+      ) {
+        setErrorMessage(
+          'Неверный идентификатор запроса. Пожалуйста, проверьте ссылку из письма.'
+        );
       } else if (result.data?.register?.message) {
         setErrorMessage(result.data.register.message);
       }
@@ -125,8 +174,9 @@ export default function RegisterClient() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Произошла ошибка при регистрации";
+          : 'Произошла ошибка при регистрации';
       setErrorMessage(errorMessage);
+      console.error('Registration error:', error);
     }
   };
 
@@ -181,7 +231,7 @@ export default function RegisterClient() {
                   value={formData.name}
                   onChange={handleChange}
                   className={`w-full pl-10 px-4 py-2 border ${
-                    formErrors.name ? "border-red-300" : "border-gray-300"
+                    formErrors.name ? 'border-red-300' : 'border-gray-300'
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                 />
@@ -210,8 +260,8 @@ export default function RegisterClient() {
                   onChange={handleChange}
                   className={`w-full pl-10 px-4 py-2 border ${
                     formErrors.emailAddress
-                      ? "border-red-300"
-                      : "border-gray-300"
+                      ? 'border-red-300'
+                      : 'border-gray-300'
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                 />
@@ -241,7 +291,7 @@ export default function RegisterClient() {
                   value={formData.password}
                   onChange={handleChange}
                   className={`w-full pl-10 px-4 py-2 border ${
-                    formErrors.password ? "border-red-300" : "border-gray-300"
+                    formErrors.password ? 'border-red-300' : 'border-gray-300'
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                   minLength={6}
@@ -275,8 +325,8 @@ export default function RegisterClient() {
                   onChange={handleChange}
                   className={`w-full pl-10 px-4 py-2 border ${
                     formErrors.confirmPassword
-                      ? "border-red-300"
-                      : "border-gray-300"
+                      ? 'border-red-300'
+                      : 'border-gray-300'
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                 />
@@ -286,6 +336,47 @@ export default function RegisterClient() {
                   {formErrors.confirmPassword}
                 </p>
               )}
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="verificationCode"
+                className="block text-gray-700 font-medium mb-2"
+              >
+                Код подтверждения *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  id="verificationCode"
+                  name="verificationCode"
+                  value={verificationState.emailAddressVerificationCode}
+                  onChange={handleChange}
+                  className={`w-full pl-10 px-4 py-2 border ${
+                    formErrors.verificationCode
+                      ? 'border-red-300'
+                      : 'border-gray-300'
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  placeholder="Введите код из письма"
+                  required
+                />
+              </div>
+              {formErrors.verificationCode && (
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.verificationCode}
+                </p>
+              )}
+              {formErrors.verificationRequestId && (
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.verificationRequestId}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-gray-500">
+                Код подтверждения был отправлен на ваш email
+              </p>
             </div>
 
             <div className="mb-6">
@@ -302,11 +393,11 @@ export default function RegisterClient() {
                 <button
                   type="button"
                   className={`w-full text-left pl-10 px-4 py-2 border ${
-                    formErrors.region ? "border-red-300" : "border-gray-300"
+                    formErrors.region ? 'border-red-300' : 'border-gray-300'
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white`}
                   onClick={() => setRegionsOpen(!regionsOpen)}
                 >
-                  {selectedRegion ? selectedRegion.name : "Выберите регион"}
+                  {selectedRegion ? selectedRegion.name : 'Выберите регион'}
                 </button>
                 {regionsOpen && (
                   <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg">
@@ -344,13 +435,13 @@ export default function RegisterClient() {
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
-              {loading ? "Регистрация..." : "Зарегистрироваться"}
+              {loading ? 'Регистрация...' : 'Зарегистрироваться'}
             </button>
 
             <div className="mt-6 text-center text-sm text-gray-600">
-              Уже есть аккаунт?{" "}
+              Уже есть аккаунт?{' '}
               <Link
-                href={`/login${redirectTo !== "/" ? `?redirect=${redirectTo}` : ""}`}
+                href={`/login${redirectTo !== '/' ? `?redirect=${redirectTo}` : ''}`}
                 className="text-blue-600 hover:underline"
               >
                 Войти
