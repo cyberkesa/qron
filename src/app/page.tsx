@@ -473,7 +473,9 @@ export default function Home() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Link
-                    href="#"
+                    href="https://apps.apple.com/ru/app/крон-интернет-магазин/id1611541742"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="bg-black text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-900 transition-colors"
                   >
                     <svg
@@ -487,7 +489,9 @@ export default function Home() {
                     App Store
                   </Link>
                   <Link
-                    href="#"
+                    href="https://play.google.com/store/apps/details?id=com.foresko.kron"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="bg-black text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-900 transition-colors"
                   >
                     <svg
@@ -502,6 +506,17 @@ export default function Home() {
                     </svg>
                     Google Play
                   </Link>
+                </div>
+                <div className="mt-6">
+                  <div className="bg-white p-3 inline-block rounded-lg">
+                    <Image
+                      src="/images/qr-code.svg"
+                      alt="QR код для скачивания приложения"
+                      width={120}
+                      height={120}
+                      className="w-auto h-auto"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="hidden md:flex justify-center p-8">
@@ -518,7 +533,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="mt-10 text-center text-white">
-                      <div className="text-lg font-bold mb-1">КРОНСТРОЙ</div>
+                      <div className="text-lg font-bold mb-1">КРОН</div>
                       <div className="text-xs mb-8">Мобильное приложение</div>
                       <div className="flex justify-center">
                         <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-purple-600">
