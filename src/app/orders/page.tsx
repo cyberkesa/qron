@@ -69,7 +69,9 @@ export default function OrdersPage() {
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
         <OrdersList
-          orders={data?.orders?.edges || []}
+          orders={(data?.orders?.edges || []).map(
+            (edge: { node: any }) => edge.node
+          )}
           loading={loading}
           error={error}
           onLoadMore={handleLoadMore}

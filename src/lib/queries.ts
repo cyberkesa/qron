@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import {gql} from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
   query GetProducts(
@@ -343,7 +343,7 @@ export const UPDATE_CART_ITEM_QUANTITY = gql`
 
 // Запросы для получения истории заказов
 export const GET_ORDERS = gql`
-  query GetOrders($first: Int, $after: String) {
+  query GetOrders($first: Int!, $after: String) {
     orders(first: $first, after: $after) {
       edges {
         cursor
@@ -351,7 +351,7 @@ export const GET_ORDERS = gql`
           id
           status
           creationDatetime
-          items {
+          items(first: 100) {
             edges {
               node {
                 id
@@ -394,7 +394,7 @@ export const GET_ORDER = gql`
       id
       status
       creationDatetime
-      items {
+      items(first: 100) {
         edges {
           node {
             id
@@ -439,20 +439,18 @@ export const GET_DELIVERY_ADDRESSES = gql`
 export const CHECK_OUT = gql`
   mutation CheckOut(
     $deliveryAddressId: ID!
-    $paymentMethod: PaymentMethod!
-    $deliveryMethod: DeliveryMethod!
+    $phoneNumber: String!
   ) {
     checkOut(
       deliveryAddressId: $deliveryAddressId
-      paymentMethod: $paymentMethod
-      deliveryMethod: $deliveryMethod
+      phoneNumber: $phoneNumber
     ) {
       ... on CheckOutSuccessResult {
         order {
           id
           status
           creationDatetime
-          items {
+          items(first: 100) {
             edges {
               node {
                 id

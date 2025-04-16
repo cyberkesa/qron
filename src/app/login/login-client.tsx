@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useMutation } from '@apollo/client';
-import { LOGIN } from '@/lib/queries';
+import { useMutation, useApolloClient } from '@apollo/client';
+import { LOGIN, GET_CART } from '@/lib/queries';
 import Link from 'next/link';
 import {
   EyeIcon,
@@ -17,6 +17,7 @@ export default function LoginClient() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams?.get('redirect') || '/';
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const apolloClient = useApolloClient();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -76,8 +77,6 @@ export default function LoginClient() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
-    setSuccessMessage('');
-    setFormErrors({});
 
     if (!validateForm()) {
       return;
@@ -92,18 +91,22 @@ export default function LoginClient() {
       });
 
       if (result.data?.logIn?.accessToken) {
-        // Получаем текущий выбранный регион
-        const selectedRegion = localStorage.getItem('selectedRegion');
-        const regionObj = selectedRegion ? JSON.parse(selectedRegion) : null;
-
         // Сохраняем токены в localStorage
         localStorage.setItem('accessToken', result.data.logIn.accessToken);
         localStorage.setItem('refreshToken', result.data.logIn.refreshToken);
 
-        // Помечаем текущий регион как регион токена
-        if (regionObj && regionObj.id) {
-          console.log('Вход выполнен, сохраняем регион токена:', regionObj.id);
-          localStorage.setItem('tokenRegionId', regionObj.id);
+        // Важно: не выполняем проверку региона при входе
+        // Удаляем гостевой токен, чтобы избежать конфликтов
+        localStorage.removeItem('guestToken');
+
+        // Регион пользователя будет загружен автоматически после входа,
+        // нам не нужно обновлять регион вручную
+
+        // Принудительно обновляем данные перед редиректом
+        try {
+          await apolloClient.resetStore();
+        } catch (refreshError) {
+          console.error('Ошибка при обновлении данных:', refreshError);
         }
 
         // Перенаправляем на запрошенную страницу или домашнюю страницу

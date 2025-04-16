@@ -1,13 +1,6 @@
-import {
-  ApolloClient,
-  ApolloLink,
-  FetchResult,
-  HttpLink,
-  InMemoryCache,
-  Observable,
-} from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
-import { onError } from '@apollo/client/link/error';
+import {ApolloClient, ApolloLink, FetchResult, HttpLink, InMemoryCache, Observable,} from '@apollo/client';
+import {setContext} from '@apollo/client/link/context';
+import {onError} from '@apollo/client/link/error';
 
 // Replace console.log with a logger function that only logs in development
 const logger = {
@@ -32,7 +25,7 @@ interface ApiRegion {
 // Получение токенов на клиенте
 const getTokens = () => {
   if (!isBrowser)
-    return { accessToken: null, guestToken: null, refreshToken: null };
+    return {accessToken: null, guestToken: null, refreshToken: null};
 
   return {
     accessToken: localStorage.getItem('accessToken'),
@@ -42,7 +35,7 @@ const getTokens = () => {
 };
 
 // Получение текущего региона
-const getCurrentRegion = (): ApiRegion | null => {
+const getCurrentRegion = (): ApiRegion|null => {
   if (!isBrowser) return null;
 
   const savedRegion = localStorage.getItem('selectedRegion');
@@ -63,15 +56,14 @@ const getGuestToken = async () => {
       logger.log('Регион не найден, запрашиваем список регионов...');
 
       // Сначала получаем список регионов
-      const regionsResponse = await fetch(
-        'https://api.tovari-kron.ru/v1/graphql',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            query: `
+      const regionsResponse =
+          await fetch('https://api.tovari-kron.ru/v1/graphql', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              query: `
             query GetRegions {
               regions {
                 id
@@ -79,9 +71,8 @@ const getGuestToken = async () => {
               }
             }
           `,
-          }),
-        }
-      );
+            }),
+          });
 
       const regionsData = await regionsResponse.json();
       const regions = regionsData.data?.regions || [];
@@ -100,15 +91,14 @@ const getGuestToken = async () => {
     // Выполняем вход как гость
     logger.log('Выполняем вход как гость с регионом ID:', regionId);
 
-    const guestLoginResponse = await fetch(
-      'https://api.tovari-kron.ru/v1/graphql',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: `
+    const guestLoginResponse =
+        await fetch('https://api.tovari-kron.ru/v1/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: `
           mutation LoginAsGuest($regionId: ID!) {
             logInAsGuest(regionId: $regionId) {
               ... on LogInAsGuestSuccessResult {
@@ -121,17 +111,14 @@ const getGuestToken = async () => {
             }
           }
         `,
-          variables: { regionId },
-        }),
-      }
-    );
+            variables: {regionId},
+          }),
+        });
 
     const guestData = await guestLoginResponse.json();
 
     logger.log(
-      'Ответ на запрос гостевого входа:',
-      JSON.stringify(guestData, null, 2)
-    );
+        'Ответ на запрос гостевого входа:', JSON.stringify(guestData, null, 2));
 
     const accessToken = guestData.data?.logInAsGuest?.accessToken;
     const refreshToken = guestData.data?.logInAsGuest?.refreshToken;
@@ -170,22 +157,37 @@ const checkAndUpdateRegion = async () => {
   const currentRegion = getCurrentRegion();
   const tokenRegionId = localStorage.getItem('tokenRegionId');
 
-  // Если регион изменился, нужно перелогиниться
+  // Проверяем, авторизован ли пользователь (не гость)
+  const accessToken = localStorage.getItem('accessToken');
+  const refreshToken = localStorage.getItem('refreshToken');
+  const guestToken = localStorage.getItem('guestToken');
+  const isAuthenticated = !!accessToken && !!refreshToken &&
+      (!guestToken || accessToken !== guestToken);
+
+  // Если регион изменился, но пользователь авторизован,
+  // просто обновляем tokenRegionId без сброса авторизации
   if (currentRegion && currentRegion.id !== tokenRegionId) {
     logger.log(
-      'Регион изменился. Старый:',
-      tokenRegionId,
-      'Новый:',
-      currentRegion.id
-    );
-    // Очищаем токены
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('guestToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('tokenRegionId');
+        'Регион изменился. Старый:', tokenRegionId, 'Новый:', currentRegion.id);
 
-    // Перелогиниваемся с новым регионом
-    return await getGuestToken();
+    if (isAuthenticated) {
+      // Для авторизованных пользователей просто обновляем ID региона
+      // без сброса авторизации
+      logger.log(
+          'Пользователь авторизован, обновляем ID региона без сброса токенов');
+      localStorage.setItem('tokenRegionId', currentRegion.id);
+      return null;
+    } else {
+      // Для гостей очищаем токены и перелогиниваемся с новым регионом
+      logger.log('Гостевой пользователь, сбрасываем токены');
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('guestToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('tokenRegionId');
+
+      // Перелогиниваемся с новым регионом
+      return await getGuestToken();
+    }
   }
 
   return null;
@@ -195,7 +197,7 @@ const checkAndUpdateRegion = async () => {
 const refreshAccessToken = async () => {
   try {
     logger.log('Обновляем access token...');
-    const { refreshToken } = getTokens();
+    const {refreshToken} = getTokens();
 
     if (!refreshToken) {
       logger.error('No refresh token available');
@@ -203,9 +205,8 @@ const refreshAccessToken = async () => {
     }
 
     logger.log(
-      'Отправляем запрос на обновление токена с refreshToken:',
-      refreshToken.substring(0, 10) + '...'
-    );
+        'Отправляем запрос на обновление токена с refreshToken:',
+        refreshToken.substring(0, 10) + '...');
 
     const response = await fetch('https://api.tovari-kron.ru/v1/graphql', {
       method: 'POST',
@@ -229,24 +230,20 @@ const refreshAccessToken = async () => {
             }
           }
         `,
-        variables: { refreshToken },
+        variables: {refreshToken},
       }),
     });
 
     if (!response.ok) {
       logger.error(
-        'Ошибка HTTP при обновлении токена:',
-        response.status,
-        response.statusText
-      );
+          'Ошибка HTTP при обновлении токена:', response.status,
+          response.statusText);
       return null;
     }
 
     const data = await response.json();
     logger.log(
-      'Ответ на запрос обновления токена:',
-      JSON.stringify(data, null, 2)
-    );
+        'Ответ на запрос обновления токена:', JSON.stringify(data, null, 2));
 
     // Проверяем наличие ошибок GraphQL
     if (data.errors) {
@@ -263,9 +260,7 @@ const refreshAccessToken = async () => {
       return result.accessToken;
     } else {
       logger.error(
-        'Failed to refresh token:',
-        result?.message || 'Unknown error'
-      );
+          'Failed to refresh token:', result?.message || 'Unknown error');
 
       // Выводим более подробную информацию о проблеме
       if (result) {
@@ -306,16 +301,14 @@ const httpLink = new HttpLink({
 // Добавляем логирование для отладки запросов
 const loggerLink = new ApolloLink((operation, forward) => {
   const operationName = operation.operationName;
-  const isCartOperation =
-    operationName === 'RemoveFromCart' ||
-    operationName === 'UpdateCartItemQuantity' ||
-    operationName === 'AddToCart';
+  const isCartOperation = operationName === 'RemoveFromCart' ||
+      operationName === 'UpdateCartItemQuantity' ||
+      operationName === 'AddToCart';
 
   if (isCartOperation) {
     logger.log(
-      `[Cart Operation] ${operationName} started with variables:`,
-      operation.variables
-    );
+        `[Cart Operation] ${operationName} started with variables:`,
+        operation.variables);
   } else {
     logger.log(`[GraphQL Request] Operation: ${operationName}`);
   }
@@ -343,27 +336,28 @@ interface ObserverInterface {
 }
 
 // Обработка ошибок
-const errorLink = onError(
-  ({ graphQLErrors, networkError, operation, forward }) => {
-    if (graphQLErrors) {
-      graphQLErrors.forEach((err) => {
-        logger.log(`[GraphQL error]: Message: ${err.message}`);
+const errorLink = onError(({
+                            graphQLErrors,
+                            networkError,
+                            operation,
+                            forward
+                          }) => {
+  if (graphQLErrors) {
+    graphQLErrors.forEach((err) => {
+      logger.log(`[GraphQL error]: Message: ${err.message}`);
 
-        // Проверяем на ошибки аутентификации
-        const isAuthError =
-          err.message.includes('401') ||
+      // Проверяем на ошибки аутентификации
+      const isAuthError = err.message.includes('401') ||
           err.message.includes('Unauthenticated') ||
           err.message.includes('not authenticated') ||
           err.extensions?.code === 'UNAUTHENTICATED';
 
-        if (isAuthError && isBrowser) {
-          logger.log(
-            'Обнаружена ошибка аутентификации, пробуем обновить токен'
-          );
-          // Сначала пробуем обновить токен
-          if (localStorage.getItem('refreshToken')) {
-            return new Observable((observer: ObserverInterface) => {
-              refreshAccessToken()
+      if (isAuthError && isBrowser) {
+        logger.log('Обнаружена ошибка аутентификации, пробуем обновить токен');
+        // Сначала пробуем обновить токен
+        if (localStorage.getItem('refreshToken')) {
+          return new Observable((observer: ObserverInterface) => {
+            refreshAccessToken()
                 .then((newToken) => {
                   if (newToken) {
                     logger.log('Токен обновлен, повторяем запрос');
@@ -382,8 +376,7 @@ const errorLink = onError(
                     });
                   } else {
                     logger.log(
-                      'Не удалось обновить токен, пробуем войти как гость'
-                    );
+                        'Не удалось обновить токен, пробуем войти как гость');
                     // Если не удалось обновить токен, пробуем войти как
                     // гость
                     localStorage.removeItem('accessToken');
@@ -392,8 +385,7 @@ const errorLink = onError(
                     getGuestToken().then((token) => {
                       if (token) {
                         logger.log(
-                          'Получен новый гостевой токен, повторяем запрос'
-                        );
+                            'Получен новый гостевой токен, повторяем запрос');
                         const oldHeaders = operation.getContext().headers;
                         operation.setContext({
                           headers: {
@@ -416,21 +408,20 @@ const errorLink = onError(
                 .catch(() => {
                   observer.error(err);
                 });
-            });
-          } else {
-            // Если нет refresh token, пробуем получить гостевой токен
-            logger.log('Нет refresh token, пробуем получить гостевой токен');
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('guestToken');
+          });
+        } else {
+          // Если нет refresh token, пробуем получить гостевой токен
+          logger.log('Нет refresh token, пробуем получить гостевой токен');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('guestToken');
 
-            return new Observable((observer: ObserverInterface) => {
-              // Получаем новый токен и повторяем запрос
-              getGuestToken()
+          return new Observable((observer: ObserverInterface) => {
+            // Получаем новый токен и повторяем запрос
+            getGuestToken()
                 .then((token) => {
                   if (token) {
                     logger.log(
-                      'Получен новый гостевой токен, повторяем запрос'
-                    );
+                        'Получен новый гостевой токен, повторяем запрос');
                     const oldHeaders = operation.getContext().headers;
                     // Повторяем запрос с новым токеном
                     operation.setContext({
@@ -452,29 +443,27 @@ const errorLink = onError(
                 .catch(() => {
                   observer.error(err);
                 });
-            });
-          }
+          });
         }
-      });
-    }
+      }
+    });
+  }
 
-    if (networkError) {
-      logger.error(`[Network error]:`, networkError);
+  if (networkError) {
+    logger.error(`[Network error]:`, networkError);
 
-      // Проверяем на ошибку авторизации
-      const isUnauthorized =
+    // Проверяем на ошибку авторизации
+    const isUnauthorized =
         ('statusCode' in networkError && networkError.statusCode === 401) ||
         networkError.message?.includes('401') ||
         networkError.message?.includes('Unauthorized');
 
-      if (isUnauthorized && isBrowser) {
-        logger.log(
-          'Обнаружена ошибка сети с кодом 401, пробуем обновить токен'
-        );
-        // Сначала пробуем обновить токен
-        if (localStorage.getItem('refreshToken')) {
-          return new Observable((observer: ObserverInterface) => {
-            refreshAccessToken()
+    if (isUnauthorized && isBrowser) {
+      logger.log('Обнаружена ошибка сети с кодом 401, пробуем обновить токен');
+      // Сначала пробуем обновить токен
+      if (localStorage.getItem('refreshToken')) {
+        return new Observable((observer: ObserverInterface) => {
+          refreshAccessToken()
               .then((newToken) => {
                 if (newToken) {
                   logger.log('Токен обновлен, повторяем запрос');
@@ -493,52 +482,50 @@ const errorLink = onError(
                   });
                 } else {
                   logger.log(
-                    'Не удалось обновить токен, пробуем войти как гость'
-                  );
+                      'Не удалось обновить токен, пробуем войти как гость');
                   // Если не удалось обновить токен, пробуем войти как гость
                   localStorage.removeItem('accessToken');
                   localStorage.removeItem('refreshToken');
 
                   getGuestToken()
-                    .then((token) => {
-                      if (token) {
-                        logger.log(
-                          'Получен новый гостевой токен, повторяем запрос'
-                        );
-                        const oldHeaders = operation.getContext().headers;
-                        operation.setContext({
-                          headers: {
-                            ...oldHeaders,
-                            authorization: `Bearer ${token}`,
-                          },
-                        });
-                        forward(operation).subscribe({
-                          next: observer.next.bind(observer),
-                          error: observer.error.bind(observer),
-                          complete: observer.complete.bind(observer),
-                        });
-                      } else {
-                        logger.error('Не удалось получить гостевой токен');
+                      .then((token) => {
+                        if (token) {
+                          logger.log(
+                              'Получен новый гостевой токен, повторяем запрос');
+                          const oldHeaders = operation.getContext().headers;
+                          operation.setContext({
+                            headers: {
+                              ...oldHeaders,
+                              authorization: `Bearer ${token}`,
+                            },
+                          });
+                          forward(operation).subscribe({
+                            next: observer.next.bind(observer),
+                            error: observer.error.bind(observer),
+                            complete: observer.complete.bind(observer),
+                          });
+                        } else {
+                          logger.error('Не удалось получить гостевой токен');
+                          observer.error(networkError);
+                        }
+                      })
+                      .catch(() => {
                         observer.error(networkError);
-                      }
-                    })
-                    .catch(() => {
-                      observer.error(networkError);
-                    });
+                      });
                 }
               })
               .catch(() => {
                 observer.error(networkError);
               });
-          });
-        } else {
-          // Если нет refresh token, очищаем и получаем гостевой
-          logger.log('Нет refresh token, получаем гостевой токен');
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('guestToken');
+        });
+      } else {
+        // Если нет refresh token, очищаем и получаем гостевой
+        logger.log('Нет refresh token, получаем гостевой токен');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('guestToken');
 
-          return new Observable((observer: ObserverInterface) => {
-            getGuestToken()
+        return new Observable((observer: ObserverInterface) => {
+          getGuestToken()
               .then((token) => {
                 if (token) {
                   logger.log('Получен новый гостевой токен, повторяем запрос');
@@ -562,22 +549,21 @@ const errorLink = onError(
               .catch(() => {
                 observer.error(networkError);
               });
-          });
-        }
+        });
       }
     }
-
-    return forward(operation);
   }
-);
+
+  return forward(operation);
+});
 
 // Аутентификация запросов
-const authLink = setContext(async (_, { headers }) => {
+const authLink = setContext(async (_, {headers}) => {
   // Проверяем изменение региона
   await checkAndUpdateRegion();
 
   // Получаем актуальные токены после возможного перелогина
-  const { accessToken } = getTokens();
+  const {accessToken} = getTokens();
 
   return {
     headers: {
@@ -590,26 +576,24 @@ const authLink = setContext(async (_, { headers }) => {
 // Инициализация гостевого токена при загрузке клиента
 if (isBrowser) {
   logger.log('Инициализация Apollo клиента в браузере');
-  const { accessToken, guestToken } = getTokens();
+  const {accessToken, guestToken} = getTokens();
   if (!accessToken && !guestToken) {
     logger.log('Токены отсутствуют, инициализируем гостевой токен');
     getGuestToken().then((token) => {
       logger.log(
-        'Инициализация гостевого токена:',
-        token ? 'Успешно' : 'Не удалось получить токен'
-      );
+          'Инициализация гостевого токена:',
+          token ? 'Успешно' : 'Не удалось получить токен');
     });
   } else {
     logger.log(
-      'Токены уже присутствуют:',
-      accessToken ? 'Access token' : 'Guest token'
-    );
+        'Токены уже присутствуют:',
+        accessToken ? 'Access token' : 'Guest token');
   }
 }
 
 // Создаем клиент Apollo
 export const client = new ApolloClient({
-  ssrMode: !isBrowser, // Включаем SSR режим на сервере
+  ssrMode: !isBrowser,  // Включаем SSR режим на сервере
   link: ApolloLink.from([errorLink, authLink, loggerLink, httpLink]),
   cache: new InMemoryCache({
     typePolicies: {
@@ -618,11 +602,10 @@ export const client = new ApolloClient({
           products: {
             keyArgs: ['sortOrder', 'search', 'categoryId'],
             merge(
-              existing = {
-                edges: [],
-              },
-              incoming
-            ) {
+                existing = {
+                  edges: [],
+                },
+                incoming) {
               return {
                 ...incoming,
                 edges: [...existing.edges, ...incoming.edges],

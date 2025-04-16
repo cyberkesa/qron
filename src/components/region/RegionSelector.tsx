@@ -96,15 +96,33 @@ export default function RegionSelector() {
   const handleRegionSelect = (region: Region) => {
     setSelectedRegion(region);
 
+    // Проверяем, авторизован ли пользователь
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const guestToken = localStorage.getItem('guestToken');
+    const isAuthenticated =
+      !!accessToken &&
+      !!refreshToken &&
+      (!guestToken || accessToken !== guestToken);
+
     // Сохраняем выбранный регион в localStorage
     if (typeof window !== 'undefined') {
       localStorage.setItem('selectedRegion', JSON.stringify(region));
 
-      // Очищаем токены для принудительной реаутентификации с новым регионом
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('guestToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('tokenRegionId');
+      // Очищаем токены только для гостевых пользователей
+      if (!isAuthenticated) {
+        // Для неавторизованных пользователей сбрасываем гостевой токен
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('guestToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('tokenRegionId');
+      } else {
+        // Для авторизованных пользователей просто обновляем информацию о
+        // выбранном регионе без сброса авторизации
+        console.log(
+          'Пользователь авторизован, сохраняем регион без сброса токенов'
+        );
+      }
     }
 
     // Закрываем модальное окно

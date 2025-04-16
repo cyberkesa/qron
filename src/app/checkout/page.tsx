@@ -9,12 +9,7 @@ import {
   CHECK_OUT,
   GET_VIEWER,
 } from '@/lib/queries';
-import {
-  DeliveryMethod,
-  PaymentMethod,
-  DeliveryAddress,
-  CartItem,
-} from '@/types/api';
+import { DeliveryAddress, CartItem } from '@/types/api';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -33,6 +28,73 @@ const formatPrice = (price: string) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(parseFloat(price));
+};
+
+// Функция для форматирования номера телефона
+const formatPhoneNumber = (value: string) => {
+  // Если первый введенный символ - это 8, сразу преобразуем в +7
+  if (value.trim() === '8') {
+    return '+7';
+  }
+
+  // Удаляем все нецифровые символы
+  let phoneNumber = value.replace(/\D/g, '');
+
+  // Проверяем формат номера
+  if (phoneNumber.length === 0) {
+    return '';
+  }
+
+  // Если номер начинается с 8, меняем на 7
+  if (phoneNumber.startsWith('8')) {
+    phoneNumber = '7' + phoneNumber.substring(1);
+  }
+
+  // Если номер не начинается с 7, добавляем 7 в начало
+  if (!phoneNumber.startsWith('7') && phoneNumber.length > 0) {
+    phoneNumber = '7' + phoneNumber;
+  }
+
+  // Ограничиваем длину до 11 цифр (с 7 в начале)
+  phoneNumber = phoneNumber.substring(0, 11);
+
+  // Форматируем номер в виде +7 (XXX) XXX-XX-XX
+  let formattedNumber = '';
+
+  // Всегда добавляем +7 в начало, если есть хотя бы одна цифра
+  if (phoneNumber.length > 0) {
+    formattedNumber = '+7';
+  }
+
+  // Добавляем код региона в скобках, только если есть цифры после 7
+  if (phoneNumber.length > 1) {
+    formattedNumber +=
+      ' (' + phoneNumber.substring(1, Math.min(4, phoneNumber.length));
+
+    // Закрываем скобку только если введены все цифры кода региона
+    if (phoneNumber.length >= 4) {
+      formattedNumber += ')';
+    }
+  }
+
+  // Добавляем первую часть номера
+  if (phoneNumber.length > 4) {
+    formattedNumber +=
+      ' ' + phoneNumber.substring(4, Math.min(7, phoneNumber.length));
+  }
+
+  // Добавляем вторую часть номера с дефисом
+  if (phoneNumber.length > 7) {
+    formattedNumber +=
+      '-' + phoneNumber.substring(7, Math.min(9, phoneNumber.length));
+  }
+
+  // Добавляем последнюю часть номера с дефисом
+  if (phoneNumber.length > 9) {
+    formattedNumber += '-' + phoneNumber.substring(9, 11);
+  }
+
+  return formattedNumber;
 };
 
 export default function CheckoutPage() {
@@ -59,7 +121,7 @@ export default function CheckoutPage() {
   // Автоматически устанавливаем телефон из профиля, если он есть
   useEffect(() => {
     if (isRegisteredUser && userData?.viewer?.phoneNumber) {
-      setPhoneNumber(userData.viewer.phoneNumber);
+      setPhoneNumber(formatPhoneNumber(userData.viewer.phoneNumber));
     }
   }, [isRegisteredUser, userData]);
 
@@ -89,6 +151,12 @@ export default function CheckoutPage() {
     }
   }, [addresses]);
 
+  // Обработчик изменения телефона с автоматическим форматированием
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedPhone = formatPhoneNumber(e.target.value);
+    setPhoneNumber(formattedPhone);
+  };
+
   // Валидация телефона
   const validatePhone = (phone: string): boolean => {
     const phoneRegex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
@@ -105,6 +173,23 @@ export default function CheckoutPage() {
 
     setPhoneError('');
     return true;
+  };
+
+  // Форматирование номера для API
+  const formatPhoneForApi = (phone: string): string => {
+    // Удаляем все нецифровые символы
+    const digits = phone.replace(/\D/g, '');
+
+    // Обеспечиваем, что номер начинается с 7
+    if (digits.startsWith('8')) {
+      return '7' + digits.substring(1);
+    }
+
+    if (!digits.startsWith('7') && digits.length > 0) {
+      return '7' + digits;
+    }
+
+    return digits;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,15 +218,27 @@ export default function CheckoutPage() {
       return;
     }
 
+    const formattedPhone = formatPhoneForApi(phoneNumber);
+
+    if (!formattedPhone || formattedPhone.length < 10) {
+      setPhoneError('Некорректный формат телефона');
+      return;
+    }
+
     try {
+      console.log('Оформление заказа, отправляемые данные:', {
+        deliveryAddressId: selectedAddressId,
+        phoneNumber: formattedPhone,
+      });
+
       const result = await checkout({
         variables: {
           deliveryAddressId: selectedAddressId,
-          paymentMethod: PaymentMethod.CARD,
-          deliveryMethod: DeliveryMethod.DELIVERY,
-          phoneNumber: phoneNumber,
+          phoneNumber: formattedPhone,
         },
       });
+
+      console.log('Результат запроса:', result);
 
       if (result.data?.checkOut?.order) {
         const order = result.data.checkOut.order;
@@ -157,14 +254,16 @@ export default function CheckoutPage() {
 
         trackOrder(order.id, orderItems, parseFloat(cartTotal));
 
-        router.push(`/orders/${order.id}`);
+        // Добавляем параметр success=true для отображения сообщения об успешном оформлении
+        router.push(`/orders/${order.id}?success=true`);
       } else if (result.data?.checkOut?.message) {
         setErrorMessage(result.data.checkOut.message);
       }
     } catch (error: unknown) {
+      console.error('Checkout error:', error);
       const errorMessage =
         error instanceof Error
-          ? error.message
+          ? `${error.message}`
           : 'Произошла ошибка при оформлении заказа';
       setErrorMessage(errorMessage);
     }
@@ -321,26 +420,83 @@ export default function CheckoutPage() {
                 <h2 className="text-xl font-semibold">Контактные данные</h2>
               </div>
 
-              <div className="mb-4">
+              <div className="mt-2">
                 <label
-                  htmlFor="phoneNumber"
-                  className="block text-gray-700 font-medium mb-2"
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Телефон для связи *
+                  Номер телефона *
                 </label>
-                <input
-                  type="tel"
-                  id="phoneNumber"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="+7 (999) 123-45-67"
-                  className={`w-full px-4 py-2 border ${
-                    phoneError ? 'border-red-300' : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                />
+                <div className="relative mt-1">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg
+                      className="h-5 w-7"
+                      viewBox="0 0 640 480"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g fillRule="evenodd" strokeWidth="1pt">
+                        <path fill="#fff" d="M0 0h640v480H0z" />
+                        <path fill="#0039a6" d="M0 160h640v320H0z" />
+                        <path fill="#d52b1e" d="M0 320h640v160H0z" />
+                      </g>
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    autoComplete="tel"
+                    placeholder="+7 (___) ___-__-__"
+                    value={phoneNumber}
+                    onChange={handlePhoneChange}
+                    className={`block w-full pl-12 pr-10 py-3 border ${
+                      phoneError
+                        ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
+                        : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                    } rounded-md shadow-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors`}
+                    aria-invalid={phoneError ? 'true' : 'false'}
+                    aria-describedby={phoneError ? 'phone-error' : undefined}
+                  />
+                  {phoneError && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <svg
+                        className="h-5 w-5 text-red-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </div>
                 {phoneError && (
-                  <p className="mt-1 text-sm text-red-600">{phoneError}</p>
+                  <p
+                    className="mt-2 text-sm text-red-600 flex items-center"
+                    id="phone-error"
+                  >
+                    <svg
+                      className="h-4 w-4 mr-1 text-red-500"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {phoneError}
+                  </p>
                 )}
+                <p className="mt-1 text-xs text-gray-500">
+                  Нужен для связи по вашему заказу
+                </p>
               </div>
             </div>
 
@@ -417,7 +573,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={checkoutLoading || addresses.length === 0}
-              className="w-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-lg font-medium"
+              className="w-full bg-blue-600 text-white px-6 py-3.5 rounded-md hover:bg-blue-700 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed text-lg font-medium shadow-sm hover:shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               {checkoutLoading ? (
                 <span className="flex items-center justify-center">
@@ -444,7 +600,23 @@ export default function CheckoutPage() {
                   Оформляем заказ...
                 </span>
               ) : (
-                'Оформить заказ'
+                <span className="flex items-center justify-center">
+                  Оформить заказ
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 ml-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    />
+                  </svg>
+                </span>
               )}
             </button>
           </form>
@@ -452,28 +624,30 @@ export default function CheckoutPage() {
 
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
-            <h2 className="text-xl font-semibold mb-4">Ваш заказ</h2>
+            <h2 className="text-xl font-semibold mb-4 pb-2 border-b border-gray-100">
+              Ваш заказ
+            </h2>
 
-            <div className="mb-4 max-h-96 overflow-y-auto">
+            <div className="mb-6 max-h-96 overflow-y-auto pr-1 space-y-4">
               {cartItems.map((item: CartItem) => (
                 <div
                   key={item.id}
-                  className="py-3 border-b border-gray-100 last:border-b-0 flex items-center gap-3"
+                  className="py-3 border-b border-gray-100 last:border-b-0 flex items-center gap-3 group hover:bg-gray-50 rounded-md p-1 transition-colors"
                 >
                   <div className="relative w-16 h-16 flex-shrink-0">
                     <Image
                       src={item.product.images[0].url}
                       alt={item.product.name}
                       fill
-                      className="object-contain rounded-md border border-gray-200"
+                      className="object-contain rounded-md border border-gray-200 group-hover:border-gray-300 transition-colors"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 text-sm line-clamp-1">
+                    <p className="font-medium text-gray-900 text-sm line-clamp-1 group-hover:text-blue-600 transition-colors">
                       {item.product.name}
                     </p>
-                    <div className="flex justify-between mt-1">
-                      <p className="text-sm text-gray-500">
+                    <div className="flex justify-between mt-1.5">
+                      <p className="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full text-xs">
                         {item.quantity} шт.
                       </p>
                       <p className="font-medium text-gray-900 text-sm">
@@ -488,7 +662,7 @@ export default function CheckoutPage() {
               ))}
             </div>
 
-            <div className="border-t border-gray-200 pt-4 space-y-2">
+            <div className="border-t border-gray-200 pt-4 space-y-3">
               <div className="flex justify-between text-gray-600">
                 <span>Товары ({cartItems.length}):</span>
                 <span>
@@ -498,7 +672,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Доставка:</span>
-                <span>0 ₽</span>
+                <span className="text-green-600 font-medium">Бесплатно</span>
               </div>
             </div>
 
@@ -511,6 +685,27 @@ export default function CheckoutPage() {
                 </span>
               </div>
             </div>
+
+            {addresses.length === 0 && (
+              <div className="mt-4 bg-yellow-50 p-4 rounded-md border border-yellow-100">
+                <div className="flex items-start">
+                  <svg
+                    className="h-5 w-5 text-yellow-400 mt-0.5 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <p className="text-sm text-yellow-700">
+                    Для оформления заказа добавьте адрес доставки
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
