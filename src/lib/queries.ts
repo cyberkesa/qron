@@ -1,4 +1,4 @@
-import {gql} from '@apollo/client';
+import { gql } from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
   query GetProducts(
@@ -437,14 +437,8 @@ export const GET_DELIVERY_ADDRESSES = gql`
 
 // Мутация для оформления заказа
 export const CHECK_OUT = gql`
-  mutation CheckOut(
-    $deliveryAddressId: ID!
-    $phoneNumber: String!
-  ) {
-    checkOut(
-      deliveryAddressId: $deliveryAddressId
-      phoneNumber: $phoneNumber
-    ) {
+  mutation CheckOut($deliveryAddressId: ID!, $phoneNumber: String!) {
+    checkOut(deliveryAddressId: $deliveryAddressId, phoneNumber: $phoneNumber) {
       ... on CheckOutSuccessResult {
         order {
           id

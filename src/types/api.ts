@@ -1,5 +1,8 @@
 export type ProductSortOrder =
-    |'ALPHABETICALLY'|'CHEAPEST_FIRST'|'EXPENSIVE_FIRST'|'NEWEST_FIRST';
+  | 'ALPHABETICALLY'
+  | 'CHEAPEST_FIRST'
+  | 'EXPENSIVE_FIRST'
+  | 'NEWEST_FIRST';
 
 export enum ProductStockAvailabilityStatus {
   IN_STOCK = 'IN_STOCK',
@@ -70,8 +73,8 @@ export interface Cart {
 
 export interface ProductsResponse {
   products: {
-    edges: {cursor: string; node: Product}[];
-    pageInfo: {hasNextPage: boolean; endCursor: string};
+    edges: { cursor: string; node: Product }[];
+    pageInfo: { hasNextPage: boolean; endCursor: string };
   };
 }
 
@@ -113,12 +116,15 @@ export interface OrderItem {
   quantity: number;
   decimalUnitPrice: string;
   product?: {
-    id: string; name: string; slug: string; images: {id: string; url: string}[];
+    id: string;
+    name: string;
+    slug: string;
+    images: { id: string; url: string }[];
   };
 }
 
 export interface OrderItemConnection {
-  edges: {node: OrderItem}[];
+  edges: { node: OrderItem }[];
   totalQuantity: number;
   decimalTotalPrice: string;
 }
@@ -139,13 +145,13 @@ export interface Order {
   deliveryFullAddress: string;
   number: string;
   phoneNumber: string;
-  region: {id: string; name: string};
+  region: { id: string; name: string };
 }
 
 export interface OrdersResponse {
   orders: {
-    edges: {cursor: string; node: Order}[];
-    pageInfo: {hasNextPage: boolean; endCursor: string};
+    edges: { cursor: string; node: Order }[];
+    pageInfo: { hasNextPage: boolean; endCursor: string };
   };
 }
 
