@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as glob from 'glob';
 import * as path from 'path';
-import {dirname} from 'path';
-import {fileURLToPath} from 'url';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -63,14 +63,30 @@ const NODE_MODULES = [
 
 // Расширенный список встроенных модулей Node.js
 const NODE_BUILT_IN_MODULES = [
-  'fs', 'path', 'url', 'module', 'process', 'crypto', 'http', 'https',
-  'querystring', 'stream', 'buffer', 'util', 'events', 'zlib', 'assert', 'os',
-  'child_process'
+  'fs',
+  'path',
+  'url',
+  'module',
+  'process',
+  'crypto',
+  'http',
+  'https',
+  'querystring',
+  'stream',
+  'buffer',
+  'util',
+  'events',
+  'zlib',
+  'assert',
+  'os',
+  'child_process',
 ];
 
 // Проверяет существует ли файл с любым из указанных расширений
 function checkFileExistsWithExtensions(
-    basePath: string, extensions: string[]): boolean {
+  basePath: string,
+  extensions: string[]
+): boolean {
   for (const ext of extensions) {
     if (fs.existsSync(basePath + ext)) {
       return true;
@@ -94,22 +110,27 @@ function checkFileExistsWithExtensions(
 }
 
 async function checkImportPath(
-    filePath: string, importPath: string): Promise<boolean> {
+  filePath: string,
+  importPath: string
+): Promise<boolean> {
   // Проверяем встроенные модули Node.js
   if (NODE_BUILT_IN_MODULES.includes(importPath)) {
     return true;
   }
 
   // Проверяем встроенные модули Next.js
-  if (NEXT_BUILT_IN_MODULES.includes(importPath) ||
-      NEXT_BUILT_IN_MODULES.some(
-          module => importPath.startsWith(`${module}/`))) {
+  if (
+    NEXT_BUILT_IN_MODULES.includes(importPath) ||
+    NEXT_BUILT_IN_MODULES.some((module) => importPath.startsWith(`${module}/`))
+  ) {
     return true;
   }
 
   // Проверяем известные node_modules и их подмодули
-  if (NODE_MODULES.includes(importPath) ||
-      NODE_MODULES.some((module) => importPath.startsWith(`${module}/`))) {
+  if (
+    NODE_MODULES.includes(importPath) ||
+    NODE_MODULES.some((module) => importPath.startsWith(`${module}/`))
+  ) {
     return true;
   }
 
@@ -125,8 +146,15 @@ async function checkImportPath(
   }
 
   const extensions = [
-    '.ts', '.tsx', '.js', '.jsx', '.json', '.css', '.scss', '.module.css',
-    '.module.scss'
+    '.ts',
+    '.tsx',
+    '.js',
+    '.jsx',
+    '.json',
+    '.css',
+    '.scss',
+    '.module.css',
+    '.module.scss',
   ];
 
   // Проверяем абсолютные импорты (начинающиеся с @/)
@@ -184,7 +212,7 @@ async function checkFileImports(filePath: string): Promise<ImportError[]> {
             error: `Не найден файл или модуль: ${importPath}`,
           });
         }
-        break;  // Если нашли совпадение по одному из шаблонов, прерываем цикл
+        break; // Если нашли совпадение по одному из шаблонов, прерываем цикл
       }
     }
   }
@@ -209,7 +237,7 @@ async function checkProjectImports(): Promise<ImportResult> {
     }
   }
 
-  return {valid: errors.length === 0, errors};
+  return { valid: errors.length === 0, errors };
 }
 
 async function main() {
