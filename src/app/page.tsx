@@ -460,84 +460,161 @@ export default function Home() {
 
         {/* Секция с мобильным приложением */}
         <div className="mb-12">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-700 rounded-xl overflow-hidden">
-            <div className="grid md:grid-cols-2 items-center">
-              <div className="p-8 text-white">
-                <h2 className="text-2xl font-bold mb-4">
-                  Мобильное приложение
-                </h2>
-                <p className="mb-6 text-purple-100">
-                  Скачайте наше приложение для удобных покупок где бы вы ни
-                  находились. Получайте эксклюзивные предложения и отслеживайте
-                  свои заказы в реальном времени.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  <Link
-                    href="https://apps.apple.com/ru/app/крон-интернет-магазин/id1611541742"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-black text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-900 transition-colors"
-                  >
-                    <svg
-                      className="w-6 h-6 mr-2"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
+          <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-800 rounded-2xl overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl">
+            <div className="grid md:grid-cols-5 lg:grid-cols-2 items-center">
+              <div className="p-6 sm:p-8 md:p-10 md:col-span-3 lg:col-span-1">
+                <div className="space-y-5 sm:space-y-6">
+                  <div className="inline-block bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-white">
+                    Мобильное приложение КРОН
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
+                    Совершайте покупки с любого устройства
+                  </h2>
+                  <p className="text-indigo-100 text-base sm:text-lg leading-relaxed max-w-2xl">
+                    Скачайте наше приложение для удобных покупок где бы вы ни
+                    находились. Получайте эксклюзивные предложения и
+                    отслеживайте свои заказы в реальном времени.
+                  </p>
+
+                  <div className="space-y-3 sm:space-y-4 md:space-y-0 md:flex md:gap-4">
+                    <Link
+                      href="https://apps.apple.com/ru/app/крон-интернет-магазин/id1611541742"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center md:justify-start bg-black/80 backdrop-blur-sm hover:bg-black w-full md:w-auto px-5 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg group"
                     >
-                      <path d="M17.5072 12.5378C17.4472 9.68781 19.5572 8.29781 19.6572 8.22781C18.3572 6.39781 16.3272 6.16781 15.6272 6.14781C13.9272 5.96781 12.2972 7.10781 11.4372 7.10781C10.5772 7.10781 9.23723 6.15781 7.79723 6.18781C5.95723 6.21781 4.25723 7.20781 3.31723 8.78781C1.39723 11.9978 2.78723 16.7278 4.62723 19.5378C5.53723 20.9178 6.59723 22.4578 7.97723 22.3978C9.31723 22.3378 9.80723 21.5178 11.4272 21.5178C13.0472 21.5178 13.5072 22.3978 14.8872 22.3578C16.3272 22.3378 17.2772 20.9778 18.1772 19.5878C19.2272 18.0178 19.6572 16.4878 19.6772 16.4178C19.6372 16.4078 17.5772 15.5978 17.5072 12.5378Z" />
-                      <path d="M15.1975 4.58781C15.9275 3.68781 16.4075 2.42781 16.2675 1.15781C15.1675 1.19781 13.8275 1.89781 13.0675 2.78781C12.3875 3.57781 11.7975 4.87781 11.9675 6.10781C13.1975 6.18781 14.4675 5.48781 15.1975 4.58781Z" />
-                    </svg>
-                    App Store
-                  </Link>
-                  <Link
-                    href="https://play.google.com/store/apps/details?id=com.foresko.kron"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-black text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-900 transition-colors"
-                  >
-                    <svg
-                      className="w-6 h-6 mr-2"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
+                      <svg
+                        className="w-6 h-6 sm:w-7 sm:h-7 mr-3 text-white flex-shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M17.5072 12.5378C17.4472 9.68781 19.5572 8.29781 19.6572 8.22781C18.3572 6.39781 16.3272 6.16781 15.6272 6.14781C13.9272 5.96781 12.2972 7.10781 11.4372 7.10781C10.5772 7.10781 9.23723 6.15781 7.79723 6.18781C5.95723 6.21781 4.25723 7.20781 3.31723 8.78781C1.39723 11.9978 2.78723 16.7278 4.62723 19.5378C5.53723 20.9178 6.59723 22.4578 7.97723 22.3978C9.31723 22.3378 9.80723 21.5178 11.4272 21.5178C13.0472 21.5178 13.5072 22.3978 14.8872 22.3578C16.3272 22.3378 17.2772 20.9778 18.1772 19.5878C19.2272 18.0178 19.6572 16.4878 19.6772 16.4178C19.6372 16.4078 17.5772 15.5978 17.5072 12.5378Z" />
+                        <path d="M15.1975 4.58781C15.9275 3.68781 16.4075 2.42781 16.2675 1.15781C15.1675 1.19781 13.8275 1.89781 13.0675 2.78781C12.3875 3.57781 11.7975 4.87781 11.9675 6.10781C13.1975 6.18781 14.4675 5.48781 15.1975 4.58781Z" />
+                      </svg>
+                      <div className="text-left">
+                        <div className="text-xs text-gray-300">Скачать в</div>
+                        <div className="text-white font-medium group-hover:text-indigo-200 transition-colors">
+                          App Store
+                        </div>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="https://www.rustore.ru/catalog/app/ru.tovarikron.android"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center md:justify-start bg-black/80 backdrop-blur-sm hover:bg-black w-full md:w-auto px-5 py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg group"
                     >
-                      <path d="M3.60938 2.49609C3.27344 2.83203 3.07031 3.38672 3.07031 4.07812V19.9219C3.07031 20.6133 3.27344 21.168 3.60938 21.5039L3.69531 21.5898L13.7109 11.5742V11.5V11.4258L3.69531 1.41016L3.60938 2.49609Z" />
-                      <path d="M17.4844 15.3477L13.7109 11.5742V11.5V11.4258L17.4844 7.65234L17.5703 7.73828L22.082 10.293C23.332 11.0078 23.332 11.9922 22.082 12.707L17.5703 15.2617L17.4844 15.3477Z" />
-                      <path d="M17.5703 15.2617L13.7109 11.5L3.60938 21.5039C4.01172 21.9297 4.66797 21.9766 5.41016 21.5508L17.5703 15.2617Z" />
-                      <path d="M17.5703 7.73828L5.41016 1.44922C4.66797 1.02344 4.01172 1.07031 3.60938 1.49609L13.7109 11.5L17.5703 7.73828Z" />
-                    </svg>
-                    Google Play
-                  </Link>
-                </div>
-                <div className="mt-6">
-                  <div className="bg-white p-3 inline-block rounded-lg">
-                    <Image
-                      src="/images/qr-code.svg"
-                      alt="QR код для скачивания приложения"
-                      width={120}
-                      height={120}
-                      className="w-auto h-auto"
-                    />
+                      <svg
+                        className="w-6 h-6 sm:w-7 sm:h-7 mr-3 text-white flex-shrink-0"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
+                      </svg>
+                      <div className="text-left">
+                        <div className="text-xs text-gray-300">Доступно в</div>
+                        <div className="text-white font-medium group-hover:text-indigo-200 transition-colors">
+                          RuStore
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+
+                  <div className="flex flex-col xs:flex-row items-start xs:items-center gap-4 xs:space-x-4 pt-2 sm:pt-4">
+                    <div className="bg-white p-3 rounded-xl shadow-lg transform transition-transform duration-300 hover:rotate-2 hover:scale-105">
+                      <Image
+                        src="/images/qr-code.svg"
+                        alt="QR код для скачивания приложения"
+                        width={90}
+                        height={90}
+                        className="w-auto h-auto"
+                      />
+                    </div>
+                    <div className="text-sm text-indigo-100">
+                      <p className="font-medium text-white">Быстрый доступ</p>
+                      <p>
+                        Отсканируйте QR-код для
+                        <br className="hidden xs:block" />
+                        скачивания приложения
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="hidden md:flex justify-center p-8">
-                <div className="relative w-52 h-96 bg-black rounded-3xl overflow-hidden border-8 border-gray-800">
-                  <div className="absolute top-0 left-0 right-0 h-6 bg-gray-800 flex justify-center items-end pb-1">
-                    <div className="w-20 h-1 bg-gray-600 rounded-full"></div>
-                  </div>
-                  <div className="w-full h-full bg-gradient-to-b from-blue-500 to-purple-600 pt-6 flex flex-col items-center">
-                    <div className="w-full px-4 py-2 flex justify-between items-center text-white text-xs">
-                      <span>12:30</span>
-                      <div className="flex space-x-1">
-                        <span>4G</span>
-                        <span>100%</span>
-                      </div>
+
+              <div className="hidden md:flex justify-center items-center p-4 md:p-6 lg:p-8 md:col-span-2 lg:col-span-1 relative">
+                <div className="absolute -right-12 -top-12 w-32 h-32 bg-yellow-300 rounded-full opacity-20 blur-2xl animate-pulse"></div>
+                <div
+                  className="absolute right-1/3 bottom-1/3 w-40 h-40 bg-pink-500 rounded-full opacity-20 blur-3xl animate-pulse"
+                  style={{ animationDelay: '1s' }}
+                ></div>
+
+                <div className="relative z-10 transform transition-all duration-700 hover:rotate-3 hover:translate-y-1 max-w-full">
+                  <div className="relative w-56 sm:w-60 md:w-48 lg:w-64 aspect-[9/19] bg-black rounded-[32px] overflow-hidden border-[8px] border-gray-800 shadow-2xl">
+                    <div className="absolute top-0 left-0 right-0 h-5 bg-gray-800 flex justify-center items-end pb-1 z-10">
+                      <div className="w-20 h-[4px] bg-gray-600 rounded-full"></div>
                     </div>
-                    <div className="mt-10 text-center text-white">
-                      <div className="text-lg font-bold mb-1">КРОН</div>
-                      <div className="text-xs mb-8">Мобильное приложение</div>
-                      <div className="flex justify-center">
-                        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-purple-600">
-                          <BuildingStorefrontIcon className="h-8 w-8" />
+
+                    <div className="absolute inset-0 bg-gradient-to-b from-indigo-500 via-purple-500 to-purple-700 bg-300% animate-gradient"></div>
+
+                    <div className="w-full h-full pt-6 flex flex-col items-center relative z-10">
+                      <div className="w-full px-4 py-1 flex justify-between items-center text-white text-xs">
+                        <span>12:30</span>
+                        <div className="flex items-center gap-1">
+                          <svg
+                            className="w-3 h-3"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M9.5 18.5h5v-13h-5v13zm-7 0h5V10h-5v8.5zm14-8.5v8.5h5V10h-5z" />
+                          </svg>
+                          <span>4G</span>
+                          <svg
+                            className="w-4 h-4 ml-1"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M18.5,4h-13a4,4,0,0,0-4,4V16a4,4,0,0,0,4,4h13a4,4,0,0,0,4-4V8A4,4,0,0,0,18.5,4ZM21,16a2.5,2.5,0,0,1-2.5,2.5h-13A2.5,2.5,0,0,1,3,16V8A2.5,2.5,0,0,1,5.5,5.5h13A2.5,2.5,0,0,1,21,8Z" />
+                            <path d="M17.93,8.33A2.77,2.77,0,0,1,19.5,11V13a2.77,2.77,0,0,1-1.57,2.67,1,1,0,1,0,1,1.73A4.78,4.78,0,0,0,21.5,13V11a4.78,4.78,0,0,0-2.57-4.4,1,1,0,0,0-1,1.73Z" />
+                            <rect x="15.5" y="11" width="2" height="2" />
+                          </svg>
+                          <span>100%</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-10 text-center text-white">
+                        <div className="text-xl font-bold mb-1">КРОН</div>
+                        <div className="text-xs mb-8">Мобильное приложение</div>
+
+                        <div className="flex justify-center">
+                          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-purple-600 shadow-lg animate-pulse">
+                            <svg
+                              className="h-8 w-8"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M22 8.65C21.44 8.26 20.77 8 20.05 8H17V7.05C17 6.37 16.57 5.55 15.93 5.13L14.54 4.24C13.9 3.83 13.47 3 12.83 3H7.17C6.53 3 6.1 3.83 5.46 4.24L4.07 5.13C3.43 5.55 3 6.37 3 7.05V8H2.95C1.77 8 1 9.04 1 10.22V19.99C1 21.17 1.77 22 2.95 22H20.05C21.23 22 22 21.17 22 19.99V10.22C22 9.53 22 9.14 22 8.65ZM5 7.05C5 6.86 5.22 6.46 5.37 6.36L6.77 5.47C7.38 5.06 7.81 4.23 8.45 4.23H14.56C15.19 4.23 15.62 5.06 16.23 5.47L17.63 6.36C17.78 6.46 18 6.86 18 7.05V8H5V7.05ZM20 19.99H3V10.22H20V19.99Z" />
+                              <path d="M11.05 17.22C11.22 17.39 11.45 17.48 11.67 17.48C11.9 17.48 12.12 17.39 12.29 17.22L15.22 14.29C15.56 13.95 15.56 13.42 15.22 13.08C14.89 12.74 14.35 12.74 14.01 13.08L12.17 14.92V11.58C12.17 11.11 11.79 10.73 11.32 10.73C10.85 10.73 10.47 11.11 10.47 11.58V15.28C10.47 15.46 10.54 15.64 10.67 15.78L11.05 17.22Z" />
+                            </svg>
+                          </div>
+                        </div>
+
+                        <div className="mt-8 p-2">
+                          <div className="h-12 w-full bg-white/20 backdrop-blur-sm rounded-xl mb-2 flex items-center px-3">
+                            <div className="rounded-lg bg-white/30 w-6 h-6 mr-2 flex-shrink-0"></div>
+                            <div className="w-full space-y-1">
+                              <div className="h-1.5 bg-white/30 rounded w-3/4"></div>
+                              <div className="h-1.5 bg-white/30 rounded w-1/2"></div>
+                            </div>
+                          </div>
+                          <div className="h-12 w-full bg-white/20 backdrop-blur-sm rounded-xl flex items-center px-3">
+                            <div className="rounded-lg bg-white/30 w-6 h-6 mr-2 flex-shrink-0"></div>
+                            <div className="w-full space-y-1">
+                              <div className="h-1.5 bg-white/30 rounded w-2/3"></div>
+                              <div className="h-1.5 bg-white/30 rounded w-1/3"></div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

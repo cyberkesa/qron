@@ -19,6 +19,8 @@ import {
   ArrowRightIcon,
 } from '@heroicons/react/24/outline';
 import { trackOrder } from '@/lib/analytics';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 // Функция для форматирования цены
 const formatPrice = (price: string) => {
@@ -28,73 +30,6 @@ const formatPrice = (price: string) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(parseFloat(price));
-};
-
-// Функция для форматирования номера телефона
-const formatPhoneNumber = (value: string) => {
-  // Если первый введенный символ - это 8, сразу преобразуем в +7
-  if (value.trim() === '8') {
-    return '+7';
-  }
-
-  // Удаляем все нецифровые символы
-  let phoneNumber = value.replace(/\D/g, '');
-
-  // Проверяем формат номера
-  if (phoneNumber.length === 0) {
-    return '';
-  }
-
-  // Если номер начинается с 8, меняем на 7
-  if (phoneNumber.startsWith('8')) {
-    phoneNumber = '7' + phoneNumber.substring(1);
-  }
-
-  // Если номер не начинается с 7, добавляем 7 в начало
-  if (!phoneNumber.startsWith('7') && phoneNumber.length > 0) {
-    phoneNumber = '7' + phoneNumber;
-  }
-
-  // Ограничиваем длину до 11 цифр (с 7 в начале)
-  phoneNumber = phoneNumber.substring(0, 11);
-
-  // Форматируем номер в виде +7 (XXX) XXX-XX-XX
-  let formattedNumber = '';
-
-  // Всегда добавляем +7 в начало, если есть хотя бы одна цифра
-  if (phoneNumber.length > 0) {
-    formattedNumber = '+7';
-  }
-
-  // Добавляем код региона в скобках, только если есть цифры после 7
-  if (phoneNumber.length > 1) {
-    formattedNumber +=
-      ' (' + phoneNumber.substring(1, Math.min(4, phoneNumber.length));
-
-    // Закрываем скобку только если введены все цифры кода региона
-    if (phoneNumber.length >= 4) {
-      formattedNumber += ')';
-    }
-  }
-
-  // Добавляем первую часть номера
-  if (phoneNumber.length > 4) {
-    formattedNumber +=
-      ' ' + phoneNumber.substring(4, Math.min(7, phoneNumber.length));
-  }
-
-  // Добавляем вторую часть номера с дефисом
-  if (phoneNumber.length > 7) {
-    formattedNumber +=
-      '-' + phoneNumber.substring(7, Math.min(9, phoneNumber.length));
-  }
-
-  // Добавляем последнюю часть номера с дефисом
-  if (phoneNumber.length > 9) {
-    formattedNumber += '-' + phoneNumber.substring(9, 11);
-  }
-
-  return formattedNumber;
 };
 
 export default function CheckoutPage() {
@@ -121,7 +56,7 @@ export default function CheckoutPage() {
   // Автоматически устанавливаем телефон из профиля, если он есть
   useEffect(() => {
     if (isRegisteredUser && userData?.viewer?.phoneNumber) {
-      setPhoneNumber(formatPhoneNumber(userData.viewer.phoneNumber));
+      setPhoneNumber(userData.viewer.phoneNumber);
     }
   }, [isRegisteredUser, userData]);
 
@@ -151,23 +86,21 @@ export default function CheckoutPage() {
     }
   }, [addresses]);
 
-  // Обработчик изменения телефона с автоматическим форматированием
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedPhone = formatPhoneNumber(e.target.value);
-    setPhoneNumber(formattedPhone);
+  // Обработчик изменения телефона
+  const handlePhoneChange = (value: string) => {
+    setPhoneNumber(value);
+    setPhoneError('');
   };
 
   // Валидация телефона
   const validatePhone = (phone: string): boolean => {
-    const phoneRegex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
-
-    if (!phone.trim()) {
+    if (!phone) {
       setPhoneError('Телефон обязателен для заказа');
       return false;
     }
 
-    if (!phoneRegex.test(phone)) {
-      setPhoneError('Введите телефон в формате +7 (999) 123-45-67');
+    if (phone.length < 10) {
+      setPhoneError('Введите корректный номер телефона');
       return false;
     }
 
@@ -177,19 +110,7 @@ export default function CheckoutPage() {
 
   // Форматирование номера для API
   const formatPhoneForApi = (phone: string): string => {
-    // Удаляем все нецифровые символы
-    const digits = phone.replace(/\D/g, '');
-
-    // Обеспечиваем, что номер начинается с 7
-    if (digits.startsWith('8')) {
-      return '7' + digits.substring(1);
-    }
-
-    if (!digits.startsWith('7') && digits.length > 0) {
-      return '7' + digits;
-    }
-
-    return digits;
+    return phone.startsWith('+') ? phone.substring(1) : phone;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -428,34 +349,28 @@ export default function CheckoutPage() {
                   Номер телефона *
                 </label>
                 <div className="relative mt-1">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg
-                      className="h-5 w-7"
-                      viewBox="0 0 640 480"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <g fillRule="evenodd" strokeWidth="1pt">
-                        <path fill="#fff" d="M0 0h640v480H0z" />
-                        <path fill="#0039a6" d="M0 160h640v320H0z" />
-                        <path fill="#d52b1e" d="M0 320h640v160H0z" />
-                      </g>
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    id="phone"
-                    name="phone"
-                    autoComplete="tel"
-                    placeholder="+7 (___) ___-__-__"
+                  <PhoneInput
+                    country={'ru'}
                     value={phoneNumber}
                     onChange={handlePhoneChange}
-                    className={`block w-full pl-12 pr-10 py-3 border ${
+                    inputClass={`block w-full pl-12 pr-10 py-3 border ${
                       phoneError
                         ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
                         : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                     } rounded-md shadow-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors`}
-                    aria-invalid={phoneError ? 'true' : 'false'}
-                    aria-describedby={phoneError ? 'phone-error' : undefined}
+                    buttonClass="!border-gray-300 !bg-gray-50"
+                    dropdownClass="!border-gray-300"
+                    searchClass="!border-gray-300"
+                    containerClass="!w-full"
+                    inputProps={{
+                      id: 'phone',
+                      name: 'phone',
+                      autoComplete: 'tel',
+                      'aria-invalid': phoneError ? 'true' : 'false',
+                      'aria-describedby': phoneError
+                        ? 'phone-error'
+                        : undefined,
+                    }}
                   />
                   {phoneError && (
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

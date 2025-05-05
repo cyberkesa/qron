@@ -1,18 +1,18 @@
+import { useEffect, useState } from 'react';
 import { ProductSortOrder, Category } from '@/types/api';
 import Image from 'next/image';
-import { ProductSorter } from '@/components/product-list/ProductSorter';
+import { ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { cn } from '@/lib/utils';
+import { ProductSorter } from './ProductSorter';
 import { StockFilter } from '@/components/product-list/StockFilter';
-import { XMarkIcon, FunnelIcon } from '@heroicons/react/24/outline';
-import { useState } from 'react';
+import { FunnelIcon } from '@heroicons/react/24/outline';
 
 interface ProductFiltersProps {
   categories: Category[];
-  selectedCategory?: string;
-  sortOrder: ProductSortOrder;
+  selectedCategory: string;
+  onCategoryChange: (categoryId: string) => void;
   hideOutOfStock: boolean;
-  onCategoryChange: (category: string) => void;
-  onSortChange: (sort: ProductSortOrder) => void;
-  onStockFilterChange: (hideOutOfStock: boolean) => void;
+  onStockFilterChange: (checked: boolean) => void;
   showMobileFilters?: boolean;
   onCloseMobileFilters?: () => void;
 }
@@ -20,156 +20,103 @@ interface ProductFiltersProps {
 export function ProductFilters({
   categories,
   selectedCategory,
-  sortOrder,
-  hideOutOfStock,
   onCategoryChange,
-  onSortChange,
+  hideOutOfStock,
   onStockFilterChange,
   showMobileFilters,
   onCloseMobileFilters,
 }: ProductFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(true);
-  const hasActiveFilters =
-    selectedCategory !== '' || sortOrder !== 'NEWEST_FIRST' || !hideOutOfStock;
 
   const resetFilters = () => {
     onCategoryChange('');
-    onSortChange('NEWEST_FIRST');
-    onStockFilterChange(true);
+    onStockFilterChange(false);
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-white rounded-xl border border-gray-200 transition-all duration-300">
-      {/* Заголовок с кнопкой сворачивания/разворачивания */}
-      <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="h-5 w-5 text-blue-600" />
-          <h2 className="font-medium text-gray-800">Фильтры</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          {hasActiveFilters && (
-            <button
-              onClick={resetFilters}
-              className="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors p-1 px-2 rounded-md flex items-center"
-            >
-              <XMarkIcon className="h-3 w-3 mr-1" />
-              Сбросить
-            </button>
-          )}
-          {showMobileFilters && onCloseMobileFilters && (
-            <button
-              onClick={onCloseMobileFilters}
-              className="md:hidden text-gray-500 hover:text-gray-700 p-1"
-            >
-              <XMarkIcon className="h-5 w-5" />
-            </button>
-          )}
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
-          >
-            <svg
-              className={`h-5 w-5 transition-transform duration-300 ${
-                isExpanded ? 'rotate-180' : ''
-              }`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-        </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+        <h3 className="font-medium text-gray-800">Фильтры</h3>
+        <button
+          onClick={resetFilters}
+          className="text-sm text-blue-600 hover:text-blue-800 hover:underline active:text-blue-900 transition-colors"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
+        >
+          Сбросить
+        </button>
       </div>
 
-      {/* Содержимое фильтров */}
-      <div
-        className={`transition-all duration-300 overflow-hidden ${
-          isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Категория
-            </label>
+      <div className="space-y-4">
+        <div>
+          <div
+            className="flex justify-between items-center cursor-pointer user-select-none mb-2"
+            onClick={() => setIsExpanded(!isExpanded)}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+          >
+            <h4 className="font-medium text-gray-700">Категории</h4>
+            <ChevronRightIcon
+              className={cn(
+                'h-5 w-5 text-gray-500 transition-transform',
+                isExpanded ? 'rotate-90' : ''
+              )}
+            />
+          </div>
 
-            {/* Отображение категорий с изображениями */}
-            <div className="space-y-1.5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+          {isExpanded && (
+            <div className="space-y-1 ml-1 animate-fadeIn">
               <div
-                className={`p-2 rounded-md cursor-pointer flex items-center ${
-                  !selectedCategory
-                    ? 'bg-blue-50 text-blue-600 border border-blue-100'
-                    : 'hover:bg-gray-50 border border-transparent hover:border-gray-100'
-                } transition-all duration-200`}
+                className={cn(
+                  'flex items-center py-1.5 px-2 rounded-lg cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors',
+                  !selectedCategory ? 'bg-blue-50 text-blue-700' : ''
+                )}
                 onClick={() => onCategoryChange('')}
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
-                <span className="ml-1">Все категории</span>
+                <span className="text-sm">Все категории</span>
               </div>
 
               {categories.map((category) => (
                 <div
                   key={category.id}
-                  className={`p-2 rounded-md cursor-pointer flex items-center ${
+                  className={cn(
+                    'flex items-center py-1.5 px-2 rounded-lg cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors gap-2',
                     selectedCategory === category.id
-                      ? 'bg-blue-50 text-blue-600 border border-blue-100'
-                      : 'hover:bg-gray-50 border border-transparent hover:border-gray-100'
-                  } transition-all duration-200`}
+                      ? 'bg-blue-50 text-blue-700'
+                      : ''
+                  )}
                   onClick={() => onCategoryChange(category.id)}
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
                 >
                   {category.iconUrl && (
-                    <div className="w-5 h-5 mr-1 flex-shrink-0">
+                    <div className="relative w-6 h-6 rounded-md overflow-hidden">
                       <Image
                         src={category.iconUrl}
                         alt={category.title}
-                        width={20}
-                        height={20}
-                        className="object-contain"
+                        width={24}
+                        height={24}
+                        className="object-cover"
                       />
                     </div>
                   )}
-                  <span className="ml-1 text-sm">{category.title}</span>
+                  <span className="text-sm">{category.title}</span>
                 </div>
               ))}
             </div>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Сортировка
-              </label>
-              <ProductSorter
-                value={sortOrder}
-                onChange={onSortChange}
-                className="flex-col items-start"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Наличие
-              </label>
-              <StockFilter
-                value={hideOutOfStock}
-                onChange={onStockFilterChange}
-                className="flex-col items-start"
-              />
-            </div>
-          </div>
-
-          {hasActiveFilters && (
-            <button
-              onClick={resetFilters}
-              className="w-full mt-4 bg-blue-50 hover:bg-blue-100 text-blue-600 font-medium py-2 rounded-lg flex items-center justify-center transition-colors"
-            >
-              <XMarkIcon className="h-4 w-4 mr-2" />
-              Сбросить все фильтры
-            </button>
           )}
+        </div>
+
+        <div className="pt-2 border-t border-gray-100">
+          <label className="flex items-center space-x-2 cursor-pointer user-select-none">
+            <input
+              type="checkbox"
+              checked={hideOutOfStock}
+              onChange={(e) => onStockFilterChange(e.target.checked)}
+              className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
+            />
+            <span className="text-sm text-gray-700">
+              Скрыть товары не в наличии
+            </span>
+          </label>
         </div>
       </div>
     </div>

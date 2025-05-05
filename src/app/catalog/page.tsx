@@ -21,6 +21,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll';
+import { ProductSorter } from '@/components/product-list/ProductSorter';
 
 export default function CatalogPage() {
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>('NEWEST_FIRST');
@@ -243,12 +244,12 @@ export default function CatalogPage() {
           </div>
         </div>
       ) : hasError ? (
-        <div className="bg-red-50 border border-red-100 rounded-xl p-6 text-center my-8 shadow-sm">
-          <h2 className="text-lg font-medium text-red-800 mb-2">
+        <div className="bg-red-50 border border-red-100 rounded-xl p-6 md:p-8 text-center my-8 shadow-sm">
+          <h2 className="text-lg font-medium text-red-800 mb-3">
             Произошла ошибка при загрузке данных
           </h2>
-          <p className="text-red-600 mb-4 text-sm md:text-base">
-            {errorMessage}
+          <p className="text-red-700 mb-4 text-sm md:text-base max-w-lg mx-auto">
+            {errorMessage || 'Не удалось загрузить данные товаров.'}
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -302,8 +303,6 @@ export default function CatalogPage() {
                   categories={categories}
                   selectedCategory={selectedCategory}
                   onCategoryChange={handleCategoryChange}
-                  sortOrder={sortOrder}
-                  onSortChange={handleSortChange}
                   hideOutOfStock={hideOutOfStock}
                   onStockFilterChange={handleStockFilterChange}
                   showMobileFilters={showMobileFilters}
@@ -319,8 +318,6 @@ export default function CatalogPage() {
                 categories={categories}
                 selectedCategory={selectedCategory}
                 onCategoryChange={handleCategoryChange}
-                sortOrder={sortOrder}
-                onSortChange={handleSortChange}
                 hideOutOfStock={hideOutOfStock}
                 onStockFilterChange={handleStockFilterChange}
                 showMobileFilters={showMobileFilters}
@@ -349,35 +346,10 @@ export default function CatalogPage() {
                   </button>
 
                   <div className="relative w-1/2 sm:w-auto">
-                    <select
+                    <ProductSorter
                       value={sortOrder}
-                      onChange={(e) =>
-                        handleSortChange(e.target.value as ProductSortOrder)
-                      }
-                      className="block w-full rounded-lg border border-gray-200 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                      style={{ WebkitAppearance: 'none' }}
-                    >
-                      <option value="NEWEST_FIRST">Новинки</option>
-                      <option value="PRICE_LOW_TO_HIGH">Сначала дешевле</option>
-                      <option value="PRICE_HIGH_TO_LOW">Сначала дороже</option>
-                      <option value="NAME_A_TO_Z">По названию (А-Я)</option>
-                      <option value="NAME_Z_TO_A">По названию (Я-А)</option>
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      <svg
-                        className="h-4 w-4 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 20 20"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="1.5"
-                          d="M19 9l-7 7-7-7"
-                        ></path>
-                      </svg>
-                    </div>
+                      onChange={handleSortChange}
+                    />
                   </div>
                 </div>
               </div>

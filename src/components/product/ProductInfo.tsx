@@ -173,6 +173,7 @@ const ProductInfo = ({
                 minQuantity={product.quantityMultiplicity || 1}
                 onIncrement={() => onUpdateQuantity(1)}
                 onDecrement={() => onUpdateQuantity(-1)}
+                onRemove={() => onUpdateQuantity(-currentCartQuantity)}
                 isLoading={isAddingToCart}
                 compact={true}
               />

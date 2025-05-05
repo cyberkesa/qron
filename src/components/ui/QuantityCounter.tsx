@@ -11,6 +11,7 @@ interface QuantityCounterProps {
   className?: string;
   small?: boolean;
   compact?: boolean;
+  onRemove?: () => void;
 }
 
 export function QuantityCounter({
@@ -23,6 +24,7 @@ export function QuantityCounter({
   className = '',
   small = false,
   compact = false,
+  onRemove,
 }: QuantityCounterProps) {
   const [animateValue, setAnimateValue] = useState(false);
   const [prevQuantity, setPrevQuantity] = useState(quantity);
@@ -45,8 +47,12 @@ export function QuantityCounter({
   };
 
   const handleDecrement = () => {
-    if (!isLoading && !disabled && quantity > minQuantity) {
-      onDecrement();
+    if (!isLoading && !disabled) {
+      if (quantity === minQuantity && onRemove) {
+        onRemove();
+      } else if (quantity > minQuantity) {
+        onDecrement();
+      }
     }
   };
 
@@ -60,7 +66,7 @@ export function QuantityCounter({
     >
       <button
         onClick={handleDecrement}
-        disabled={isLoading || disabled || quantity <= minQuantity}
+        disabled={isLoading || disabled}
         className={`${buttonSize} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all active:scale-95 disabled:opacity-50 disabled:hover:bg-white disabled:active:scale-100 disabled:hover:text-gray-600`}
         aria-label="Уменьшить количество"
       >

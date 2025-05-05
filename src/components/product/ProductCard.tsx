@@ -370,6 +370,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
                 minQuantity={product.quantityMultiplicity || 1}
                 onIncrement={() => handleUpdateQuantity(1)}
                 onDecrement={() => handleUpdateQuantity(-1)}
+                onRemove={() => handleUpdateQuantity(-currentCartQuantity)}
                 isLoading={isAddingToCart}
               />
             ) : (

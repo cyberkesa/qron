@@ -4,7 +4,7 @@ import ResetPasswordClient from './reset-password-client';
 import ResetPasswordLoading from './loading';
 
 export const metadata: Metadata = {
-  title: 'Восстановление пароля | QRON',
+  title: 'Восстановление пароля | КРОН',
   description: 'Восстановление доступа к аккаунту',
 };
 

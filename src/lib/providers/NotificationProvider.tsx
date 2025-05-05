@@ -3,6 +3,8 @@ import {
   useNotifications,
   Notification,
   NotificationType,
+  NotificationPosition,
+  NotificationOptions,
 } from '@/lib/hooks/useNotifications';
 import NotificationSystem from '@/components/ui/NotificationSystem';
 
@@ -12,14 +14,16 @@ interface NotificationContextType {
   showNotification: (
     message: string,
     type?: NotificationType,
-    timeout?: number
+    options?: NotificationOptions
   ) => string;
   dismissNotification: (id: string) => void;
-  showSuccess: (message: string, timeout?: number) => string;
-  showError: (message: string, timeout?: number) => string;
-  showInfo: (message: string, timeout?: number) => string;
-  showWarning: (message: string, timeout?: number) => string;
+  showSuccess: (message: string, options?: NotificationOptions) => string;
+  showError: (message: string, options?: NotificationOptions) => string;
+  showInfo: (message: string, options?: NotificationOptions) => string;
+  showWarning: (message: string, options?: NotificationOptions) => string;
   clearAllNotifications: () => void;
+  setNotificationPosition: (position: NotificationPosition) => void;
+  position: NotificationPosition;
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
@@ -48,6 +52,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
       <NotificationSystem
         notifications={notificationMethods.notifications}
         onDismiss={notificationMethods.dismissNotification}
+        position={notificationMethods.position}
       />
     </NotificationContext.Provider>
   );

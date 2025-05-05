@@ -1,17 +1,33 @@
 import { useCallback, useRef, useState } from 'react';
 
 export type NotificationType = 'success' | 'error' | 'info' | 'warning';
+export type NotificationPosition =
+  | 'top-right'
+  | 'top-left'
+  | 'bottom-right'
+  | 'bottom-left'
+  | 'top-center'
+  | 'bottom-center';
 
 export interface Notification {
   id: string;
   message: string;
+  title?: string;
   type: NotificationType;
   timeout?: number;
   createdAt?: number; // Add timestamp for better tracking
+  position?: NotificationPosition;
+}
+
+export interface NotificationOptions {
+  timeout?: number;
+  title?: string;
+  position?: NotificationPosition;
 }
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [position, setPosition] = useState<NotificationPosition>('top-right');
   // Keep track of recent notifications to prevent duplicates across rerenders
   const recentNotificationsRef = useRef<Map<string, number>>(new Map());
 
@@ -35,13 +51,26 @@ export function useNotifications() {
     }
   }, []);
 
+  // Set global notification position
+  const setNotificationPosition = useCallback(
+    (newPosition: NotificationPosition) => {
+      setPosition(newPosition);
+    },
+    []
+  );
+
   // Добавление нового уведомления
   const showNotification = useCallback(
     (
       message: string,
       type: NotificationType = 'info',
-      timeout: number = 3000
+      options?: NotificationOptions
     ) => {
+      // Extract options with defaults
+      const timeout = options?.timeout ?? 5000;
+      const title = options?.title;
+      const notificationPosition = options?.position ?? position;
+
       // Create a unique key for this notification type+message
       const notificationKey = `${type}:${message}`;
       const now = Date.now();
@@ -60,9 +89,11 @@ export function useNotifications() {
       const notification: Notification = {
         id,
         message,
+        title,
         type,
         timeout,
         createdAt: now,
+        position: notificationPosition,
       };
 
       // Track this notification to prevent duplicates
@@ -78,8 +109,8 @@ export function useNotifications() {
 
         // Ограничиваем максимальное количество уведомлений до 3
         const updatedNotifications = [...prev, notification];
-        if (updatedNotifications.length > 3) {
-          return updatedNotifications.slice(-3); // Оставляем только последние 3
+        if (updatedNotifications.length > 5) {
+          return updatedNotifications.slice(-5); // Оставляем только последние 5
         }
 
         return updatedNotifications;
@@ -94,34 +125,34 @@ export function useNotifications() {
 
       return id;
     },
-    [dismissNotification, cleanupRecentNotifications]
+    [dismissNotification, cleanupRecentNotifications, position]
   );
 
   // Специализированные методы для разных типов уведомлений
   const showSuccess = useCallback(
-    (message: string, timeout?: number) => {
-      return showNotification(message, 'success', timeout);
+    (message: string, options?: NotificationOptions) => {
+      return showNotification(message, 'success', options);
     },
     [showNotification]
   );
 
   const showError = useCallback(
-    (message: string, timeout?: number) => {
-      return showNotification(message, 'error', timeout);
+    (message: string, options?: NotificationOptions) => {
+      return showNotification(message, 'error', options);
     },
     [showNotification]
   );
 
   const showInfo = useCallback(
-    (message: string, timeout?: number) => {
-      return showNotification(message, 'info', timeout);
+    (message: string, options?: NotificationOptions) => {
+      return showNotification(message, 'info', options);
     },
     [showNotification]
   );
 
   const showWarning = useCallback(
-    (message: string, timeout?: number) => {
-      return showNotification(message, 'warning', timeout);
+    (message: string, options?: NotificationOptions) => {
+      return showNotification(message, 'warning', options);
     },
     [showNotification]
   );
@@ -140,6 +171,8 @@ export function useNotifications() {
     showInfo,
     showWarning,
     clearAllNotifications,
+    setNotificationPosition,
+    position,
   };
 }
 

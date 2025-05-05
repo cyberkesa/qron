@@ -35,10 +35,22 @@ module.exports = {
           '0%': { opacity: '1', transform: 'translateY(0)' },
           '100%': { opacity: '0', transform: 'translateY(-10px)' },
         },
+        fadeInRight: {
+          '0%': { opacity: '0', transform: 'translateX(100%)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        gradientFlow: {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
         'fade-out': 'fadeOut 0.3s ease-in-out',
+        fadeIn: 'fadeIn 0.3s ease-in-out',
+        fadeInRight: 'fadeInRight 0.3s ease-in-out',
+        gradient: 'gradientFlow 6s ease infinite',
       },
       scale: {
         98: '0.98',
@@ -49,6 +61,9 @@ module.exports = {
         80: '80',
         90: '90',
         100: '100',
+      },
+      backgroundSize: {
+        '300%': '300% 300%',
       },
     },
     screens: {

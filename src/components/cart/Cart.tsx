@@ -262,6 +262,7 @@ export function Cart() {
                       item.quantity - (item.product.quantityMultiplicity || 1)
                     )
                   }
+                  onRemove={() => handleDeleteItem(item.product.id)}
                   disabled={isProblematic}
                   small={true}
                 />

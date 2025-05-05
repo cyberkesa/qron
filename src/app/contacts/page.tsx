@@ -189,18 +189,6 @@ export default function ContactsPage() {
                   <p className="text-gray-700">Вс: Выходной</p>
                 </div>
               </div>
-
-              <div className="flex items-start group">
-                <div className="p-2 rounded-full bg-indigo-50 mr-4 group-hover:bg-indigo-100 transition-colors duration-200">
-                  <BuildingOfficeIcon className="h-5 w-5 text-indigo-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-800">Реквизиты</h3>
-                  <p className="text-gray-700 mb-1">ООО &laquo;КРОН&raquo;</p>
-                  <p className="text-gray-700 mb-1">ИНН: 7712345678</p>
-                  <p className="text-gray-700">ОГРН: 1157746123456</p>
-                </div>
-              </div>
             </div>
           </div>
 

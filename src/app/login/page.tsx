@@ -4,8 +4,8 @@ import LoginClient from './login-client';
 import { Providers } from '@/app/providers';
 
 export const metadata: Metadata = {
-  title: 'Qron | Вход',
-  description: 'Войдите в свой аккаунт Qron',
+  title: 'КРОН | Вход',
+  description: 'Войдите в свой аккаунт КРОН',
 };
 
 export default function LoginPage() {

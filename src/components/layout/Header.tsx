@@ -69,7 +69,7 @@ const MainHeader = memo(
 
           {/* Логотип */}
           <Link href="/" className="flex-shrink-0 hover-scale">
-            <h1 className="text-2xl font-bold text-blue-600">Qron Shop</h1>
+            <h1 className="text-2xl font-bold text-blue-600">КРОН</h1>
           </Link>
 
           {/* Строка поиска - расширяется на всю доступную ширину */}
