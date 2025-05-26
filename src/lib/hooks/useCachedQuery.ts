@@ -6,8 +6,8 @@ import {
   TypedDocumentNode,
   useQuery,
   WatchQueryFetchPolicy,
-} from "@apollo/client";
-import { useEffect, useRef } from "react";
+} from '@apollo/client';
+import { useEffect, useRef } from 'react';
 
 // Cache structure to store query results
 interface QueryCache {
@@ -60,12 +60,12 @@ function getOperationName(query: DocumentNode): string {
   // Safe access of the operation name
   try {
     const definition = query.definitions.find(
-      (def) => def.kind === "OperationDefinition",
+      (def) => def.kind === 'OperationDefinition'
     );
     // @ts-ignore - We're safely handling property access
-    return definition?.name?.value || "query";
+    return definition?.name?.value || 'query';
   } catch (e) {
-    return "query";
+    return 'query';
   }
 }
 
@@ -81,7 +81,7 @@ export function useCachedQuery<
   TVariables extends OperationVariables = OperationVariables,
 >(
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
-  options: CachedQueryOptions<TData, TVariables> = {},
+  options: CachedQueryOptions<TData, TVariables> = {}
 ): QueryResult<TData, TVariables> {
   const {
     cacheTime = 5 * 60 * 1000, // 5 minutes by default
@@ -101,7 +101,7 @@ export function useCachedQuery<
 
   // Track if we should deduplicate this query
   const shouldDeduplicate = useRef(
-    deduplicate && inFlightQueries.has(cacheKey),
+    deduplicate && inFlightQueries.has(cacheKey)
   );
 
   // Standard Apollo useQuery with some modifications
@@ -113,7 +113,7 @@ export function useCachedQuery<
     fetchPolicy: getCacheFetchPolicy(
       cacheKey,
       cacheTime,
-      apolloOptions.fetchPolicy as WatchQueryFetchPolicy,
+      apolloOptions.fetchPolicy as WatchQueryFetchPolicy
     ),
     onCompleted: (data) => {
       // Store in our cache
@@ -202,21 +202,21 @@ export function clearQueryCache(cacheKeys?: string[]): void {
 function getCacheFetchPolicy(
   cacheKey: string,
   cacheTime: number,
-  originalPolicy: WatchQueryFetchPolicy | undefined,
+  originalPolicy: WatchQueryFetchPolicy | undefined
 ): WatchQueryFetchPolicy {
   // If a fetch policy is explicitly set, respect it
-  if (originalPolicy && originalPolicy !== "cache-first") {
+  if (originalPolicy && originalPolicy !== 'cache-first') {
     return originalPolicy;
   }
 
   // If we have a recent cache entry, use it
   const cachedData = queryCache[cacheKey];
   if (cachedData && Date.now() - cachedData.timestamp < cacheTime) {
-    return "cache-first";
+    return 'cache-first';
   }
 
   // Otherwise prefer network
-  return "network-only";
+  return 'network-only';
 }
 
 export default useCachedQuery;

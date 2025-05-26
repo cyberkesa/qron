@@ -1,72 +1,129 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { useQuery, useMutation } from "@apollo/client";
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery, useMutation } from '@apollo/client';
 import {
   GET_CART,
   GET_DELIVERY_ADDRESSES,
   CHECK_OUT,
   GET_VIEWER,
-} from "@/lib/queries";
-import {
-  DeliveryMethod,
-  PaymentMethod,
-  DeliveryAddress,
-  CartItem,
-} from "@/types/api";
-import Link from "next/link";
-import Image from "next/image";
+} from '@/lib/queries';
+import { DeliveryAddress, CartItem } from '@/types/api';
+import Link from 'next/link';
+import Image from 'next/image';
 import {
   ShoppingCartIcon,
   MapPinIcon,
-  CreditCardIcon,
-  TruckIcon,
   UserIcon,
   ArrowRightIcon,
-} from "@heroicons/react/24/outline";
-import { trackOrder } from "@/lib/analytics";
+} from '@heroicons/react/24/outline';
+import { trackOrder } from '@/lib/analytics';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 // Функция для форматирования цены
 const formatPrice = (price: string) => {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(parseFloat(price));
 };
 
+// Функция для форматирования номера телефона
+const formatPhoneNumber = (value: string) => {
+  // Если первый введенный символ - это 8, сразу преобразуем в +7
+  if (value.trim() === '8') {
+    return '+7';
+  }
+
+  // Удаляем все нецифровые символы
+  let phoneNumber = value.replace(/\D/g, '');
+
+  // Проверяем формат номера
+  if (phoneNumber.length === 0) {
+    return '';
+  }
+
+  // Если номер начинается с 8, меняем на 7
+  if (phoneNumber.startsWith('8')) {
+    phoneNumber = '7' + phoneNumber.substring(1);
+  }
+
+  // Если номер не начинается с 7, добавляем 7 в начало
+  if (!phoneNumber.startsWith('7') && phoneNumber.length > 0) {
+    phoneNumber = '7' + phoneNumber;
+  }
+
+  // Ограничиваем длину до 11 цифр (с 7 в начале)
+  phoneNumber = phoneNumber.substring(0, 11);
+
+  // Форматируем номер в виде +7 (XXX) XXX-XX-XX
+  let formattedNumber = '';
+
+  // Всегда добавляем +7 в начало, если есть хотя бы одна цифра
+  if (phoneNumber.length > 0) {
+    formattedNumber = '+7';
+  }
+
+  // Добавляем код региона в скобках, только если есть цифры после 7
+  if (phoneNumber.length > 1) {
+    formattedNumber +=
+      ' (' + phoneNumber.substring(1, Math.min(4, phoneNumber.length));
+
+    // Закрываем скобку только если введены все цифры кода региона
+    if (phoneNumber.length >= 4) {
+      formattedNumber += ')';
+    }
+  }
+
+  // Добавляем первую часть номера
+  if (phoneNumber.length > 4) {
+    formattedNumber +=
+      ' ' + phoneNumber.substring(4, Math.min(7, phoneNumber.length));
+  }
+
+  // Добавляем вторую часть номера с дефисом
+  if (phoneNumber.length > 7) {
+    formattedNumber +=
+      '-' + phoneNumber.substring(7, Math.min(9, phoneNumber.length));
+  }
+
+  // Добавляем последнюю часть номера с дефисом
+  if (phoneNumber.length > 9) {
+    formattedNumber += '-' + phoneNumber.substring(9, 11);
+  }
+
+  return formattedNumber;
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
-  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
-    PaymentMethod.CARD,
-  );
-  const [selectedDeliveryMethod, setSelectedDeliveryMethod] =
-    useState<DeliveryMethod>(DeliveryMethod.DELIVERY);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Добавляем состояние для телефона (если телефон не привязан к аккаунту)
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const [phoneError, setPhoneError] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [phoneError, setPhoneError] = useState<string>('');
 
   const { data: cartData, loading: cartLoading } = useQuery(GET_CART);
   const { data: addressesData, loading: addressesLoading } = useQuery(
-    GET_DELIVERY_ADDRESSES,
+    GET_DELIVERY_ADDRESSES
   );
   const { data: userData, loading: userLoading } = useQuery(GET_VIEWER);
   const [checkout, { loading: checkoutLoading }] = useMutation(CHECK_OUT);
 
   // Определяем, авторизован ли пользователь
   const isRegisteredUser = useMemo(() => {
-    return userData?.viewer?.__typename === "RegisteredViewer";
+    return userData?.viewer?.__typename === 'RegisteredViewer';
   }, [userData]);
 
   // Автоматически устанавливаем телефон из профиля, если он есть
   useEffect(() => {
     if (isRegisteredUser && userData?.viewer?.phoneNumber) {
-      setPhoneNumber(userData.viewer.phoneNumber);
+      setPhoneNumber(formatPhoneNumber(userData.viewer.phoneNumber));
     }
   }, [isRegisteredUser, userData]);
 
@@ -79,14 +136,14 @@ export default function CheckoutPage() {
   const cartItems = useMemo(() => {
     return (
       cartData?.cart?.items?.edges?.map(
-        (edge: { node: CartItem }) => edge.node,
+        (edge: { node: CartItem }) => edge.node
       ) || []
     );
   }, [cartData]);
 
   // Получаем общую сумму
   const cartTotal = useMemo(() => {
-    return cartData?.cart?.items?.decimalTotalPrice || "0";
+    return cartData?.cart?.items?.decimalTotalPrice || '0';
   }, [cartData]);
 
   // Если есть адрес по умолчанию, выбираем его
@@ -98,36 +155,41 @@ export default function CheckoutPage() {
 
   // Валидация телефона
   const validatePhone = (phone: string): boolean => {
-    const phoneRegex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
-
     if (!phone.trim()) {
-      setPhoneError("Телефон обязателен для заказа");
+      setPhoneError('Телефон обязателен для заказа');
       return false;
     }
 
-    if (!phoneRegex.test(phone)) {
-      setPhoneError("Введите телефон в формате +7 (999) 123-45-67");
+    // Проверяем, что номер начинается с +7 и имеет правильную длину
+    if (!phone.startsWith('+7') || phone.length !== 12) {
+      setPhoneError('Введите корректный номер телефона');
       return false;
     }
 
-    setPhoneError("");
+    setPhoneError('');
     return true;
+  };
+
+  // Форматирование номера для API
+  const formatPhoneForApi = (phone: string): string => {
+    // Удаляем все нецифровые символы
+    return phone.replace(/\D/g, '');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
-    setPhoneError("");
+    setErrorMessage('');
+    setPhoneError('');
 
     // Валидация
     if (cartItems.length === 0) {
-      setErrorMessage("Ваша корзина пуста");
+      setErrorMessage('Ваша корзина пуста');
       return;
     }
 
     if (!isRegisteredUser) {
       // Если пользователь не авторизован, перенаправляем на страницу входа
-      router.push("/login?redirect=checkout");
+      router.push('/login?redirect=checkout');
       return;
     }
 
@@ -135,23 +197,32 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (
-      selectedDeliveryMethod === DeliveryMethod.DELIVERY &&
-      !selectedAddressId
-    ) {
-      setErrorMessage("Для доставки необходимо выбрать адрес");
+    if (!selectedAddressId) {
+      setErrorMessage('Для оформления заказа необходимо выбрать адрес');
+      return;
+    }
+
+    const formattedPhone = formatPhoneForApi(phoneNumber);
+
+    if (!formattedPhone || formattedPhone.length < 10) {
+      setPhoneError('Некорректный формат телефона');
       return;
     }
 
     try {
+      console.log('Оформление заказа, отправляемые данные:', {
+        deliveryAddressId: selectedAddressId,
+        phoneNumber: formattedPhone,
+      });
+
       const result = await checkout({
         variables: {
           deliveryAddressId: selectedAddressId,
-          paymentMethod,
-          deliveryMethod: selectedDeliveryMethod,
-          phoneNumber: phoneNumber,
+          phoneNumber: formattedPhone,
         },
       });
+
+      console.log('Результат запроса:', result);
 
       if (result.data?.checkOut?.order) {
         const order = result.data.checkOut.order;
@@ -162,20 +233,22 @@ export default function CheckoutPage() {
           name: item.product.name,
           price: item.product.price,
           quantity: item.quantity,
-          category: item.product.category?.title || "",
+          category: item.product.category?.title || '',
         }));
 
         trackOrder(order.id, orderItems, parseFloat(cartTotal));
 
-        router.push(`/orders/${order.id}`);
+        // Добавляем параметр success=true для отображения сообщения об успешном оформлении
+        router.push(`/orders/${order.id}?success=true`);
       } else if (result.data?.checkOut?.message) {
         setErrorMessage(result.data.checkOut.message);
       }
     } catch (error: unknown) {
+      console.error('Checkout error:', error);
       const errorMessage =
         error instanceof Error
-          ? error.message
-          : "Произошла ошибка при оформлении заказа";
+          ? `${error.message}`
+          : 'Произошла ошибка при оформлении заказа';
       setErrorMessage(errorMessage);
     }
   };
@@ -271,9 +344,9 @@ export default function CheckoutPage() {
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-gray-900">
-                      {new Intl.NumberFormat("ru-RU").format(
-                        item.product.price * item.quantity,
-                      )}{" "}
+                      {new Intl.NumberFormat('ru-RU').format(
+                        item.product.price * item.quantity
+                      )}{' '}
                       ₽
                     </p>
                   </div>
@@ -283,7 +356,7 @@ export default function CheckoutPage() {
             <div className="mt-6 flex justify-between items-center border-t border-gray-200 pt-4">
               <p className="font-medium text-gray-800">Итого:</p>
               <p className="text-xl font-bold text-blue-600">
-                {new Intl.NumberFormat("ru-RU").format(parseFloat(cartTotal))} ₽
+                {new Intl.NumberFormat('ru-RU').format(parseFloat(cartTotal))} ₽
               </p>
             </div>
           </div>
@@ -331,26 +404,59 @@ export default function CheckoutPage() {
                 <h2 className="text-xl font-semibold">Контактные данные</h2>
               </div>
 
-              <div className="mb-4">
+              <div className="mt-2">
                 <label
-                  htmlFor="phoneNumber"
-                  className="block text-gray-700 font-medium mb-2"
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Телефон для связи *
+                  Номер телефона *
                 </label>
-                <input
-                  type="tel"
-                  id="phoneNumber"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="+7 (999) 123-45-67"
-                  className={`w-full px-4 py-2 border ${
-                    phoneError ? "border-red-300" : "border-gray-300"
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                />
-                {phoneError && (
-                  <p className="mt-1 text-sm text-red-600">{phoneError}</p>
-                )}
+                <div className="relative mt-1">
+                  <PhoneInput
+                    country={'ru'}
+                    value={phoneNumber}
+                    onChange={(value) => setPhoneNumber('+' + value)}
+                    inputClass={`w-full !h-[42px] !pl-[48px] !rounded-lg !border ${
+                      phoneError
+                        ? '!border-red-300 !text-red-900 !placeholder-red-300 focus:!outline-none focus:!ring-red-500 focus:!border-red-500'
+                        : '!border-gray-300 focus:!ring-blue-500 focus:!border-blue-500'
+                    } !shadow-sm !text-gray-900 !placeholder-gray-400 focus:!outline-none focus:!ring-2 transition-colors`}
+                    buttonClass="!border-gray-300 !rounded-l-lg"
+                    containerClass="!w-full"
+                    specialLabel=""
+                    inputProps={{
+                      id: 'phone',
+                      name: 'phone',
+                      autoComplete: 'tel',
+                      'aria-invalid': phoneError ? 'true' : 'false',
+                      'aria-describedby': phoneError
+                        ? 'phone-error'
+                        : undefined,
+                    }}
+                  />
+                  {phoneError && (
+                    <p
+                      className="mt-2 text-sm text-red-600 flex items-center"
+                      id="phone-error"
+                    >
+                      <svg
+                        className="h-4 w-4 mr-1 text-red-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      {phoneError}
+                    </p>
+                  )}
+                  <p className="mt-1 text-xs text-gray-500">
+                    Нужен для связи по вашему заказу
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -380,8 +486,8 @@ export default function CheckoutPage() {
                       key={address.id}
                       className={`block border p-4 rounded-md cursor-pointer transition-all ${
                         selectedAddressId === address.id
-                          ? "border-blue-500 bg-blue-50 shadow-sm"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? 'border-blue-500 bg-blue-50 shadow-sm'
+                          : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <div className="flex items-start">
@@ -424,142 +530,10 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            {/* Способ доставки */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-gray-100">
-                <TruckIcon className="h-6 w-6 text-blue-600" />
-                <h2 className="text-xl font-semibold">Способ доставки</h2>
-              </div>
-
-              <div className="space-y-4">
-                <label
-                  className={`block border p-4 rounded-md cursor-pointer transition-all ${
-                    selectedDeliveryMethod === DeliveryMethod.DELIVERY
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start">
-                    <input
-                      type="radio"
-                      name="deliveryMethod"
-                      value={DeliveryMethod.DELIVERY}
-                      checked={
-                        selectedDeliveryMethod === DeliveryMethod.DELIVERY
-                      }
-                      onChange={() =>
-                        setSelectedDeliveryMethod(DeliveryMethod.DELIVERY)
-                      }
-                      className="mt-1 mr-3"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        Доставка курьером
-                      </p>
-                      <p className="text-gray-600 text-sm">
-                        Доставка заказа по указанному адресу
-                      </p>
-                    </div>
-                  </div>
-                </label>
-
-                <label
-                  className={`block border p-4 rounded-md cursor-pointer transition-all ${
-                    selectedDeliveryMethod === DeliveryMethod.PICKUP
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start">
-                    <input
-                      type="radio"
-                      name="deliveryMethod"
-                      value={DeliveryMethod.PICKUP}
-                      checked={selectedDeliveryMethod === DeliveryMethod.PICKUP}
-                      onChange={() =>
-                        setSelectedDeliveryMethod(DeliveryMethod.PICKUP)
-                      }
-                      className="mt-1 mr-3"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-800">Самовывоз</p>
-                      <p className="text-gray-600 text-sm">
-                        Самовывоз заказа из пункта выдачи
-                      </p>
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* Способ оплаты */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-gray-100">
-                <CreditCardIcon className="h-6 w-6 text-blue-600" />
-                <h2 className="text-xl font-semibold">Способ оплаты</h2>
-              </div>
-
-              <div className="space-y-4">
-                <label
-                  className={`block border p-4 rounded-md cursor-pointer transition-all ${
-                    paymentMethod === PaymentMethod.CARD
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value={PaymentMethod.CARD}
-                      checked={paymentMethod === PaymentMethod.CARD}
-                      onChange={() => setPaymentMethod(PaymentMethod.CARD)}
-                      className="mt-1 mr-3"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        Банковской картой онлайн
-                      </p>
-                      <p className="text-gray-600 text-sm">
-                        Оплата картой на сайте через защищенное соединение
-                      </p>
-                    </div>
-                  </div>
-                </label>
-
-                <label
-                  className={`block border p-4 rounded-md cursor-pointer transition-all ${
-                    paymentMethod === PaymentMethod.CASH
-                      ? "border-blue-500 bg-blue-50 shadow-sm"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value={PaymentMethod.CASH}
-                      checked={paymentMethod === PaymentMethod.CASH}
-                      onChange={() => setPaymentMethod(PaymentMethod.CASH)}
-                      className="mt-1 mr-3"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        Наличными при получении
-                      </p>
-                      <p className="text-gray-600 text-sm">
-                        Оплата наличными курьеру при доставке
-                      </p>
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
-
             <button
               type="submit"
               disabled={checkoutLoading || addresses.length === 0}
-              className="w-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-lg font-medium"
+              className="w-full bg-blue-600 text-white px-6 py-3.5 rounded-md hover:bg-blue-700 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed text-lg font-medium shadow-sm hover:shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               {checkoutLoading ? (
                 <span className="flex items-center justify-center">
@@ -586,7 +560,23 @@ export default function CheckoutPage() {
                   Оформляем заказ...
                 </span>
               ) : (
-                "Оформить заказ"
+                <span className="flex items-center justify-center">
+                  Оформить заказ
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 ml-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    />
+                  </svg>
+                </span>
               )}
             </button>
           </form>
@@ -594,34 +584,36 @@ export default function CheckoutPage() {
 
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
-            <h2 className="text-xl font-semibold mb-4">Ваш заказ</h2>
+            <h2 className="text-xl font-semibold mb-4 pb-2 border-b border-gray-100">
+              Ваш заказ
+            </h2>
 
-            <div className="mb-4 max-h-96 overflow-y-auto">
+            <div className="mb-6 max-h-96 overflow-y-auto pr-1 space-y-4">
               {cartItems.map((item: CartItem) => (
                 <div
                   key={item.id}
-                  className="py-3 border-b border-gray-100 last:border-b-0 flex items-center gap-3"
+                  className="py-3 border-b border-gray-100 last:border-b-0 flex items-center gap-3 group hover:bg-gray-50 rounded-md p-1 transition-colors"
                 >
                   <div className="relative w-16 h-16 flex-shrink-0">
                     <Image
                       src={item.product.images[0].url}
                       alt={item.product.name}
                       fill
-                      className="object-contain rounded-md border border-gray-200"
+                      className="object-contain rounded-md border border-gray-200 group-hover:border-gray-300 transition-colors"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 text-sm line-clamp-1">
+                    <p className="font-medium text-gray-900 text-sm line-clamp-1 group-hover:text-blue-600 transition-colors">
                       {item.product.name}
                     </p>
-                    <div className="flex justify-between mt-1">
-                      <p className="text-sm text-gray-500">
+                    <div className="flex justify-between mt-1.5">
+                      <p className="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
                         {item.quantity} шт.
                       </p>
                       <p className="font-medium text-gray-900 text-sm">
-                        {new Intl.NumberFormat("ru-RU").format(
-                          item.product.price * item.quantity,
-                        )}{" "}
+                        {new Intl.NumberFormat('ru-RU').format(
+                          item.product.price * item.quantity
+                        )}{' '}
                         ₽
                       </p>
                     </div>
@@ -630,17 +622,17 @@ export default function CheckoutPage() {
               ))}
             </div>
 
-            <div className="border-t border-gray-200 pt-4 space-y-2">
+            <div className="border-t border-gray-200 pt-4 space-y-3">
               <div className="flex justify-between text-gray-600">
                 <span>Товары ({cartItems.length}):</span>
                 <span>
-                  {new Intl.NumberFormat("ru-RU").format(parseFloat(cartTotal))}{" "}
+                  {new Intl.NumberFormat('ru-RU').format(parseFloat(cartTotal))}{' '}
                   ₽
                 </span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Доставка:</span>
-                <span>0 ₽</span>
+                <span className="text-green-600 font-medium">Бесплатно</span>
               </div>
             </div>
 
@@ -648,11 +640,32 @@ export default function CheckoutPage() {
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-lg">Итого:</span>
                 <span className="font-bold text-xl text-blue-600">
-                  {new Intl.NumberFormat("ru-RU").format(parseFloat(cartTotal))}{" "}
+                  {new Intl.NumberFormat('ru-RU').format(parseFloat(cartTotal))}{' '}
                   ₽
                 </span>
               </div>
             </div>
+
+            {addresses.length === 0 && (
+              <div className="mt-4 bg-yellow-50 p-4 rounded-md border border-yellow-100">
+                <div className="flex items-start">
+                  <svg
+                    className="h-5 w-5 text-yellow-400 mt-0.5 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <p className="text-sm text-yellow-700">
+                    Для оформления заказа добавьте адрес доставки
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -41,12 +41,16 @@ body {
   height: var(--safe-area-bottom);
 }
 
+.safe-area-bottom {
+  padding-bottom: var(--safe-area-bottom);
+}
+
 /* Improve tap target sizes on mobile */
 @media (max-width: 640px) {
   button,
   a,
-  input[type="button"],
-  input[type="submit"] {
+  input[type='button'],
+  input[type='submit'] {
     min-height: 44px; /* Apple's recommended minimum touch target size */
     min-width: 44px;
   }
@@ -63,50 +67,151 @@ body {
 /* Mobile-first responsive typography */
 @media (max-width: 640px) {
   h1 {
-    font-size: 1.5rem !important;
-    line-height: 2rem !important;
-  }
-  h2 {
     font-size: 1.25rem !important;
     line-height: 1.75rem !important;
   }
-  h3 {
+  h2 {
     font-size: 1.125rem !important;
     line-height: 1.5rem !important;
+  }
+  h3 {
+    font-size: 1rem !important;
+    line-height: 1.375rem !important;
+  }
+  h4 {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+  h5,
+  h6 {
+    font-size: 0.75rem !important;
+    line-height: 1.125rem !important;
   }
   p,
   li,
   a,
   span,
   div {
-    font-size: 0.875rem !important;
+    font-size: 0.75rem !important;
+    line-height: 1.125rem !important;
   }
   .text-xl,
   .text-2xl,
   .text-3xl {
-    font-size: 1.25rem !important;
-    line-height: 1.75rem !important;
+    font-size: 1.125rem !important;
+    line-height: 1.5rem !important;
   }
   .text-lg {
-    font-size: 1rem !important;
-    line-height: 1.5rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+  .text-base {
+    font-size: 0.75rem !important;
+    line-height: 1.125rem !important;
+  }
+  .text-sm {
+    font-size: 0.6875rem !important;
+    line-height: 1rem !important;
+  }
+  .text-xs {
+    font-size: 0.625rem !important;
+    line-height: 0.875rem !important;
   }
   button,
   input,
   select,
   textarea {
-    font-size: 0.875rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Специальные классы для очень маленького текста */
+  .text-tiny {
+    font-size: 0.5625rem !important;
+    line-height: 0.75rem !important;
   }
 
   /* Reduce padding/margin for mobile */
   .container {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
   }
 
   /* Adjust product cards for mobile */
   .product-card {
-    margin-bottom: 16px !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Компактные карточки товаров на мобильных */
+  .product-card .p-2 {
+    padding: 6px !important;
+  }
+
+  .product-card .sm\\:p-3 {
+    padding: 6px !important;
+  }
+
+  /* Уменьшенные отступы в карточках */
+  .product-card .mb-1 {
+    margin-bottom: 2px !important;
+  }
+
+  .product-card .mb-2 {
+    margin-bottom: 4px !important;
+  }
+
+  .product-card .mt-1 {
+    margin-top: 2px !important;
+  }
+
+  .product-card .mt-2 {
+    margin-top: 4px !important;
+  }
+
+  .product-card .gap-2 {
+    gap: 4px !important;
+  }
+
+  /* Компактные кнопки */
+  button:not(.no-compact) {
+    padding: 6px 12px !important;
+    font-size: 0.6875rem !important;
+  }
+
+  /* Компактные формы */
+  input:not(.no-compact),
+  select:not(.no-compact),
+  textarea:not(.no-compact) {
+    padding: 6px 8px !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Компактные карточки */
+  .card-title {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+
+  .card-text {
+    font-size: 0.6875rem !important;
+    line-height: 1rem !important;
+  }
+
+  /* Навигация */
+  .nav-link {
+    font-size: 0.6875rem !important;
+    padding: 4px 8px !important;
+  }
+
+  /* Хлебные крошки */
+  .breadcrumb {
+    font-size: 0.625rem !important;
+  }
+
+  /* Бейджи и метки */
+  .badge,
+  .label {
+    font-size: 0.5625rem !important;
+    padding: 2px 6px !important;
   }
 }
 
@@ -127,7 +232,7 @@ body {
   text-decoration: underline !important;
 }
 .high-contrast button,
-.high-contrast [role="button"] {
+.high-contrast [role='button'] {
   border: 2px solid var(--border-color) !important;
 }
 .high-contrast input,
@@ -137,7 +242,7 @@ body {
 }
 
 /* Keyboard navigation styles */
-[data-keyboard-nav="true"] *:focus {
+[data-keyboard-nav='true'] *:focus {
   outline: 3px solid #000 !important;
   outline-offset: 2px !important;
 }
@@ -150,13 +255,13 @@ main {
   min-height: 50vh;
 }
 @font-face {
-  font-family: "Inter";
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
   src:
-    local("Inter"),
-    url("/fonts/inter.woff2") format("woff2");
+    local('Inter'),
+    url('/fonts/inter.woff2') format('woff2');
 }
 svg {
   width: 1.5rem;
@@ -388,7 +493,7 @@ svg {
 }
 
 .btn-pulse:after {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -484,7 +589,7 @@ svg {
 }
 
 .nav-link::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -541,7 +646,7 @@ svg {
 }
 
 .category-menu-item::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -575,5 +680,1585 @@ svg {
   }
   to {
     opacity: 1;
+  }
+}
+
+/* Add custom animations for notifications */
+@keyframes slideDownIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes slideUpOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+}
+
+@layer utilities {
+  .animate-slide-down-in {
+    animation: slideDownIn 0.4s ease-out forwards;
+  }
+
+  .animate-slide-up-out {
+    animation: slideUpOut 0.4s ease-in forwards;
+  }
+}
+
+/* Other custom styles can go here */
+
+/* Анимации для уведомлений */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.animate-slide-out-right {
+  animation: slideOutRight 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+}
+
+/* Глобальные плавные переходы для элементов */
+button,
+a,
+.transition-all {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Плавные переходы для hover эффектов */
+.hover-element,
+.btn-pulse,
+button:not([disabled]),
+a:not(.no-hover) {
+  transition-duration: 300ms;
+}
+
+/* Анимации для компонентов */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Стили для компонента ввода телефона */
+.react-tel-input .form-control {
+  @apply !w-full !h-[42px] !pl-[48px] !rounded-lg !border !border-gray-300 !shadow-sm !text-gray-900 !placeholder-gray-400 focus:!outline-none focus:!ring-2 focus:!ring-blue-500 focus:!border-blue-500 transition-colors;
+}
+
+.react-tel-input .form-control:focus {
+  @apply !border-blue-500 !ring-2 !ring-blue-500;
+}
+
+.react-tel-input .form-control.error {
+  @apply !border-red-300 !text-red-900 !placeholder-red-300 focus:!outline-none focus:!ring-red-500 focus:!border-red-500;
+}
+
+.react-tel-input .flag-dropdown {
+  @apply !border-gray-300 !rounded-l-lg;
+}
+
+.react-tel-input .selected-flag {
+  @apply !rounded-l-lg;
+}
+
+.react-tel-input .selected-flag:hover,
+.react-tel-input .selected-flag:focus {
+  @apply !bg-gray-50;
+}
+
+.react-tel-input .country-list {
+  @apply !border-gray-200 !shadow-lg !rounded-lg;
+}
+
+.react-tel-input .country-list .country:hover {
+  @apply !bg-gray-50;
+}
+
+.react-tel-input .country-list .country.highlight {
+  @apply !bg-blue-50;
+}
+
+.react-tel-input .country-list .country.selected {
+  @apply !bg-blue-100;
+}
+
+.react-tel-input .country-list .search {
+  @apply !border-gray-200;
+}
+
+.react-tel-input .country-list .search:focus {
+  @apply !border-blue-500 !ring-2 !ring-blue-500;
+}
+
+.react-tel-input .country-list .divider {
+  @apply !border-gray-200;
+}
+
+.react-tel-input .country-list .country .dial-code {
+  @apply !text-gray-500;
+}
+
+.react-tel-input .country-list .country:hover .dial-code {
+  @apply !text-gray-700;
+}
+
+.react-tel-input .country-list .country.highlight .dial-code {
+  @apply !text-blue-600;
+}
+
+.react-tel-input .country-list .country.selected .dial-code {
+  @apply !text-blue-700;
+}
+
+/* React Tel Input Styles */
+.react-tel-input .country-list .country.selected .dial-code {
+  color: #2563eb;
+}
+
+/* ==============================
+   MOBILE NAVIGATION IMPROVEMENTS
+   ============================== */
+
+/* Safe area support for modern mobile devices */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+}
+
+.h-safe {
+  height: env(safe-area-inset-bottom, 0px);
+}
+
+/* Enhanced mobile menu animations */
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToBottom {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slide-in-bottom {
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+.animate-slide-out-bottom {
+  animation: slideOutToBottom 0.3s ease-in;
+}
+
+/* Mobile menu backdrop blur effect */
+.backdrop-blur-mobile {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Touch-friendly button styles */
+.touch-button {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Improved mobile scrolling */
+.mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Mobile-optimized shadows */
+.mobile-shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.mobile-shadow-lg {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Enhanced focus states for mobile */
+@media (max-width: 768px) {
+  button:focus,
+  a:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+
+  /* Remove default tap highlight */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Improve button press feedback */
+  button:active,
+  .touch-button:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease-out;
+  }
+}
+
+/* Mobile menu specific styles */
+.mobile-menu-item {
+  transition: all 0.2s ease-out;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 2px 0;
+}
+
+.mobile-menu-item:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+  transform: translateX(4px);
+}
+
+.mobile-menu-item.active {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Bottom navigation enhancements */
+.bottom-nav-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.bottom-nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #3b82f6;
+  transition: all 0.3s ease-out;
+  transform: translateX(-50%);
+}
+
+.bottom-nav-item.active::before {
+  width: 24px;
+}
+
+/* Improved badge styles */
+.nav-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 20px;
+  height: 20px;
+  background: #ef4444;
+  color: white;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile-optimized transitions */
+.mobile-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-transition-fast {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Prevent text selection on mobile UI elements */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Mobile-friendly dividers */
+.mobile-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #e5e7eb 20%,
+    #e5e7eb 80%,
+    transparent
+  );
+  margin: 16px 0;
+}
+
+/* Enhanced mobile card styles */
+.mobile-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-out;
+}
+
+.mobile-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Mobile-optimized text truncation */
+.mobile-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.mobile-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==============================
+   SIMPLIFIED LAYOUT CLASSES
+   ============================== */
+
+/* Упрощенные контейнеры */
+.header-container {
+  @apply container mx-auto;
+}
+
+.header-padding {
+  @apply px-4;
+}
+
+/* ==============================
+   BREADCRUMBS PIXEL-PERFECT ALIGNMENT
+   ============================== */
+
+/* Фиксированная высота для идеального выравнивания */
+.breadcrumb-item {
+  height: 20px;
+  line-height: 20px;
+}
+
+.breadcrumb-item ol {
+  height: 20px;
+  align-items: center;
+}
+
+.breadcrumb-item li {
+  height: 20px;
+  align-items: center;
+}
+
+.breadcrumb-item a,
+.breadcrumb-item span {
+  height: 20px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-item svg {
+  flex-shrink: 0;
+}
+
+/* ==============================
+   ORDERS PAGE STYLES
+   ============================== */
+
+/* Orders Page Animations */
+@keyframes orderCardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes statusBadgePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes loadingSpinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Order Card Styles */
+.order-card {
+  transition: all 0.2s ease-in-out;
+  animation: orderCardSlideIn 0.4s ease-out;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.order-status-badge {
+  transition: all 0.2s ease-in-out;
+}
+
+.order-status-badge:hover {
+  animation: statusBadgePulse 0.6s ease-in-out;
+}
+
+/* Status Colors */
+.status-pending {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.status-processing {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border: 1px solid #3b82f6;
+}
+
+.status-shipped {
+  background: linear-gradient(135deg, #e9d5ff 0%, #ddd6fe 100%);
+  color: #7c3aed;
+  border: 1px solid #8b5cf6;
+}
+
+.status-delivered {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
+.status-cancelled {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+/* Filter Button Animations */
+.filter-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.filter-button:hover::before {
+  left: 100%;
+}
+
+.filter-button.active {
+  transform: scale(1.02);
+}
+
+/* Loading States */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Empty State Animations */
+.empty-state-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Mobile Optimizations for Orders */
+@media (max-width: 640px) {
+  .order-card {
+    margin-bottom: 12px;
+    padding: 16px;
+  }
+
+  .order-status-badge {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .filter-button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .order-details-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* ==============================
+   PRODUCT FILTERS OPTIMIZATIONS
+   ============================== */
+
+/* Filter animations */
+@keyframes filterSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes filterItemHover {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(2px);
+  }
+}
+
+/* Filter section styles */
+.filter-section {
+  animation: filterSlideIn 0.3s ease-out;
+}
+
+.filter-item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-item:hover {
+  animation: filterItemHover 0.2s ease-out forwards;
+}
+
+.filter-item.active {
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Custom scrollbar for filters */
+.filter-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.filter-scrollbar::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 2px;
+}
+
+.filter-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.filter-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Mobile filter panel animations */
+.mobile-filter-panel {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Filter badge styles */
+.filter-badge {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 1px solid #93c5fd;
+  color: #1e40af;
+  font-weight: 600;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  animation: filterSlideIn 0.3s ease-out;
+}
+
+/* Category item improvements */
+.category-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.category-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: #3b82f6;
+  transform: scaleY(0);
+  transition: transform 0.2s ease-out;
+  border-radius: 0 2px 2px 0;
+}
+
+.category-item.active::before {
+  transform: scaleY(1);
+}
+
+/* ==============================
+   PRODUCT PAGE OPTIMIZATIONS
+   ============================== */
+
+/* Product page animations */
+@keyframes productSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes productImageZoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
+
+/* Product info card styles */
+.product-info-card {
+  animation: productSlideIn 0.4s ease-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-info-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Product image gallery enhancements */
+.product-image-container {
+  transition: transform 0.3s ease-out;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.product-image-container:hover {
+  animation: productImageZoom 0.3s ease-out forwards;
+}
+
+/* Product attribute styles */
+.product-attribute {
+  transition: background-color 0.2s ease-out;
+}
+
+.product-attribute:hover {
+  background-color: rgba(59, 130, 246, 0.02);
+}
+
+/* Product skeleton improvements */
+.product-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+/* Product price highlight */
+.product-price {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+/* Product availability badge */
+.availability-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.availability-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.availability-badge:hover::before {
+  left: 100%;
+}
+
+/* Mobile product optimizations */
+@media (max-width: 1024px) {
+  .product-info-card {
+    margin-bottom: 16px;
+  }
+
+  .product-image-container {
+    border-radius: 12px;
+  }
+
+  .product-attribute {
+    padding: 12px 0;
+  }
+}
+
+/* Product breadcrumbs enhancement */
+.product-breadcrumbs {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* ==============================
+   PRODUCT SORTER DROPDOWN
+   ============================== */
+
+/* Стили для выпадающего списка сортировки */
+.product-sorter-dropdown {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 50;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.product-sorter-option {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  color: #374151;
+}
+
+.product-sorter-option:hover {
+  background-color: #f9fafb;
+}
+
+.product-sorter-option.selected {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+
+@media (min-width: 640px) {
+  .product-sorter-option {
+    padding: 10px 16px;
+    font-size: 16px;
+  }
+}
+
+/* ==============================
+   MOBILE TOGGLE SWITCHES
+   ============================== */
+
+/* Стили для мобильных переключателей */
+@media (max-width: 640px) {
+  /* Переключатели на мобильных устройствах */
+  .mobile-toggle {
+    height: 16px !important;
+    width: 32px !important;
+    border-radius: 4px !important;
+  }
+
+  .mobile-toggle-thumb {
+    height: 8px !important;
+    width: 8px !important;
+    border-radius: 2px !important;
+  }
+
+  /* Улучшенные переходы для переключателей */
+  .mobile-toggle,
+  .mobile-toggle-thumb {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+}
+
+/* ==============================
+   MOBILE BOTTOM MENU
+   ============================== */
+
+/* Стили для закрепленного мобильного меню */
+.mobile-bottom-menu {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(229, 231, 235, 0.8);
+}
+
+.mobile-bottom-menu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(59, 130, 246, 0.3),
+    transparent
+  );
+}
+
+/* Анимация появления мобильного меню */
+@keyframes slideUpFromBottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.mobile-menu-animate {
+  animation: slideUpFromBottom 0.3s ease-out;
+}
+
+/* Улучшенные стили для кнопки в корзину */
+.mobile-cart-button {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-cart-button:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.mobile-cart-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Стили для цены в мобильном меню */
+.mobile-price-badge {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Отступ снизу для контента, чтобы не перекрывался мобильным меню */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 80px;
+  }
+
+  main {
+    padding-bottom: 20px;
+  }
+}
+
+/* ==============================
+   MOBILE SEARCH OPTIMIZATIONS
+   ============================== */
+
+/* Mobile search form improvements */
+@media (max-width: 768px) {
+  /* Search input mobile optimizations */
+  .search-form input {
+    height: 48px;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    border-radius: 12px;
+    padding-left: 48px;
+    padding-right: 40px;
+    width: 100%;
+  }
+
+  /* Search results dropdown mobile - relative to search container */
+  .search-results-dropdown {
+    left: 0;
+    right: 0;
+    margin-top: 8px;
+    border-radius: 16px;
+    max-height: 70vh;
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Search result items mobile */
+  .search-result-item {
+    padding: 16px;
+    min-height: 64px;
+  }
+
+  .search-result-item img {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+  }
+
+  /* Mobile search placeholder */
+  .search-form input::placeholder {
+    color: #9ca3af;
+    font-size: 14px;
+  }
+}
+
+/* Extra small screens (below 640px) */
+@media (max-width: 639px) {
+  /* Search form optimizations for very small screens */
+  .search-form input {
+    padding-left: 44px !important;
+    padding-right: 36px !important;
+    height: 44px !important;
+    font-size: 15px !important;
+  }
+
+  /* Search icons adjustment for small screens */
+  .search-form .absolute.left-4 {
+    left: 12px !important;
+  }
+
+  .search-form .absolute.right-3 {
+    right: 10px !important;
+  }
+
+  /* Mobile header optimizations */
+  .mobile-header-logo {
+    font-size: 22px !important;
+  }
+}
+
+/* Mobile header optimizations */
+@media (max-width: 768px) {
+  .mobile-header-logo {
+    font-size: 16px !important;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  /* Уменьшенные отступы для мобильного header */
+  .header-container {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .header-padding {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  /* Компактная мобильная навигация */
+  .mobile-nav-compact {
+    height: 28px !important;
+  }
+
+  /* Уменьшенные иконки в топбаре */
+  .topbar-icon {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  /* Компактный поиск на мобильных */
+  .mobile-search-compact input {
+    height: 36px !important;
+    font-size: 12px !important;
+    padding: 6px 10px 6px 32px !important;
+  }
+
+  .mobile-search-compact .search-icon {
+    left: 8px !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Топбар текст */
+  .topbar-text {
+    font-size: 0.625rem !important;
+  }
+
+  /* Навигационные ссылки */
+  .nav-item {
+    font-size: 0.6875rem !important;
+    padding: 3px 6px !important;
+  }
+
+  /* Селектор региона */
+  .region-selector {
+    font-size: 0.625rem !important;
+  }
+}
+
+/* ==============================
+   MOBILE HOME PAGE OPTIMIZATIONS
+   ============================== */
+
+/* Компактные блоки на главной странице */
+@media (max-width: 640px) {
+  /* Уменьшенные отступы между секциями */
+  .home-section-compact {
+    margin-bottom: 16px !important;
+  }
+
+  /* Компактные карточки преимуществ */
+  .benefit-card-mobile {
+    padding: 12px !important;
+    border-radius: 8px !important;
+  }
+
+  .benefit-card-mobile h3 {
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 4px !important;
+  }
+
+  .benefit-card-mobile p {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    margin-bottom: 8px !important;
+  }
+
+  .benefit-card-mobile .icon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  /* Компактные метрики компании */
+  .company-metric-mobile {
+    padding: 8px !important;
+    border-radius: 6px !important;
+  }
+
+  .company-metric-mobile .metric-value {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+    margin-bottom: 2px !important;
+  }
+
+  .company-metric-mobile .metric-label {
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+  }
+
+  .company-metric-mobile .metric-icon {
+    width: 12px !important;
+    height: 12px !important;
+    padding: 4px !important;
+  }
+
+  /* Компактные кнопки */
+  .mobile-button-compact {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+    border-radius: 6px !important;
+  }
+
+  /* Уменьшенные заголовки секций */
+  .section-title-mobile {
+    font-size: 18px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 8px !important;
+  }
+
+  .section-subtitle-mobile {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Компактная сетка для мобильных приложений */
+  .app-benefits-mobile {
+    gap: 8px !important;
+  }
+
+  .app-benefit-mobile {
+    padding: 8px !important;
+    border-radius: 6px !important;
+  }
+
+  .app-benefit-mobile .icon {
+    width: 14px !important;
+    height: 14px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .app-benefit-mobile p {
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+  }
+}
+
+/* Экстра маленькие экраны (меньше 480px) */
+@media (max-width: 479px) {
+  /* Еще более компактный header */
+  .mobile-header-logo {
+    font-size: 14px !important;
+  }
+
+  /* Минимальные отступы */
+  .header-container,
+  .header-padding {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+
+  /* Очень компактные карточки */
+  .benefit-card-mobile {
+    padding: 4px !important;
+    min-height: 80px !important;
+  }
+
+  .benefit-card-mobile h3 {
+    font-size: 0.5625rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .benefit-card-mobile p {
+    font-size: 0.5rem !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Минимальные кнопки */
+  .mobile-button-compact {
+    padding: 4px 8px !important;
+    font-size: 0.5625rem !important;
+    height: 24px !important;
+  }
+
+  /* Компактные метрики */
+  .company-metric-mobile {
+    padding: 4px !important;
+  }
+
+  .company-metric-mobile .metric-value {
+    font-size: 0.75rem !important;
+  }
+
+  .company-metric-mobile .metric-label {
+    font-size: 0.5rem !important;
+  }
+
+  /* Очень маленькие иконки */
+  .icon-xs {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  /* Компактный поиск */
+  .mobile-search-compact input {
+    height: 32px !important;
+    font-size: 0.625rem !important;
+    padding: 4px 8px 4px 28px !important;
+  }
+
+  /* Навигация */
+  .nav-item {
+    font-size: 0.5625rem !important;
+    padding: 2px 4px !important;
+  }
+
+  /* Карточки товаров */
+  .product-card-title {
+    font-size: 0.5625rem !important;
+  }
+
+  .product-card-price {
+    font-size: 0.6875rem !important;
+  }
+
+  .product-card-button {
+    font-size: 0.5625rem !important;
+    padding: 3px 6px !important;
+    height: 24px !important;
+  }
+
+  /* Убираем лишние отступы в карточках на очень маленьких экранах */
+  .product-card {
+    margin-bottom: 4px !important;
+  }
+
+  .product-card .p-2,
+  .product-card .sm\\:p-3,
+  .product-card .lg\\:p-4 {
+    padding: 4px !important;
+  }
+
+  .product-card .mb-1,
+  .product-card .sm\\:mb-2 {
+    margin-bottom: 1px !important;
+  }
+
+  .product-card .mt-1,
+  .product-card .mt-2 {
+    margin-top: 1px !important;
+  }
+
+  .product-card .gap-2 {
+    gap: 2px !important;
+  }
+
+  /* Компактные изображения товаров */
+  .product-card .h-32 {
+    height: 80px !important;
+  }
+
+  .product-card .sm\\:h-40 {
+    height: 80px !important;
+  }
+
+  .product-card .lg\\:h-48 {
+    height: 80px !important;
+  }
+
+  /* Общие элементы */
+  h1 {
+    font-size: 1rem !important;
+  }
+  h2 {
+    font-size: 0.875rem !important;
+  }
+  h3 {
+    font-size: 0.75rem !important;
+  }
+  h4 {
+    font-size: 0.6875rem !important;
+  }
+
+  p,
+  span,
+  div,
+  a,
+  li {
+    font-size: 0.625rem !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Формы */
+  .form-input,
+  .form-select {
+    font-size: 0.625rem !important;
+    height: 28px !important;
+    padding: 4px 6px !important;
+  }
+
+  .form-label {
+    font-size: 0.5625rem !important;
+  }
+}
+
+/* ==============================
+   MOBILE SEARCH OPTIMIZATIONS
+   ============================== */
+
+/* Компактные карточки преимуществ на мобильных */
+@media (max-width: 640px) {
+  /* Компактные карточки преимуществ */
+  .benefit-card-compact {
+    min-height: 100px !important;
+    padding: 6px !important;
+    border-radius: 6px !important;
+    text-align: center !important;
+  }
+
+  .benefit-card-compact .icon-container {
+    margin-bottom: 4px !important;
+  }
+
+  .benefit-card-compact .icon {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  .benefit-card-compact h3 {
+    font-size: 0.625rem !important;
+    line-height: 1.1 !important;
+    margin-bottom: 1px !important;
+    font-weight: 700 !important;
+  }
+
+  .benefit-card-compact p {
+    font-size: 0.5625rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Скрываем детали и кнопки на очень маленьких экранах */
+  .benefit-card-compact .details,
+  .benefit-card-compact .button {
+    display: none !important;
+  }
+
+  /* Карточки товаров */
+  .product-card-title {
+    font-size: 0.6875rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .product-card-price {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+  }
+
+  .product-card-description {
+    font-size: 0.5625rem !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Кнопки в карточках */
+  .product-card-button {
+    font-size: 0.625rem !important;
+    padding: 4px 8px !important;
+    height: 28px !important;
+  }
+
+  /* Компактные плашки преимуществ в карточках товаров */
+  .benefit-card-compact {
+    min-height: 60px !important;
+    padding: 4px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .benefit-card-compact .icon {
+    width: 12px !important;
+    height: 12px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .benefit-card-compact h3 {
+    font-size: 0.5625rem !important;
+    line-height: 1.1 !important;
+    margin-bottom: 1px !important;
+  }
+
+  .benefit-card-compact p {
+    font-size: 0.5rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Убираем лишние отступы в сетке преимуществ */
+  .benefits-grid {
+    gap: 4px !important;
+  }
+
+  /* Бейджи и статусы */
+  .status-badge {
+    font-size: 0.5rem !important;
+    padding: 1px 4px !important;
+  }
+
+  /* Фильтры */
+  .filter-item {
+    font-size: 0.6875rem !important;
+    padding: 4px 8px !important;
+  }
+
+  /* Хлебные крошки */
+  .breadcrumb-item {
+    font-size: 0.5625rem !important;
+    height: 16px !important;
+    line-height: 16px !important;
+  }
+
+  .breadcrumb-item ol {
+    height: 16px !important;
+    align-items: center !important;
+  }
+
+  .breadcrumb-item li {
+    height: 16px !important;
+    align-items: center !important;
+  }
+
+  .breadcrumb-item a,
+  .breadcrumb-item span {
+    height: 16px !important;
+    line-height: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .breadcrumb-item svg {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  /* Уведомления */
+  .notification {
+    font-size: 0.6875rem !important;
+    padding: 6px 10px !important;
+  }
+
+  /* Модальные окна */
+  .modal-title {
+    font-size: 0.875rem !important;
+  }
+
+  .modal-text {
+    font-size: 0.6875rem !important;
+  }
+
+  /* Табы */
+  .tab-item {
+    font-size: 0.625rem !important;
+    padding: 4px 8px !important;
+  }
+
+  /* Поля ввода в формах */
+  .form-input {
+    font-size: 0.6875rem !important;
+    padding: 6px 8px !important;
+    height: 32px !important;
+  }
+
+  .form-label {
+    font-size: 0.625rem !important;
+    margin-bottom: 2px !important;
+  }
+
+  /* Селекты */
+  .form-select {
+    font-size: 0.6875rem !important;
+    padding: 4px 6px !important;
+    height: 32px !important;
+  }
+}
+
+/* Средние экраны - показываем больше информации */
+@media (min-width: 641px) and (max-width: 768px) {
+  .benefit-card-compact {
+    min-height: 140px !important;
+    padding: 12px !important;
+  }
+
+  .benefit-card-compact .icon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .benefit-card-compact h3 {
+    font-size: 13px !important;
+  }
+
+  .benefit-card-compact p {
+    font-size: 11px !important;
   }
 }

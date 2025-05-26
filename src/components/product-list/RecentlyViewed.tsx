@@ -1,8 +1,8 @@
-import { Product } from "@/types/api";
-import { useViewHistory } from "@/lib/hooks/useViewHistory";
-import { useMemo } from "react";
-import { ProductCard } from "@/components/product/ProductCard";
-import { ClockIcon } from "@heroicons/react/24/outline";
+import { Product } from '@/types/api';
+import { useViewHistory } from '@/lib/hooks/useViewHistory';
+import { useMemo } from 'react';
+import { ProductCard } from '@/components/product/ProductCard';
+import { ClockIcon } from '@heroicons/react/24/outline';
 
 interface RecentlyViewedProps {
   excludeProductId?: string; // ID товара, который не нужно показывать (текущий товар)
@@ -29,7 +29,7 @@ export function RecentlyViewed({
   if (recentProducts.length === 0) return null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <section className="container mx-auto px-4 py-6">
       <div className="flex items-center mb-6">
         <ClockIcon className="h-6 w-6 text-blue-600 mr-2" />
         <h2 className="text-2xl font-bold text-gray-900">
@@ -45,6 +45,6 @@ export function RecentlyViewed({
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

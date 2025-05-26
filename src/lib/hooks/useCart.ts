@@ -1,18 +1,17 @@
+import { useNotificationContext } from '@/lib/providers/NotificationProvider';
 import {
   ADD_TO_CART,
   GET_CART,
   GET_VIEWER,
   REMOVE_FROM_CART,
   UPDATE_CART_ITEM_QUANTITY,
-} from "@/lib/queries";
-import { Cart, CartItem, CartItemEdge, Product } from "@/types/api";
-import { useApolloClient, useMutation, useQuery } from "@apollo/client";
-import { useCallback, useEffect, useState } from "react";
-
-import { useNotifications } from "./useNotifications";
+} from '@/lib/queries';
+import { Cart, CartItem, CartItemEdge, Product } from '@/types/api';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client';
+import { useCallback, useEffect, useState } from 'react';
 
 // Ключ для хранения гостевой корзины в localStorage
-const GUEST_CART_KEY = "kron_guest_cart";
+const GUEST_CART_KEY = 'kron_guest_cart';
 
 interface GuestCartItem {
   product: Product;
@@ -52,7 +51,7 @@ interface UseCartResult {
  */
 export function adjustQuantityByMultiplicity(
   quantity: number,
-  multiplicity: number = 1,
+  multiplicity: number = 1
 ): number {
   // Убеждаемся, что количество кратно шагу
   const adjustedQuantity = Math.round(quantity / multiplicity) * multiplicity;
@@ -66,14 +65,14 @@ export function adjustQuantityByMultiplicity(
 export function useCart(): UseCartResult {
   // Состояние гостевой корзины
   const [guestCart, setGuestCart] = useState<GuestCartItem[]>(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       const savedCart = localStorage.getItem(GUEST_CART_KEY);
       if (savedCart) {
         try {
           const parsedCart = JSON.parse(savedCart);
           return Array.isArray(parsedCart) ? parsedCart : [];
         } catch (error) {
-          console.error("Error loading guest cart:", error);
+          console.error('Error loading guest cart:', error);
           localStorage.removeItem(GUEST_CART_KEY);
         }
       }
@@ -86,7 +85,7 @@ export function useCart(): UseCartResult {
   const isAuthenticated = !!userData?.viewer;
 
   // Интеграция с системой уведомлений
-  const { showSuccess, showError } = useNotifications();
+  const { showSuccess, showError } = useNotificationContext();
 
   // Загрузка корзины для авторизованного пользователя
   const {
@@ -95,7 +94,7 @@ export function useCart(): UseCartResult {
     error: cartError,
   } = useQuery(GET_CART, {
     skip: !isAuthenticated,
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
   });
 
   // Apollo клиент для прямого доступа к кэшу
@@ -104,13 +103,13 @@ export function useCart(): UseCartResult {
   // Мутации для работы с корзиной на сервере
   const [addToCartMutation] = useMutation(ADD_TO_CART);
   const [updateCartItemQuantityMutation] = useMutation(
-    UPDATE_CART_ITEM_QUANTITY,
+    UPDATE_CART_ITEM_QUANTITY
   );
   const [removeFromCartMutation] = useMutation(REMOVE_FROM_CART);
 
   // Сохранение гостевой корзины в localStorage
   useEffect(() => {
-    if (!isAuthenticated && typeof window !== "undefined") {
+    if (!isAuthenticated && typeof window !== 'undefined') {
       localStorage.setItem(GUEST_CART_KEY, JSON.stringify(guestCart));
     }
   }, [guestCart, isAuthenticated]);
@@ -131,13 +130,13 @@ export function useCart(): UseCartResult {
 
       const totalItems = items.reduce(
         (total, item) => total + item.quantity,
-        0,
+        0
       );
-      const totalPrice = parseFloat(serverCart.items.decimalTotalPrice || "0");
+      const totalPrice = parseFloat(serverCart.items.decimalTotalPrice || '0');
 
       return { items, totalPrice, totalItems, isEmpty: items.length === 0 };
     },
-    [],
+    []
   );
 
   // Преобразование гостевой корзины в унифицированный формат
@@ -151,7 +150,7 @@ export function useCart(): UseCartResult {
     const totalItems = items.reduce((total, item) => total + item.quantity, 0);
     const totalPrice = items.reduce(
       (total, item) => total + item.product.price * item.quantity,
-      0,
+      0
     );
 
     return { items, totalPrice, totalItems, isEmpty: items.length === 0 };
@@ -165,7 +164,7 @@ export function useCart(): UseCartResult {
   // Добавление товара в корзину
   const addToCart = async (
     product: Product,
-    quantity: number,
+    quantity: number
   ): Promise<void> => {
     // Получаем шаг товара (по умолчанию 1)
     const step = product.quantityMultiplicity || 1;
@@ -189,26 +188,26 @@ export function useCart(): UseCartResult {
 
         // Обновляем кэш
         await client.refetchQueries({
-          include: ["GetCart"],
+          include: ['GetCart'],
         });
       } else {
         // Для гостя обновляем локальное состояние
         setGuestCart((prevCart) => {
           const existingItem = prevCart.find(
-            (item) => item.product.id === product.id,
+            (item) => item.product.id === product.id
           );
 
           if (existingItem) {
             // Если товар уже в корзине, обновляем количество
             const newQuantity = adjustQuantityByMultiplicity(
               existingItem.quantity + adjustedQuantity,
-              step,
+              step
             );
 
             return prevCart.map((item) =>
               item.product.id === product.id
                 ? { ...item, quantity: newQuantity }
-                : item,
+                : item
             );
           }
 
@@ -223,7 +222,7 @@ export function useCart(): UseCartResult {
       // Показываем уведомление об успешном добавлении
       showSuccess(`${product.name} добавлен в корзину`);
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      console.error('Error adding to cart:', error);
       // Показываем уведомление об ошибке
       showError(`Не удалось добавить ${product.name} в корзину`);
       throw error;
@@ -233,13 +232,13 @@ export function useCart(): UseCartResult {
   // Обновление количества товара в корзине
   const updateQuantity = async (
     productId: string,
-    quantity: number,
+    quantity: number
   ): Promise<void> => {
     try {
       if (isAuthenticated) {
         // Для авторизованного пользователя
         const cartItem = cartData?.cart?.items?.edges.find(
-          (edge: CartItemEdge) => edge.node.product.id === productId,
+          (edge: CartItemEdge) => edge.node.product.id === productId
         )?.node;
 
         if (!cartItem) return;
@@ -286,13 +285,13 @@ export function useCart(): UseCartResult {
           return prevCart.map((item) =>
             item.product.id === productId
               ? { ...item, quantity: adjustedQuantity }
-              : item,
+              : item
           );
         });
       }
     } catch (error) {
-      console.error("Error updating quantity:", error);
-      showError("Не удалось изменить количество товара");
+      console.error('Error updating quantity:', error);
+      showError('Не удалось изменить количество товара');
       throw error;
     }
   };
@@ -301,17 +300,17 @@ export function useCart(): UseCartResult {
   const removeFromCart = async (productId: string): Promise<void> => {
     try {
       // Находим товар для уведомления
-      let productName = "Товар";
+      let productName = 'Товар';
       if (isAuthenticated) {
         const cartItem = cartData?.cart?.items?.edges.find(
-          (edge: CartItemEdge) => edge.node.product.id === productId,
+          (edge: CartItemEdge) => edge.node.product.id === productId
         )?.node;
         if (cartItem) {
           productName = cartItem.product.name;
         }
       } else {
         const cartItem = guestCart.find(
-          (item) => item.product.id === productId,
+          (item) => item.product.id === productId
         );
         if (cartItem) {
           productName = cartItem.product.name;
@@ -335,33 +334,33 @@ export function useCart(): UseCartResult {
             },
             // Добавляем обработку ошибок
             onError: (error) => {
-              console.error("GraphQL error in removeFromCart:", error);
+              console.error('GraphQL error in removeFromCart:', error);
               showError(`Не удалось удалить ${productName} из корзины`);
               // Обновляем кэш на случай несоответствия
               client.refetchQueries({
-                include: ["GetCart"],
+                include: ['GetCart'],
               });
             },
           });
 
           // Проверка результата
           if (!result.data?.updateCartItemQuantity?.cart) {
-            throw new Error("Не удалось получить обновленные данные корзины");
+            throw new Error('Не удалось получить обновленные данные корзины');
           }
 
           // Обновляем кэш после успешного удаления
           await client.refetchQueries({
-            include: ["GetCart"],
+            include: ['GetCart'],
           });
 
           // Показываем уведомление об удалении товара
           showSuccess(`${productName} удален из корзины`);
         } catch (mutationError) {
-          console.error("Error in removeFromCart mutation:", mutationError);
+          console.error('Error in removeFromCart mutation:', mutationError);
 
           // Обновляем состояние кэша, чтобы оно отражало актуальные данные
           client.refetchQueries({
-            include: ["GetCart"],
+            include: ['GetCart'],
           });
 
           showError(`Не удалось удалить ${productName} из корзины`);
@@ -370,15 +369,15 @@ export function useCart(): UseCartResult {
       } else {
         // Для гостя
         setGuestCart((prevCart) =>
-          prevCart.filter((item) => item.product.id !== productId),
+          prevCart.filter((item) => item.product.id !== productId)
         );
 
         // Показываем уведомление об удалении товара
         showSuccess(`${productName} удален из корзины`);
       }
     } catch (error) {
-      console.error("Error removing from cart:", error);
-      showError("Не удалось удалить товар из корзины");
+      console.error('Error removing from cart:', error);
+      showError('Не удалось удалить товар из корзины');
     }
   };
 
@@ -390,7 +389,7 @@ export function useCart(): UseCartResult {
         const edges = cartData?.cart?.items?.edges || [];
 
         if (edges.length === 0) {
-          showSuccess("Корзина уже пуста");
+          showSuccess('Корзина уже пуста');
           return;
         }
 
@@ -412,7 +411,7 @@ export function useCart(): UseCartResult {
               onError: (error) => {
                 console.error(
                   `Failed to remove item ${edge.node.product.id}:`,
-                  error,
+                  error
                 );
                 // Не выбрасываем ошибку, чтобы продолжить удаление остальных
                 // товаров
@@ -425,29 +424,29 @@ export function useCart(): UseCartResult {
 
           // Обновляем кэш после очистки
           await client.refetchQueries({
-            include: ["GetCart"],
+            include: ['GetCart'],
           });
 
-          showSuccess("Корзина очищена");
+          showSuccess('Корзина очищена');
         } catch (clearError) {
-          console.error("Error clearing cart:", clearError);
+          console.error('Error clearing cart:', clearError);
 
           // Обновляем состояние кэша
           client.refetchQueries({
-            include: ["GetCart"],
+            include: ['GetCart'],
           });
 
-          showError("Не удалось полностью очистить корзину");
+          showError('Не удалось полностью очистить корзину');
           throw clearError;
         }
       } else {
         // Для гостя
         setGuestCart([]);
-        showSuccess("Корзина очищена");
+        showSuccess('Корзина очищена');
       }
     } catch (error) {
-      console.error("Error in clearCart:", error);
-      showError("Не удалось очистить корзину");
+      console.error('Error in clearCart:', error);
+      showError('Не удалось очистить корзину');
     }
   };
 
@@ -476,7 +475,7 @@ export function useCart(): UseCartResult {
           //   include: ['GetCart'],
           // });
         } catch (error) {
-          console.error("Error syncing guest cart to server:", error);
+          console.error('Error syncing guest cart to server:', error);
         }
       }
     };

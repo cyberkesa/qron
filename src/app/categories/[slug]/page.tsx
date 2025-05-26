@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import React, { useState, useCallback } from "react";
-import { useQuery } from "@apollo/client";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { GET_PRODUCTS, GET_CATEGORY_BY_SLUG } from "@/lib/queries";
+import React, { useState, useCallback } from 'react';
+import { useQuery } from '@apollo/client';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { GET_PRODUCTS, GET_CATEGORY_BY_SLUG } from '@/lib/queries';
 import {
   ProductSortOrder,
   Product,
   ProductStockAvailabilityStatus,
-} from "@/types/api";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { ProductCard } from "@/components/product/ProductCard";
-import { ProductSorter } from "@/components/product-list/ProductSorter";
-import { StockFilter } from "@/components/product-list/StockFilter";
-import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
+} from '@/types/api';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ProductCard } from '@/components/product/ProductCard';
+import { ProductSorter } from '@/components/product-list/ProductSorter';
+import { StockFilter } from '@/components/product-list/StockFilter';
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll';
 import {
   Breadcrumbs,
   buildCategoryBreadcrumbs,
-} from "@/components/ui/Breadcrumbs";
+} from '@/components/ui/Breadcrumbs';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -28,7 +28,7 @@ interface CategoryPageProps {
 
 export default function CategoryPage({ params }: CategoryPageProps) {
   const router = useRouter();
-  const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
+  const [sortOrder, setSortOrder] = useState<ProductSortOrder>('NEWEST_FIRST');
   const [hideOutOfStock, setHideOutOfStock] = useState(true);
 
   const { slug } = React.use(params);
@@ -60,7 +60,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const category = categoryData?.categoryBySlug || null;
   let products =
     productsData?.products?.edges?.map(
-      (edge: { node: Product; cursor: string }) => edge.node,
+      (edge: { node: Product; cursor: string }) => edge.node
     ) || [];
 
   if (hideOutOfStock) {
@@ -69,7 +69,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         product.stockAvailabilityStatus ===
           ProductStockAvailabilityStatus.IN_STOCK ||
         product.stockAvailabilityStatus ===
-          ProductStockAvailabilityStatus.IN_STOCK_SOON,
+          ProductStockAvailabilityStatus.IN_STOCK_SOON
     );
   }
 
@@ -104,76 +104,72 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-10">
-        <div className="mb-6">
-          <div className="h-6 bg-gray-200 rounded w-1/4 animate-pulse"></div>
-        </div>
+      <main className="container mx-auto px-4 py-6">
+        <div className="h-6 bg-gray-200 rounded w-1/4 animate-pulse mb-6"></div>
         <div className="h-8 bg-gray-200 rounded w-2/3 mb-8 animate-pulse"></div>
-        <div className="flex justify-between mb-6">
+        <div className="flex justify-between mb-6 gap-4">
           <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
           <div className="flex gap-4">
             <div className="h-10 bg-gray-200 rounded w-40 animate-pulse"></div>
             <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
           {Array.from({ length: 12 }).map((_, index) => (
             <div
               key={index}
-              className="h-72 bg-gray-200 rounded-lg relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skeleton-loading"></div>
-            </div>
+              className="h-48 sm:h-56 lg:h-64 bg-gray-200 rounded-lg animate-pulse"
+            ></div>
           ))}
         </div>
-      </div>
+      </main>
     );
   }
 
   if (categoryError) {
     return (
-      <div className="container mx-auto px-4 py-10">
-        <div className="bg-red-50 p-4 rounded-md">
+      <main className="container mx-auto px-4 py-6">
+        <div className="bg-red-50 p-4 rounded-lg border border-red-200">
           <h2 className="text-xl font-semibold text-red-800">
             Ошибка загрузки категории
           </h2>
           <p className="mt-2 text-red-700">{categoryError.message}</p>
           <button
-            onClick={() => router.push("/categories")}
+            onClick={() => router.push('/categories')}
             className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800"
           >
             <ArrowLeftIcon className="h-4 w-4 mr-1" />
             Вернуться к списку категорий
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (productsError) {
     return (
-      <div className="container mx-auto px-4 py-10">
-        <div className="bg-red-50 p-4 rounded-md">
+      <main className="container mx-auto px-4 py-6">
+        <div className="bg-red-50 p-4 rounded-lg border border-red-200">
           <h2 className="text-xl font-semibold text-red-800">
             Ошибка загрузки товаров
           </h2>
           <p className="mt-2 text-red-700">{productsError.message}</p>
           <button
-            onClick={() => router.push("/categories")}
+            onClick={() => router.push('/categories')}
             className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800"
           >
             <ArrowLeftIcon className="h-4 w-4 mr-1" />
             Вернуться к списку категорий
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (!category && !isLoading) {
     return (
-      <div className="container mx-auto px-4 py-10">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+      <main className="container mx-auto px-4 py-6">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <h2 className="text-lg font-medium text-yellow-800">
             Категория не найдена
           </h2>
@@ -187,31 +183,36 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             Вернуться к списку категорий
           </Link>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <div className="mb-6">
-        <Breadcrumbs items={buildCategoryBreadcrumbs(category)} />
-      </div>
+    <main className="container mx-auto px-4 py-6">
+      {/* Хлебные крошки */}
+      <Breadcrumbs
+        items={buildCategoryBreadcrumbs(category)}
+        className="mb-6"
+      />
 
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-        {category?.title}
-      </h1>
+      {/* Заголовок категории */}
+      <header className="mb-6">
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+          {category?.title}
+        </h1>
+        {category?.description && (
+          <div
+            className="text-gray-600 text-sm"
+            dangerouslySetInnerHTML={{ __html: category.description }}
+          />
+        )}
+      </header>
 
-      {category?.description && (
-        <div className="mb-6 prose prose-sm max-w-none text-gray-600">
-          <div dangerouslySetInnerHTML={{ __html: category.description }} />
-        </div>
-      )}
-
+      {/* Подкатегории */}
       {category?.children && category.children.length > 0 && (
-        <div className="mb-8 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+        <section className="mb-8 bg-white p-4 rounded-lg border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
             <svg
-              xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5 mr-2 text-blue-600"
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -220,19 +221,18 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             </svg>
             Подкатегории
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {category.children.map(
               (subcategory: { id: string; title: string; slug: string }) => (
                 <Link
                   key={subcategory.id}
                   href={`/categories/${subcategory.slug}`}
-                  className="group block p-4 bg-white rounded-lg hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-blue-200"
+                  className="group block p-3 bg-gray-50 hover:bg-white rounded-lg hover:shadow-md transition-all border border-gray-100 hover:border-blue-200"
                 >
                   <div className="flex items-center">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
                       <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-blue-600"
+                        className="h-4 w-4 text-blue-600"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -249,28 +249,27 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                     </h3>
                   </div>
                 </Link>
-              ),
+              )
             )}
           </div>
-        </div>
+        </section>
       )}
 
-      <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 sticky top-[70px] bg-white z-10 py-4 border-b border-gray-200">
-        <p className="text-gray-600 mb-4 md:mb-0 flex items-center">
+      {/* Панель управления */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-gray-200">
+        <p className="text-gray-600 flex items-center text-sm">
           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2 text-blue-600"
+            className="h-4 w-4 mr-2 text-blue-600"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
             <path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" />
             <path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z" />
           </svg>
-          Товаров в категории:{" "}
+          Товаров:{' '}
           <span className="font-medium ml-1">{totalProductsCount}</span>
         </p>
-
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex gap-3">
           <ProductSorter value={sortOrder} onChange={handleSortChange} />
           <StockFilter
             value={hideOutOfStock}
@@ -279,10 +278,10 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         </div>
       </div>
 
+      {/* Список товаров */}
       {products.length === 0 ? (
         <div className="bg-gray-50 p-8 rounded-lg text-center">
           <svg
-            xmlns="http://www.w3.org/2000/svg"
             className="h-12 w-12 mx-auto text-gray-400 mb-4"
             fill="none"
             viewBox="0 0 24 24"
@@ -305,7 +304,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
             {products.map((product: Product, index: number) => (
               <ProductCard
                 key={`category-${product.id}-${index}`}
@@ -324,6 +323,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             <div className="mt-8 text-center text-gray-500 bg-gray-50 p-4 rounded-lg border border-gray-200">
               Загружены все доступные товары
               <span className="font-medium text-gray-700">
+                {' '}
                 ({products.length} из {totalProductsCount})
               </span>
             </div>
@@ -332,6 +332,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           <div ref={observerTarget} className="h-1" />
         </>
       )}
-    </div>
+    </main>
   );
 }

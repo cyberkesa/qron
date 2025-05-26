@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { useQuery } from "@apollo/client";
-import { GET_CURRENT_REGION } from "@/lib/queries";
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useQuery } from '@apollo/client';
+import { GET_CURRENT_REGION } from '@/lib/queries';
 import {
   PhoneIcon,
   EnvelopeIcon,
@@ -12,28 +12,28 @@ import {
   BuildingOfficeIcon,
   ChevronRightIcon,
   ArrowTopRightOnSquareIcon,
-} from "@heroicons/react/24/outline";
-import { Map } from "@/components/contacts/Map";
+} from '@heroicons/react/24/outline';
+import { Map } from '@/components/contacts/Map';
 
 // Контактная информация для разных регионов
 const regionContacts = {
   moscow: {
-    address: "Домодедовское шоссе, 4-й километр, 15Б",
-    phone: "+7 (495) 799-26-66",
-    phoneLink: "tel:+74957992666",
-    email: "info@tovari-kron.ru",
-    workingHours: "Пн-Сб: 9:00 - 18:00",
+    address: 'Домодедовское шоссе, 4-й километр, 15Б',
+    phone: '+7 (495) 799-26-66',
+    phoneLink: 'tel:+74957992666',
+    email: 'info@tovari-kron.ru',
+    workingHours: 'Пн-Сб: 9:00 - 18:00',
     coordinates: {
       lat: 55.6122,
       lng: 37.7153,
     },
   },
   stavropol: {
-    address: "с. Надежда, ул. Орджоникидзе 79",
-    phone: "+7 (903) 418-16-66",
-    phoneLink: "tel:+79034181666",
-    email: "ug@tovari-kron.ru",
-    workingHours: "Пн-Сб: 9:00 - 18:00",
+    address: 'с. Надежда, ул. Орджоникидзе 79',
+    phone: '+7 (903) 418-16-66',
+    phoneLink: 'tel:+79034181666',
+    email: 'ug@tovari-kron.ru',
+    workingHours: 'Пн-Сб: 9:00 - 18:00',
     coordinates: {
       lat: 45.0428,
       lng: 41.9734,
@@ -43,21 +43,21 @@ const regionContacts = {
 
 export default function ContactsPage() {
   const { data: regionData } = useQuery(GET_CURRENT_REGION);
-  const [activeRegion, setActiveRegion] = useState<string>("moscow");
+  const [activeRegion, setActiveRegion] = useState<string>('moscow');
 
   useEffect(() => {
     if (regionData?.viewer?.region?.name) {
       const detectedRegion = regionData.viewer.region.name.toLowerCase();
       if (
-        detectedRegion.includes("москва") ||
-        detectedRegion.includes("moscow")
+        detectedRegion.includes('москва') ||
+        detectedRegion.includes('moscow')
       ) {
-        setActiveRegion("moscow");
+        setActiveRegion('moscow');
       } else if (
-        detectedRegion.includes("ставрополь") ||
-        detectedRegion.includes("stavropol")
+        detectedRegion.includes('ставрополь') ||
+        detectedRegion.includes('stavropol')
       ) {
-        setActiveRegion("stavropol");
+        setActiveRegion('stavropol');
       }
     }
   }, [regionData]);
@@ -66,11 +66,11 @@ export default function ContactsPage() {
 
   const openExternalMap = () => {
     const { lat, lng } = contacts.coordinates;
-    window.open(`https://maps.google.com?q=${lat},${lng}`, "_blank");
+    window.open(`https://maps.google.com?q=${lat},${lng}`, '_blank');
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 animate-fadeIn">
+    <main className="container mx-auto px-4 py-6">
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           Контакты
@@ -99,24 +99,24 @@ export default function ContactsPage() {
       <div className="flex flex-wrap mb-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-1 inline-flex space-x-1">
           <button
-            onClick={() => setActiveRegion("moscow")}
+            onClick={() => setActiveRegion('moscow')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-              activeRegion === "moscow"
-                ? "bg-blue-50 text-blue-700 shadow-sm"
-                : "text-gray-700 hover:bg-gray-50"
+              activeRegion === 'moscow'
+                ? 'bg-blue-50 text-blue-700 shadow-sm'
+                : 'text-gray-700 hover:bg-gray-50'
             }`}
-            style={{ WebkitTapHighlightColor: "transparent" }}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             Москва
           </button>
           <button
-            onClick={() => setActiveRegion("stavropol")}
+            onClick={() => setActiveRegion('stavropol')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-              activeRegion === "stavropol"
-                ? "bg-blue-50 text-blue-700 shadow-sm"
-                : "text-gray-700 hover:bg-gray-50"
+              activeRegion === 'stavropol'
+                ? 'bg-blue-50 text-blue-700 shadow-sm'
+                : 'text-gray-700 hover:bg-gray-50'
             }`}
-            style={{ WebkitTapHighlightColor: "transparent" }}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             Ставрополь
           </button>
@@ -171,7 +171,7 @@ export default function ContactsPage() {
                   <button
                     onClick={openExternalMap}
                     className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm mt-1 transition-colors duration-200 hover:underline"
-                    style={{ WebkitTapHighlightColor: "transparent" }}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     Открыть в Google Maps
                     <ArrowTopRightOnSquareIcon className="h-3 w-3 ml-1" />
@@ -189,18 +189,6 @@ export default function ContactsPage() {
                   <p className="text-gray-700">Вс: Выходной</p>
                 </div>
               </div>
-
-              <div className="flex items-start group">
-                <div className="p-2 rounded-full bg-indigo-50 mr-4 group-hover:bg-indigo-100 transition-colors duration-200">
-                  <BuildingOfficeIcon className="h-5 w-5 text-indigo-600" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-800">Реквизиты</h3>
-                  <p className="text-gray-700 mb-1">ООО &laquo;КРОН&raquo;</p>
-                  <p className="text-gray-700 mb-1">ИНН: 7712345678</p>
-                  <p className="text-gray-700">ОГРН: 1157746123456</p>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -216,14 +204,14 @@ export default function ContactsPage() {
               <a
                 href={contacts.phoneLink}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-center text-sm transition-colors duration-200 active:scale-[0.98]"
-                style={{ WebkitTapHighlightColor: "transparent" }}
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
                 Позвонить
               </a>
               <a
                 href={`mailto:${contacts.email}`}
                 className="flex-1 bg-white hover:bg-gray-50 text-blue-600 border border-blue-200 px-4 py-2 rounded-lg text-center text-sm transition-colors duration-200 active:scale-[0.98]"
-                style={{ WebkitTapHighlightColor: "transparent" }}
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
                 Написать
               </a>
@@ -241,6 +229,6 @@ export default function ContactsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Fragment } from "react";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { Region } from "@/types/api";
+import { Fragment } from 'react';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
+import { Region } from '@/types/api';
 
 interface RegionSelectorProps {
   show: boolean;
@@ -94,8 +94,8 @@ const RegionSelector = ({
                     key={region.id}
                     className={`p-3 border text-left rounded-lg transition-colors ${
                       currentRegion?.id === region.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                     onClick={() => onRegionSelect(region)}
                   >

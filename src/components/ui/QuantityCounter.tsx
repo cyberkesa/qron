@@ -1,5 +1,5 @@
-import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
+import { MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
 
 interface QuantityCounterProps {
   quantity: number;
@@ -9,6 +9,9 @@ interface QuantityCounterProps {
   isLoading?: boolean;
   disabled?: boolean;
   className?: string;
+  small?: boolean;
+  compact?: boolean;
+  size?: 'xs' | 'sm' | 'md' | 'lg';
 }
 
 export function QuantityCounter({
@@ -18,7 +21,10 @@ export function QuantityCounter({
   onDecrement,
   isLoading = false,
   disabled = false,
-  className = "",
+  className = '',
+  small = false,
+  compact = false,
+  size = 'md',
 }: QuantityCounterProps) {
   const [animateValue, setAnimateValue] = useState(false);
   const [prevQuantity, setPrevQuantity] = useState(quantity);
@@ -46,36 +52,84 @@ export function QuantityCounter({
     }
   };
 
+  const getSizeClasses = () => {
+    if (small) return getSizeClassesBySize('sm');
+    if (compact) return getSizeClassesBySize('xs');
+
+    return getSizeClassesBySize(size);
+  };
+
+  const getSizeClassesBySize = (sizeParam: 'xs' | 'sm' | 'md' | 'lg') => {
+    const sizeMap = {
+      xs: {
+        button: 'w-6 h-6 sm:w-7 sm:h-7',
+        counter: 'w-6 sm:w-8 px-1',
+        icon: 'h-3 w-3',
+        text: 'text-xs sm:text-sm',
+      },
+      sm: {
+        button: 'w-7 h-7 sm:w-8 sm:h-8',
+        counter: 'w-8 sm:w-10 px-1',
+        icon: 'h-3 w-3 sm:h-4 sm:w-4',
+        text: 'text-sm',
+      },
+      md: {
+        button: 'w-8 h-8 sm:w-10 sm:h-10',
+        counter: 'w-10 sm:w-12 px-2',
+        icon: 'h-4 w-4',
+        text: 'text-sm sm:text-base',
+      },
+      lg: {
+        button: 'w-10 h-10 sm:w-12 sm:h-12',
+        counter: 'w-12 sm:w-16 px-2',
+        icon: 'h-4 w-4 sm:h-5 sm:w-5',
+        text: 'text-base sm:text-lg',
+      },
+    };
+
+    return sizeMap[sizeParam];
+  };
+
+  const sizeClasses = getSizeClasses();
+
   return (
     <div
-      className={`flex items-center border rounded-lg overflow-hidden ${disabled ? "bg-gray-100 opacity-75" : "bg-white"} shadow-sm ${className}`}
+      className={`inline-flex items-center border rounded-lg overflow-hidden ${
+        disabled ? 'bg-gray-100 opacity-75' : 'bg-white'
+      } shadow-sm transition-all duration-200 ${className}`}
     >
       <button
         onClick={handleDecrement}
         disabled={isLoading || disabled || quantity <= minQuantity}
-        className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all active:scale-95 disabled:opacity-50 disabled:hover:bg-white disabled:active:scale-100 disabled:hover:text-gray-600"
+        className={`${sizeClasses.button} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:hover:bg-white disabled:active:scale-100 disabled:hover:text-gray-600 touch-manipulation`}
         aria-label="Уменьшить количество"
       >
-        <MinusIcon className="h-4 w-4" />
+        <MinusIcon className={sizeClasses.icon} />
       </button>
-      <div className="w-12 text-center font-medium relative">
+
+      <div
+        className={`${sizeClasses.counter} text-center font-medium relative flex items-center justify-center min-h-[2rem] sm:min-h-[2.5rem]`}
+      >
         {isLoading ? (
-          <div className="animate-pulse h-5 w-5 bg-gray-200 rounded-full mx-auto"></div>
+          <div className="animate-pulse h-3 w-3 sm:h-4 sm:w-4 bg-gray-200 rounded-full"></div>
         ) : (
           <span
-            className={`inline-block ${animateValue ? "animate-fade-in scale-110" : ""}`}
+            className={`inline-block transition-all duration-300 ${
+              animateValue ? 'animate-pulse scale-110' : ''
+            } ${sizeClasses.text} font-semibold`}
           >
             {quantity}
           </span>
         )}
       </div>
+
       <button
         onClick={handleIncrement}
         disabled={isLoading || disabled}
-        className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all active:scale-95 disabled:opacity-50 disabled:hover:bg-white disabled:active:scale-100 disabled:hover:text-gray-600"
+        className={`${sizeClasses.button} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:hover:bg-white disabled:active:scale-100 disabled:hover:text-gray-600 touch-manipulation`}
         aria-label="Увеличить количество"
       >
-        <PlusIcon className="h-4 w-4" />
+        <PlusIcon className={sizeClasses.icon} />
       </button>
     </div>
   );

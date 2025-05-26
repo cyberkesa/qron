@@ -11,7 +11,7 @@ export interface Product {
   images: ProductImage[];
   slug: string;
   category?: { id: string; title: string; slug: string };
-  stockAvailabilityStatus: "IN_STOCK" | "OUT_OF_STOCK" | "COMING_SOON";
+  stockAvailabilityStatus: 'IN_STOCK' | 'OUT_OF_STOCK' | 'COMING_SOON';
 }
 
 export interface ProductEdge {

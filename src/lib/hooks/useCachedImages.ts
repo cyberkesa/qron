@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type ImageCacheEntry = {
   url: string;
@@ -34,11 +34,32 @@ export function useCachedImages(
     onLoad?: (url: string) => void;
     onError?: (url: string, error: ErrorEvent) => void;
     placeholder?: string;
-  } = {},
+  } = {}
 ) {
   const [loadingStates, setLoadingStates] = useState<
-    Record<string, "loading" | "loaded" | "error">
+    Record<string, 'loading' | 'loaded' | 'error'>
   >({});
+
+  // Create stable references to the options callbacks
+  const optionsRef = useRef(options);
+
+  // Update the ref when options change
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
+
+  // Get the stable load and error handlers
+  const handleLoad = useCallback((url: string) => {
+    if (optionsRef.current.onLoad) {
+      optionsRef.current.onLoad(url);
+    }
+  }, []);
+
+  const handleError = useCallback((url: string, error: ErrorEvent) => {
+    if (optionsRef.current.onError) {
+      optionsRef.current.onError(url, error);
+    }
+  }, []);
 
   // Cleanup expired cache entries
   useEffect(() => {
@@ -72,7 +93,8 @@ export function useCachedImages(
   useEffect(() => {
     if (!urls.length) return;
 
-    const initialStates: Record<string, "loading" | "loaded" | "error"> = {};
+    const initialStates: Record<string, 'loading' | 'loaded' | 'error'> = {};
+    const currentOptions = optionsRef.current;
 
     // Initialize loading states
     urls.forEach((url) => {
@@ -86,7 +108,7 @@ export function useCachedImages(
 
         // If not expired, mark as loaded
         if (now - cachedEntry.loadedAt < CACHE_EXPIRATION) {
-          initialStates[url] = "loaded";
+          initialStates[url] = 'loaded';
           return;
         } else {
           // Remove expired entry
@@ -94,21 +116,21 @@ export function useCachedImages(
         }
       }
 
-      initialStates[url] = "loading";
+      initialStates[url] = 'loading';
     });
 
     setLoadingStates(initialStates);
 
     // Preload images not in cache
     urls.forEach((url) => {
-      if (!url || (initialStates[url] && initialStates[url] === "loaded")) {
+      if (!url || (initialStates[url] && initialStates[url] === 'loaded')) {
         return;
       }
 
       const img = new Image();
 
-      if (options.priority) {
-        img.fetchPriority = "high";
+      if (currentOptions.priority) {
+        img.fetchPriority = 'high';
       }
 
       img.onload = () => {
@@ -116,31 +138,27 @@ export function useCachedImages(
         imageCache.set(url, { url, loadedAt: Date.now(), element: img });
 
         // Update loading state
-        setLoadingStates((prev) => ({ ...prev, [url]: "loaded" }));
+        setLoadingStates((prev) => ({ ...prev, [url]: 'loaded' }));
 
-        if (options.onLoad) {
-          options.onLoad(url);
-        }
+        handleLoad(url);
       };
 
       img.onerror = () => {
         // Update loading state
-        setLoadingStates((prev) => ({ ...prev, [url]: "error" }));
+        setLoadingStates((prev) => ({ ...prev, [url]: 'error' }));
 
-        if (options.onError) {
-          // Create a synthetic error event since the actual error event might
-          // be complex
-          const errorEvent = new ErrorEvent("error", {
-            message: `Failed to load image: ${url}`,
-            filename: url,
-          });
-          options.onError(url, errorEvent);
-        }
+        // Create a synthetic error event since the actual error event might
+        // be complex
+        const errorEvent = new ErrorEvent('error', {
+          message: `Failed to load image: ${url}`,
+          filename: url,
+        });
+        handleError(url, errorEvent);
       };
 
       img.src = url;
     });
-  }, [urls, options]);
+  }, [urls, handleLoad, handleError]);
 
   /**
    * Get the best URL to use:
@@ -148,27 +166,40 @@ export function useCachedImages(
    * - If loading failed, use the placeholder
    * - If still loading, use undefined to show loading state
    */
-  const getImageUrl = (url: string): string | undefined => {
-    const state = loadingStates[url];
+  const getImageUrl = useCallback(
+    (url: string): string | undefined => {
+      const state = loadingStates[url];
+      const currentOptions = optionsRef.current;
 
-    if (state === "loaded") {
-      return url;
-    } else if (state === "error" && options.placeholder) {
-      return options.placeholder;
-    } else if (state === "loading") {
-      // Still loading, could return undefined or a tiny placeholder
-      return undefined;
-    }
+      if (state === 'loaded') {
+        return url;
+      } else if (state === 'error' && currentOptions.placeholder) {
+        return currentOptions.placeholder;
+      } else if (state === 'loading') {
+        // Still loading, could return undefined or a tiny placeholder
+        return undefined;
+      }
 
-    return url; // Fallback to original
-  };
+      return url; // Fallback to original
+    },
+    [loadingStates]
+  );
 
   return {
     loadingStates,
     getImageUrl,
-    isLoaded: (url: string) => loadingStates[url] === "loaded",
-    isLoading: (url: string) => loadingStates[url] === "loading",
-    hasError: (url: string) => loadingStates[url] === "error",
+    isLoaded: useCallback(
+      (url: string) => loadingStates[url] === 'loaded',
+      [loadingStates]
+    ),
+    isLoading: useCallback(
+      (url: string) => loadingStates[url] === 'loading',
+      [loadingStates]
+    ),
+    hasError: useCallback(
+      (url: string) => loadingStates[url] === 'error',
+      [loadingStates]
+    ),
   };
 }
 

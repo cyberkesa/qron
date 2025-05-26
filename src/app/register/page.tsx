@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation, useQuery } from "@apollo/client";
-import { REGISTER, GET_REGIONS } from "@/lib/queries";
-import Link from "next/link";
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useMutation, useQuery } from '@apollo/client';
+import { REGISTER, GET_REGIONS } from '@/lib/queries';
+import Link from 'next/link';
 import {
   MapPinIcon,
   UserIcon,
   EnvelopeIcon,
   LockClosedIcon,
-} from "@heroicons/react/24/outline";
-import RegisterClient from "./register-client";
+} from '@heroicons/react/24/outline';
+import RegisterClient from './register-client';
 
 interface Region {
   id: string;
@@ -21,7 +21,7 @@ interface Region {
 // Loading component for Suspense fallback
 function RegisterLoading() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-6">
       <div className="max-w-lg mx-auto">
         <h1 className="text-2xl font-bold text-gray-900 text-center mb-8">
           Регистрация
@@ -40,7 +40,7 @@ function RegisterLoading() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -48,25 +48,25 @@ function RegisterLoading() {
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams?.get("redirect") || "/";
+  const redirectTo = searchParams?.get('redirect') || '/';
 
   const [formData, setFormData] = useState({
-    name: "",
-    emailAddress: "",
-    password: "",
-    confirmPassword: "",
+    name: '',
+    emailAddress: '',
+    password: '',
+    confirmPassword: '',
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [selectedRegion, setSelectedRegion] = useState<Region | null>(null);
   const [regionsOpen, setRegionsOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [register, { loading }] = useMutation(REGISTER);
   const { data: regionsData, loading: regionsLoading } = useQuery(GET_REGIONS);
 
   useEffect(() => {
     // Загружаем выбранный регион из localStorage
-    const savedRegion = localStorage.getItem("selectedRegion");
+    const savedRegion = localStorage.getItem('selectedRegion');
     if (savedRegion) {
       setSelectedRegion(JSON.parse(savedRegion));
     } else if (regionsData?.regions && regionsData.regions.length > 0) {
@@ -93,29 +93,29 @@ function RegisterForm() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!formData.name.trim()) {
-      errors.name = "Имя обязательно для заполнения";
+      errors.name = 'Имя обязательно для заполнения';
     }
 
     if (!formData.emailAddress.trim()) {
-      errors.emailAddress = "Email обязателен для заполнения";
+      errors.emailAddress = 'Email обязателен для заполнения';
     } else if (!emailRegex.test(formData.emailAddress)) {
-      errors.emailAddress = "Введите корректный email";
+      errors.emailAddress = 'Введите корректный email';
     }
 
     if (!formData.password) {
-      errors.password = "Пароль обязателен для заполнения";
+      errors.password = 'Пароль обязателен для заполнения';
     } else if (formData.password.length < 6) {
-      errors.password = "Пароль должен содержать минимум 6 символов";
+      errors.password = 'Пароль должен содержать минимум 6 символов';
     }
 
     if (!formData.confirmPassword) {
-      errors.confirmPassword = "Подтверждение пароля обязательно";
+      errors.confirmPassword = 'Подтверждение пароля обязательно';
     } else if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = "Пароли не совпадают";
+      errors.confirmPassword = 'Пароли не совпадают';
     }
 
     if (!selectedRegion) {
-      errors.region = "Выберите регион";
+      errors.region = 'Выберите регион';
     }
 
     setFormErrors(errors);
@@ -124,7 +124,7 @@ function RegisterForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
+    setErrorMessage('');
     setFormErrors({});
 
     if (!validateForm()) {
@@ -143,7 +143,7 @@ function RegisterForm() {
         },
       });
 
-      if (result.data?.register?.__typename === "RegisterSuccessResult") {
+      if (result.data?.register?.__typename === 'RegisterSuccessResult') {
         // Показываем успешное сообщение и перенаправляем на страницу входа
         router.push(`/login?registered=true&redirect=${redirectTo}`);
       } else if (result.data?.register?.message) {
@@ -153,13 +153,13 @@ function RegisterForm() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Произошла ошибка при регистрации";
+          : 'Произошла ошибка при регистрации';
       setErrorMessage(errorMessage);
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-6">
       <div className="max-w-lg mx-auto">
         <h1 className="text-2xl font-bold text-gray-900 text-center mb-8">
           Регистрация
@@ -209,7 +209,7 @@ function RegisterForm() {
                   value={formData.name}
                   onChange={handleChange}
                   className={`w-full pl-10 px-4 py-2 border ${
-                    formErrors.name ? "border-red-300" : "border-gray-300"
+                    formErrors.name ? 'border-red-300' : 'border-gray-300'
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                 />
@@ -238,8 +238,8 @@ function RegisterForm() {
                   onChange={handleChange}
                   className={`w-full pl-10 px-4 py-2 border ${
                     formErrors.emailAddress
-                      ? "border-red-300"
-                      : "border-gray-300"
+                      ? 'border-red-300'
+                      : 'border-gray-300'
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                 />
@@ -269,7 +269,7 @@ function RegisterForm() {
                   value={formData.password}
                   onChange={handleChange}
                   className={`w-full pl-10 px-4 py-2 border ${
-                    formErrors.password ? "border-red-300" : "border-gray-300"
+                    formErrors.password ? 'border-red-300' : 'border-gray-300'
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                   minLength={6}
@@ -303,8 +303,8 @@ function RegisterForm() {
                   onChange={handleChange}
                   className={`w-full pl-10 px-4 py-2 border ${
                     formErrors.confirmPassword
-                      ? "border-red-300"
-                      : "border-gray-300"
+                      ? 'border-red-300'
+                      : 'border-gray-300'
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   required
                 />
@@ -328,18 +328,18 @@ function RegisterForm() {
                   type="button"
                   onClick={() => setRegionsOpen(!regionsOpen)}
                   className={`w-full pl-10 px-4 py-2 border ${
-                    formErrors.region ? "border-red-300" : "border-gray-300"
+                    formErrors.region ? 'border-red-300' : 'border-gray-300'
                   } rounded-md text-left focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white flex justify-between items-center`}
                 >
                   <span
                     className={
-                      selectedRegion ? "text-gray-900" : "text-gray-500"
+                      selectedRegion ? 'text-gray-900' : 'text-gray-500'
                     }
                   >
-                    {selectedRegion ? selectedRegion.name : "Выберите регион"}
+                    {selectedRegion ? selectedRegion.name : 'Выберите регион'}
                   </span>
                   <svg
-                    className={`h-5 w-5 text-gray-400 ${regionsOpen ? "transform rotate-180" : ""}`}
+                    className={`h-5 w-5 text-gray-400 ${regionsOpen ? 'transform rotate-180' : ''}`}
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -409,16 +409,16 @@ function RegisterForm() {
                   Регистрация...
                 </span>
               ) : (
-                "Зарегистрироваться"
+                'Зарегистрироваться'
               )}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Уже есть аккаунт?{" "}
+              Уже есть аккаунт?{' '}
               <Link
-                href={`/login${redirectTo !== "/" ? `?redirect=${redirectTo}` : ""}`}
+                href={`/login${redirectTo !== '/' ? `?redirect=${redirectTo}` : ''}`}
                 className="text-blue-600 hover:text-blue-800"
               >
                 Войти
@@ -427,7 +427,7 @@ function RegisterForm() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

@@ -1,8 +1,8 @@
-import { Product } from "@/types/api";
-import React from "react";
-import { ProductCard } from "../product/ProductCard";
-import { useViewHistory } from "@/lib/hooks/useViewHistory";
-import { useEffect, useState, useMemo } from "react";
+import { Product } from '@/types/api';
+import React from 'react';
+import { ProductCard } from '../product/ProductCard';
+import { useViewHistory } from '@/lib/hooks/useViewHistory';
+import { useEffect, useState, useMemo } from 'react';
 
 interface SimilarProductsProps {
   currentProduct: Product;
@@ -23,7 +23,7 @@ export function SimilarProducts({ currentProduct }: SimilarProductsProps) {
   if (similarProducts.length === 0) return null;
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-12">
+    <section className="container mx-auto px-4 py-6 mt-12">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Похожие товары</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {similarProducts.map((product, index) => (
@@ -33,6 +33,6 @@ export function SimilarProducts({ currentProduct }: SimilarProductsProps) {
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

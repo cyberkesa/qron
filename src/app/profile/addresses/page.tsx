@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useQuery, useMutation } from "@apollo/client";
-import { GET_DELIVERY_ADDRESSES, DELETE_DELIVERY_ADDRESS } from "@/lib/queries";
-import { DeliveryAddress } from "@/types/api";
-import Link from "next/link";
-import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { useState } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
+import { GET_DELIVERY_ADDRESSES, DELETE_DELIVERY_ADDRESS } from '@/lib/queries';
+import { DeliveryAddress } from '@/types/api';
+import Link from 'next/link';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 export default function DeliveryAddressesPage() {
   const [error, setError] = useState<string | null>(null);
@@ -15,10 +15,10 @@ export default function DeliveryAddressesPage() {
 
   const [deleteAddress] = useMutation(DELETE_DELIVERY_ADDRESS, {
     onCompleted: (data) => {
-      if (data.deleteDeliveryAddress.__typename === "UnexpectedError") {
+      if (data.deleteDeliveryAddress.__typename === 'UnexpectedError') {
         setError(data.deleteDeliveryAddress.message);
       } else {
-        setSuccess("Адрес успешно удален");
+        setSuccess('Адрес успешно удален');
         refetch();
       }
     },
@@ -28,7 +28,7 @@ export default function DeliveryAddressesPage() {
   });
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Вы уверены, что хотите удалить этот адрес?")) {
+    if (window.confirm('Вы уверены, что хотите удалить этот адрес?')) {
       await deleteAddress({
         variables: { id },
       });

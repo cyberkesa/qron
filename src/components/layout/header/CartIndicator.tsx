@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { memo } from "react";
-import { ShoppingCartIcon } from "@heroicons/react/24/outline";
+import Link from 'next/link';
+import { memo } from 'react';
+import { ShoppingCartIcon } from '@heroicons/react/24/outline';
 
 interface CartIndicatorProps {
   itemCount: number;
@@ -21,7 +21,7 @@ const CartIndicator = memo(({ itemCount, totalPrice }: CartIndicatorProps) => {
           <ShoppingCartIcon className="h-6 w-6" />
           {itemCount > 0 && (
             <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
-              {itemCount > 99 ? "99+" : itemCount}
+              {itemCount > 99 ? '99+' : itemCount}
             </div>
           )}
         </div>
@@ -36,6 +36,6 @@ const CartIndicator = memo(({ itemCount, totalPrice }: CartIndicatorProps) => {
   );
 });
 
-CartIndicator.displayName = "CartIndicator";
+CartIndicator.displayName = 'CartIndicator';
 
 export default CartIndicator;

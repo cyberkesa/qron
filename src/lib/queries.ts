@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
   query GetProducts(
@@ -343,7 +343,7 @@ export const UPDATE_CART_ITEM_QUANTITY = gql`
 
 // Запросы для получения истории заказов
 export const GET_ORDERS = gql`
-  query GetOrders($first: Int, $after: String) {
+  query GetOrders($first: Int!, $after: String) {
     orders(first: $first, after: $after) {
       edges {
         cursor
@@ -351,7 +351,7 @@ export const GET_ORDERS = gql`
           id
           status
           creationDatetime
-          items {
+          items(first: 100) {
             edges {
               node {
                 id
@@ -394,7 +394,7 @@ export const GET_ORDER = gql`
       id
       status
       creationDatetime
-      items {
+      items(first: 100) {
         edges {
           node {
             id
@@ -437,22 +437,14 @@ export const GET_DELIVERY_ADDRESSES = gql`
 
 // Мутация для оформления заказа
 export const CHECK_OUT = gql`
-  mutation CheckOut(
-    $deliveryAddressId: ID!
-    $paymentMethod: PaymentMethod!
-    $deliveryMethod: DeliveryMethod!
-  ) {
-    checkOut(
-      deliveryAddressId: $deliveryAddressId
-      paymentMethod: $paymentMethod
-      deliveryMethod: $deliveryMethod
-    ) {
+  mutation CheckOut($deliveryAddressId: ID!, $phoneNumber: String!) {
+    checkOut(deliveryAddressId: $deliveryAddressId, phoneNumber: $phoneNumber) {
       ... on CheckOutSuccessResult {
         order {
           id
           status
           creationDatetime
-          items {
+          items(first: 100) {
             edges {
               node {
                 id
@@ -540,10 +532,37 @@ export const LOGIN = gql`
 `;
 
 export const REGISTER = gql`
-  mutation Register($input: RegisterInput!) {
-    register(input: $input) {
+  mutation Register(
+    $name: String!
+    $emailAddress: String!
+    $password: String!
+    $regionId: ID!
+    $emailAddressVerificationRequestId: EmailAddressVerificationRequestId!
+    $emailAddressVerificationCode: String!
+  ) {
+    register(
+      name: $name
+      emailAddress: $emailAddress
+      password: $password
+      regionId: $regionId
+      emailAddressVerificationRequestId: $emailAddressVerificationRequestId
+      emailAddressVerificationCode: $emailAddressVerificationCode
+    ) {
+      __typename
       ... on RegisterSuccessResult {
         nothing
+      }
+      ... on RegisterErrorDueToEmailAddressAlreadyTaken {
+        message
+      }
+      ... on RegisterErrorDueToEmailAddressVerificationCodeExpired {
+        message
+      }
+      ... on RegisterErrorDueToWrongEmailAddressVerificationCode {
+        message
+      }
+      ... on RegisterErrorDueToEmailAddressVerificationCodeMaximumEnterAttemptsExceeded {
+        message
       }
       ... on UnexpectedError {
         message
@@ -766,22 +785,11 @@ export const GET_DELIVERY_ADDRESS = gql`
 `;
 
 // Мутация для обновления профиля пользователя
-export const UPDATE_PROFILE = gql`
-  mutation UpdateProfile($name: String!, $phoneNumber: String) {
-    updateProfile(name: $name, phoneNumber: $phoneNumber) {
-      ... on UpdateProfileSuccessResult {
-        viewer {
-          ... on RegisteredViewer {
-            id
-            name
-            emailAddress
-            phoneNumber
-            region {
-              id
-              name
-            }
-          }
-        }
+export const UPDATE_NAME = gql`
+  mutation UpdateName($name: String!) {
+    updateName(name: $name) {
+      ... on UpdateNameSuccessResult {
+        nothing
       }
       ... on UnexpectedError {
         message
@@ -818,6 +826,79 @@ export const GET_PRODUCTS_BY_CATEGORY = gql`
           }
           quantityMultiplicity
         }
+      }
+    }
+  }
+`;
+
+// Обновим мутацию для запроса верификации email
+export const REQUEST_EMAIL_ADDRESS_VERIFICATION = gql`
+  mutation RequestEmailAddressVerification($emailAddress: String!) {
+    requestEmailAddressVerification(emailAddress: $emailAddress) {
+      __typename
+      ... on RequestEmailAddressVerificationSuccessResult {
+        requestId
+      }
+      ... on RequestEmailAddressVerificationErrorDueToEmailAddressAlreadyTaken {
+        message
+      }
+      ... on UnexpectedError {
+        message
+      }
+    }
+  }
+`;
+
+// Мутация для запроса сброса пароля
+export const REQUEST_PASSWORD_RESET = gql`
+  mutation RequestPasswordReset($emailAddress: String!) {
+    requestPasswordReset(emailAddress: $emailAddress) {
+      __typename
+      ... on RequestPasswordResetSuccessResult {
+        requestId
+      }
+      ... on RequestPasswordResetErrorDueToAccountNotFound {
+        message
+      }
+      ... on UnexpectedError {
+        message
+      }
+    }
+  }
+`;
+
+// Мутация для сброса пароля
+export const RESET_PASSWORD = gql`
+  mutation ResetPassword(
+    $passwordResetRequestId: PasswordResetRequestId!
+    $passwordResetCode: String!
+    $newPassword: String!
+    $emailAddress: String!
+  ) {
+    resetPassword(
+      passwordResetRequestId: $passwordResetRequestId
+      passwordResetCode: $passwordResetCode
+      newPassword: $newPassword
+      emailAddress: $emailAddress
+    ) {
+      __typename
+      ... on ResetPasswordSuccessResult {
+        nothing
+      }
+      ... on ResetPasswordErrorDueToPasswordResetCodeAlreadyUsed {
+        message
+      }
+      ... on ResetPasswordErrorDueToPasswordResetCodeExpired {
+        message
+      }
+      ... on ResetPasswordErrorDueToPasswordResetCodeMaximumEnterAttemptsExceeded {
+        message
+      }
+      ... on ResetPasswordErrorDueToWrongPasswordResetCode {
+        message
+      }
+      ... on UnexpectedError {
+        message
       }
     }
   }

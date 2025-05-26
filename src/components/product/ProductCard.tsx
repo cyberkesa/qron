@@ -1,42 +1,26 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo, memo } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { Product, ProductStockAvailabilityStatus, Category } from "@/types/api";
-import { useMutation, useQuery } from "@apollo/client";
-import { ADD_TO_CART, GET_VIEWER, GET_CART } from "@/lib/queries";
-import { useApolloClient } from "@apollo/client";
-import { ShoppingCartIcon } from "@heroicons/react/24/outline";
-import { useCartContext } from "@/lib/providers/CartProvider";
-import { CartItemUnified } from "@/lib/hooks/useCart";
-import { QuantityCounter } from "@/components/ui/QuantityCounter";
-import { Notification } from "@/components/ui/Notification";
-import useCachedImages from "@/lib/hooks/useCachedImages";
-import { trackEvent } from "@/lib/analytics";
-import React from "react";
+import React, { useState, useCallback, useMemo, memo } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { useMutation, useQuery, useApolloClient } from '@apollo/client';
+import { ADD_TO_CART } from '@/lib/queries';
+import { GET_VIEWER, GET_CART } from '@/lib/queries';
+import { Product, ProductStockAvailabilityStatus, Category } from '@/types/api';
+import { CartItemUnified } from '@/lib/hooks/useCart';
+import { useCartContext } from '@/lib/providers/CartProvider';
+import useCachedImages from '@/lib/hooks/useCachedImages';
+import { QuantityCounter } from '@/components/ui/QuantityCounter';
+import { trackEvent } from '@/lib/analytics';
+import { useNotificationContext } from '@/lib/providers/NotificationProvider';
 
 // Вспомогательная функция для отображения пути категории
 const formatCategoryPath = (category: Category) => {
-  if (!category) return "";
+  if (!category) return '';
 
-  let path = category.title;
-
-  // Если это NonRootLeafCategory и есть предки или родитель
-  if (category.__typename === "NonRootLeafCategory") {
-    // Если есть предки
-    if (category.ancestors && category.ancestors.length > 0) {
-      // Показываем только последнего предка для компактности
-      const lastAncestor = category.ancestors[category.ancestors.length - 1];
-      path = `${lastAncestor.title} / ${path}`;
-    }
-    // Иначе используем родителя, если он есть
-    else if (category.parent) {
-      path = `${category.parent.title} / ${path}`;
-    }
-  }
-
-  return path;
+  // Всегда показываем только текущую категорию (подкатегорию)
+  return category.title;
 };
 
 interface ProductCardProps {
@@ -44,11 +28,13 @@ interface ProductCardProps {
   onAddToCart?: (product: Product) => Promise<void>;
 }
 
-// Оптимизированный компонент ProductCard
+// Оптимизированный компонент ProductCard с полной мобильной адаптацией
 function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+
+  // Получаем сервис уведомлений
+  const { showSuccess, showError } = useNotificationContext();
 
   // Собираем все URL изображений для предзагрузки
   const imageUrls = useMemo(() => {
@@ -58,7 +44,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
 
   // Используем наш хук для кэширования изображений
   const { loadingStates } = useCachedImages(imageUrls, {
-    placeholder: "/images/product-placeholder.png",
+    placeholder: '/images/product-placeholder.png',
   });
 
   // Apollo Client для обновления кэша после добавления в корзину
@@ -72,7 +58,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
     if (!unifiedCart || !unifiedCart.items) return 0;
 
     const cartItem = unifiedCart.items.find(
-      (item: CartItemUnified) => item.product?.id === product.id,
+      (item: CartItemUnified) => item.product?.id === product.id
     );
 
     return cartItem ? cartItem.quantity : 0;
@@ -83,13 +69,13 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
     switch (product.stockAvailabilityStatus) {
       case ProductStockAvailabilityStatus.OUT_OF_STOCK:
         return (
-          <div className="absolute top-2 right-2 bg-gray-500 text-white text-xs font-medium px-2 py-0.5 rounded-full z-10">
+          <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-gray-500 text-white text-xs font-medium px-1.5 sm:px-2 py-0.5 rounded-full z-10">
             Нет в наличии
           </div>
         );
       case ProductStockAvailabilityStatus.IN_STOCK_SOON:
         return (
-          <div className="absolute top-2 right-2 bg-amber-500 text-white text-xs font-medium px-2 py-0.5 rounded-full z-10">
+          <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-amber-500 text-white text-xs font-medium px-1.5 sm:px-2 py-0.5 rounded-full z-10">
             Скоро в наличии
           </div>
         );
@@ -107,15 +93,14 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
         // Если функция onAddToCart передана извне, используем ее
         if (onAddToCart && delta > 0 && currentCartQuantity === 0) {
           await onAddToCart(product);
-          setShowNotification(true);
-          setTimeout(() => setShowNotification(false), 2000);
+          showSuccess(`${product.name} добавлен в корзину`);
           return;
         }
 
         // Если не передан внешний обработчик или это изменение количества, используем универсальную логику
         const newQuantity = Math.max(
           0,
-          currentCartQuantity + delta * (product.quantityMultiplicity || 1),
+          currentCartQuantity + delta * (product.quantityMultiplicity || 1)
         );
 
         // Используем addToUnifiedCart из контекста корзины
@@ -123,49 +108,56 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
 
         // Если это первая позиция (добавление, а не изменение), показываем уведомление
         if (delta > 0 && currentCartQuantity === 0) {
-          setShowNotification(true);
-          setTimeout(() => setShowNotification(false), 2000);
+          showSuccess(`${product.name} добавлен в корзину`);
         }
 
         // Аналитика добавления товара
         if (delta > 0 && currentCartQuantity === 0) {
-          trackEvent("add_to_cart", {
+          trackEvent('add_to_cart', {
             product_id: product.id,
             product_name: product.name,
             product_price: product.price,
           });
         }
       } catch (error) {
-        console.error("Error updating cart quantity:", error);
+        console.error('Error updating cart quantity:', error);
+        showError(`Не удалось добавить товар в корзину`);
       } finally {
         setIsAddingToCart(false);
       }
     },
-    [product, currentCartQuantity, addToUnifiedCart, onAddToCart],
+    [
+      product,
+      currentCartQuantity,
+      addToUnifiedCart,
+      onAddToCart,
+      showSuccess,
+      showError,
+    ]
   );
 
   // Форматирование цены - мемоизировано для предотвращения лишних рендеров
   const formattedPrice = useMemo(
     () =>
-      new Intl.NumberFormat("ru-RU", {
-        style: "currency",
-        currency: "RUB",
+      new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
         maximumFractionDigits: 0,
       }).format(product.price),
-    [product.price],
+    [product.price]
   );
 
   // Форматированная старая цена - тоже мемоизирована
   const formattedOldPrice = useMemo(
     () =>
       product.decimalPrice
-        ? new Intl.NumberFormat("ru-RU", {
-            style: "currency",
-            currency: "RUB",
+        ? new Intl.NumberFormat('ru-RU', {
+            style: 'currency',
+            currency: 'RUB',
             maximumFractionDigits: 0,
           }).format(parseFloat(product.decimalPrice))
         : null,
-    [product.decimalPrice],
+    [product.decimalPrice]
   );
 
   // Вычисляем процент скидки
@@ -180,10 +172,10 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
     product.stockAvailabilityStatus ===
     ProductStockAvailabilityStatus.OUT_OF_STOCK;
 
-  // Стили для карточки на основе доступности товара
+  // Стили для карточки на основе доступности товара - адаптивные
   const cardClassName = useMemo(() => {
     const baseClasses =
-      "group rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg relative h-full flex flex-col product-card hover:border-blue-200";
+      'group rounded-lg sm:rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg relative h-full flex flex-col product-card hover:border-blue-200';
 
     if (isOutOfStock) {
       return `${baseClasses} bg-gray-50 opacity-80`;
@@ -193,7 +185,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
   }, [isOutOfStock]);
 
   const contentClassName = useMemo(() => {
-    const baseClasses = "p-4 flex flex-col flex-grow z-10";
+    const baseClasses = 'p-2 sm:p-3 lg:p-4 flex flex-col flex-grow z-10';
 
     if (isOutOfStock) {
       return `${baseClasses} bg-gray-50`;
@@ -204,7 +196,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
 
   const titleClassName = useMemo(() => {
     const baseClasses =
-      "text-base font-medium line-clamp-2 mb-2 min-h-[2.5rem] group-hover:text-blue-600 transition-colors";
+      'text-sm sm:text-base font-medium line-clamp-2 mb-1 sm:mb-2 min-h-[2rem] sm:min-h-[2.5rem] group-hover:text-blue-600 transition-colors leading-tight';
 
     if (isOutOfStock) {
       return `${baseClasses} text-gray-600`;
@@ -214,7 +206,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
   }, [isOutOfStock]);
 
   const priceClassName = useMemo(() => {
-    const baseClasses = "text-lg font-semibold";
+    const baseClasses = 'text-base sm:text-lg font-semibold';
 
     if (isOutOfStock) {
       return `${baseClasses} text-gray-600`;
@@ -232,13 +224,13 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
       {getStockStatusBadge()}
 
       {discountPercentage && discountPercentage > 0 && (
-        <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-medium px-2 py-0.5 rounded-full z-10 animate-pulse shadow-sm">
+        <span className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white text-xs font-medium px-1.5 sm:px-2 py-0.5 rounded-full z-10 animate-pulse shadow-sm">
           Скидка {discountPercentage}%
         </span>
       )}
 
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="h-48 overflow-hidden relative flex items-center justify-center p-4 bg-white product-card-image group">
+        <div className="h-32 sm:h-40 lg:h-48 overflow-hidden relative flex items-center justify-center p-2 sm:p-3 lg:p-4 bg-white product-card-image group">
           {product.images && product.images.length > 0 ? (
             <>
               {product.images.length > 1 ? (
@@ -248,8 +240,8 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
                     src={product.images[0].url}
                     alt={product.name}
                     className={`object-contain w-full h-full transition-opacity duration-300 ${
-                      isOutOfStock ? "filter grayscale opacity-70" : ""
-                    } ${isHovering ? "opacity-0" : "opacity-100"} absolute inset-0`}
+                      isOutOfStock ? 'filter grayscale opacity-70' : ''
+                    } ${isHovering ? 'opacity-0' : 'opacity-100'} absolute inset-0`}
                     width={200}
                     height={200}
                     priority={false}
@@ -258,15 +250,15 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
                     onError={(e) => {
                       // Fallback if image fails to load
                       (e.target as HTMLImageElement).src =
-                        "/images/product-placeholder.png";
+                        '/images/product-placeholder.png';
                     }}
                   />
                   <Image
                     src={product.images[1].url}
                     alt={`${product.name} - изображение 2`}
                     className={`object-contain w-full h-full transition-opacity duration-300 ${
-                      isOutOfStock ? "filter grayscale opacity-70" : ""
-                    } ${isHovering ? "opacity-100" : "opacity-0"} absolute inset-0`}
+                      isOutOfStock ? 'filter grayscale opacity-70' : ''
+                    } ${isHovering ? 'opacity-100' : 'opacity-0'} absolute inset-0`}
                     width={200}
                     height={200}
                     priority={false}
@@ -275,7 +267,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
                     onError={(e) => {
                       // Fallback if image fails to load
                       (e.target as HTMLImageElement).src =
-                        "/images/product-placeholder.png";
+                        '/images/product-placeholder.png';
                     }}
                   />
                 </>
@@ -285,7 +277,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
                   src={product.images[0].url}
                   alt={product.name}
                   className={`object-contain w-full h-full transition-transform duration-300 group-hover:scale-110 ${
-                    isOutOfStock ? "filter grayscale opacity-70" : ""
+                    isOutOfStock ? 'filter grayscale opacity-70' : ''
                   }`}
                   width={200}
                   height={200}
@@ -295,29 +287,31 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
                   onError={(e) => {
                     // Fallback if image fails to load
                     (e.target as HTMLImageElement).src =
-                      "/images/product-placeholder.png";
+                      '/images/product-placeholder.png';
                   }}
                 />
               )}
             </>
           ) : (
             <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
-              <span className="text-gray-400 text-sm">Нет изображения</span>
+              <span className="text-gray-400 text-xs sm:text-sm">
+                Нет изображения
+              </span>
             </div>
           )}
 
-          {/* Quick view indicator with image count */}
+          {/* Quick view indicator with image count - скрыто на мобиле */}
           {product.images && product.images.length > 1 && (
             <div
-              className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-50 to-transparent p-2 transition-opacity text-center ${
-                isHovering ? "opacity-100" : "opacity-0"
+              className={`hidden sm:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-50 to-transparent p-2 transition-opacity text-center ${
+                isHovering ? 'opacity-100' : 'opacity-0'
               }`}
             >
               <div className="flex items-center justify-center space-x-1">
                 {product.images.slice(0, 4).map((_, index) => (
                   <span
                     key={index}
-                    className={`w-1.5 h-1.5 rounded-full ${index === (isHovering ? 1 : 0) ? "bg-blue-600" : "bg-blue-300"}`}
+                    className={`w-1.5 h-1.5 rounded-full ${index === (isHovering ? 1 : 0) ? 'bg-blue-600' : 'bg-blue-300'}`}
                   ></span>
                 ))}
                 {product.images.length > 4 && (
@@ -338,7 +332,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
         {product.category && (
           <Link
             href={`/categories/${product.category.slug}`}
-            className="text-xs text-gray-500 hover:text-blue-600 transition-colors mb-1 inline-block hover-bright"
+            className="text-xs text-gray-500 hover:text-blue-600 transition-colors mb-1 inline-block hover-bright line-clamp-1"
             onClick={(e) => e.stopPropagation()}
           >
             {formatCategoryPath(product.category)}
@@ -356,14 +350,14 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
         )}
 
         {product.sku && (
-          <div className="mt-1 text-xs text-gray-500">
+          <div className="mt-1 text-xs text-gray-500 truncate">
             Артикул: {product.sku}
           </div>
         )}
 
         <div className="mt-auto">
-          <div className="flex justify-between items-end mt-2">
-            <div>
+          <div className="flex justify-between items-end mt-2 gap-2">
+            <div className="min-w-0 flex-1">
               {formattedOldPrice && (
                 <div className="text-xs text-gray-500 line-through">
                   {formattedOldPrice}
@@ -373,49 +367,40 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
             </div>
 
             {!isOutOfStock && currentCartQuantity > 0 ? (
-              <QuantityCounter
-                quantity={currentCartQuantity}
-                minQuantity={product.quantityMultiplicity || 1}
-                onIncrement={() => handleUpdateQuantity(1)}
-                onDecrement={() => handleUpdateQuantity(-1)}
-                isLoading={isAddingToCart}
-              />
+              <div className="flex-shrink-0">
+                <QuantityCounter
+                  quantity={currentCartQuantity}
+                  minQuantity={product.quantityMultiplicity || 1}
+                  onIncrement={() => handleUpdateQuantity(1)}
+                  onDecrement={() => handleUpdateQuantity(-1)}
+                  isLoading={isAddingToCart}
+                  small={true}
+                />
+              </div>
             ) : (
               <button
                 onClick={() => handleUpdateQuantity(1)}
                 disabled={isAddingToCart || isOutOfStock}
-                className={`flex items-center justify-center p-2 rounded-lg transition-colors btn-pulse ${
+                className={`flex items-center justify-center p-1.5 sm:p-2 rounded-lg transition-colors btn-pulse flex-shrink-0 ${
                   isOutOfStock
-                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
                 aria-label="Добавить в корзину"
               >
                 {isAddingToCart ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  <ShoppingCartIcon className="h-5 w-5" />
+                  <ShoppingCartIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 )}
               </button>
             )}
           </div>
         </div>
       </div>
-
-      {showNotification && (
-        <Notification
-          type="success"
-          message="Товар добавлен в корзину"
-          isVisible={showNotification}
-          onClose={() => setShowNotification(false)}
-          duration={2000}
-        />
-      )}
     </div>
   );
 }
 
-// Мемоизируем компонент, чтобы избежать перерисовок при обновлении родительских компонентов
-const ProductCard = memo(ProductCardBase);
-
-export { ProductCard };
+// Мемоизированный экспорт
+export const ProductCard = memo(ProductCardBase);

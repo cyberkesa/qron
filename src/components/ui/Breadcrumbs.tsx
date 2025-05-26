@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { Category } from "@/types/api";
+import React from 'react';
+import Link from 'next/link';
+import { ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline';
+import { Category } from '@/types/api';
 
 export interface BreadcrumbItem {
   title: string;
@@ -17,38 +17,39 @@ interface BreadcrumbsProps {
 }
 
 /**
- * Компонент хлебных крошек, показывающий путь навигации
+ * Упрощенный компонент хлебных крошек без излишней вложенности
  */
-export function Breadcrumbs({ items, className = "" }: BreadcrumbsProps) {
+export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
   if (!items || items.length === 0) return null;
 
   return (
-    <nav
-      className={`flex overflow-x-auto ${className}`}
-      aria-label="Breadcrumb"
-    >
-      <ol className="inline-flex items-center space-x-1 md:space-x-3 text-sm whitespace-nowrap">
+    <nav className={`breadcrumb-item ${className}`} aria-label="Breadcrumb">
+      <ol className="flex items-center text-sm overflow-x-auto whitespace-nowrap h-5 sm:h-5">
         {items.map((item, index) => (
           <li
             key={`${item.href}-${index}`}
-            className={
-              index > 0 ? "flex items-center" : "inline-flex items-center"
-            }
+            className="flex items-center flex-shrink-0 h-5 sm:h-5"
           >
             {index > 0 && (
-              <ChevronRightIcon className="h-4 w-4 text-gray-400 mx-1" />
+              <ChevronRightIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-gray-400 mx-1 sm:mx-2 flex-shrink-0" />
             )}
 
             {item.isLast ? (
-              <span className="text-gray-700 truncate max-w-[150px] md:max-w-xs font-medium">
+              <span className="text-gray-800 font-medium h-5 sm:h-5 flex items-center">
                 {item.title}
               </span>
             ) : (
               <Link
                 href={item.href}
-                className="text-gray-500 hover:text-blue-600 transition-colors"
+                className="text-gray-600 hover:text-blue-600 transition-colors h-5 sm:h-5 flex items-center"
+                title={item.title}
               >
-                {item.title}
+                {index === 0 && (
+                  <HomeIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1 flex-shrink-0" />
+                )}
+                <span className="flex items-center h-5 sm:h-5">
+                  {item.title}
+                </span>
               </Link>
             )}
           </li>
@@ -64,17 +65,17 @@ export function Breadcrumbs({ items, className = "" }: BreadcrumbsProps) {
  */
 export function buildCategoryBreadcrumbs(
   category: Category | undefined,
-  includeCategory = true,
+  includeCategory = true
 ): BreadcrumbItem[] {
   const breadcrumbs: BreadcrumbItem[] = [
-    { title: "Главная", href: "/" },
-    { title: "Категории", href: "/categories" },
+    { title: 'Главная', href: '/' },
+    { title: 'Категории', href: '/categories' },
   ];
 
   if (!category) return breadcrumbs;
 
   // Если это NonRootLeafCategory
-  if (category.__typename === "NonRootLeafCategory") {
+  if (category.__typename === 'NonRootLeafCategory') {
     // Если есть массив предков, добавляем их
     if (category.ancestors && category.ancestors.length > 0) {
       // Добавляем предков в хлебные крошки
@@ -114,8 +115,8 @@ export function buildProductBreadcrumbs(product: any): BreadcrumbItem[] {
 
   // Базовые хлебные крошки, которые всегда есть
   const breadcrumbs: BreadcrumbItem[] = [
-    { title: "Главная", href: "/" },
-    { title: "Категории", href: "/categories" },
+    { title: 'Главная', href: '/' },
+    { title: 'Категории', href: '/categories' },
   ];
 
   // Если у продукта есть категория
@@ -124,7 +125,7 @@ export function buildProductBreadcrumbs(product: any): BreadcrumbItem[] {
 
     // Проверяем наличие ancestors или parent
     if (
-      category.__typename === "NonRootLeafCategory" &&
+      category.__typename === 'NonRootLeafCategory' &&
       category.ancestors &&
       category.ancestors.length > 0
     ) {
@@ -136,7 +137,7 @@ export function buildProductBreadcrumbs(product: any): BreadcrumbItem[] {
         });
       }
     } else if (
-      category.__typename === "NonRootLeafCategory" &&
+      category.__typename === 'NonRootLeafCategory' &&
       category.parent
     ) {
       // Если нет предков, но есть родитель

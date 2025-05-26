@@ -1,16 +1,15 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { useLazyQuery } from "@apollo/client";
-import { GET_CATEGORIES, GET_PRODUCTS_BY_CATEGORY } from "@/lib/queries";
-import { Product, Category, ProductSortOrder } from "@/types/api";
-import Link from "next/link";
-import { ProductCard } from "@/components/product/ProductCard";
-import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { ErrorMessage } from "@/components/ui/ErrorMessage";
-import { useCachedQuery } from "@/lib/hooks/useCachedQuery";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { useQuery } from '@apollo/client';
+import { GET_CATEGORIES, GET_PRODUCTS_BY_CATEGORY } from '@/lib/queries';
+import { Product, Category, ProductSortOrder } from '@/types/api';
+import Link from 'next/link';
+import { ProductCard } from '@/components/product/ProductCard';
+import { ChevronRightIcon } from '@heroicons/react/24/outline';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface FeaturedCategoryProps {
   category: Category;
@@ -57,231 +56,93 @@ export const FeaturedCategories = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const dataFetchedRef = useRef(false);
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const isMounted = useRef(true);
 
-  // Get categories with enhanced caching
+  // Получаем категории с кэшированием
   const {
     data: categoriesData,
     loading: categoriesLoading,
     error: categoriesError,
-    refetch: refetchCategories,
-  } = useCachedQuery(GET_CATEGORIES, {
-    fetchPolicy: "cache-first",
-    cacheTime: 60 * 60 * 1000, // 1 hour cache
-    cacheKey: "featured_categories",
-    deduplicate: true,
-    logErrors: true,
+  } = useQuery(GET_CATEGORIES, {
+    fetchPolicy: 'cache-first',
+    nextFetchPolicy: 'cache-first',
   });
 
-  // Lazy query for getting products by category with cache
-  const [getProductsByCategory] = useLazyQuery(GET_PRODUCTS_BY_CATEGORY, {
-    fetchPolicy: "cache-first",
-  });
-
-  // Create stable seed for consistent shuffling
-  const stableSeed = useMemo(() => {
-    const today = new Date().toISOString().split("T")[0]; // Use current date as seed
-    return [...today].reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  }, []);
-
-  // Function to safely get product edges with type checking
-  const getProductEdges = (data: any) => {
-    if (!data?.products?.edges || !Array.isArray(data.products.edges)) {
-      return [];
+  // Получаем продукты для категорий одним запросом
+  const { data: productsData, loading: productsLoading } = useQuery(
+    GET_PRODUCTS_BY_CATEGORY,
+    {
+      variables: {
+        first: 20, // Запрашиваем больше продуктов для всех категорий сразу
+        sortOrder: 'NEWEST_FIRST' as ProductSortOrder,
+      },
+      skip: !categoriesData?.rootCategories?.length,
+      fetchPolicy: 'cache-first',
+      nextFetchPolicy: 'cache-first',
     }
-    return data.products.edges;
-  };
-
-  // Function to shuffle array consistently with seed
-  const seededShuffle = useCallback(
-    (array: any[]) => {
-      const result = [...array];
-      let m = result.length;
-
-      // Use stable seed for shuffling
-      while (m) {
-        const i = Math.floor(stableSeed % m--);
-        [result[m], result[i]] = [result[i], result[m]];
-      }
-
-      return result;
-    },
-    [stableSeed],
   );
 
-  // Function to fetch products for a category
-  const fetchProductsForCategory = useCallback(
-    async (category: Category, seenProductIds: Set<string>) => {
-      try {
-        const { data: productsData } = await getProductsByCategory({
-          variables: {
-            categoryId: category.id,
-            first: 8, // Request more products to have buffer after filtering duplicates
-            sortOrder: "NEWEST_FIRST" as ProductSortOrder,
-          },
-        });
-
-        // Check if component is still mounted
-        if (!isMounted.current) return [];
-
-        // Extract products from result and filter duplicates
-        const productEdges = getProductEdges(productsData);
-        const products = productEdges
-          .map((edge: any) => edge.node)
-          .filter((product: Product) => {
-            // Skip duplicates and products without images
-            if (seenProductIds.has(product.id) || !product.images?.length) {
-              return false;
-            }
-            seenProductIds.add(product.id);
-            return true;
-          });
-
-        // Limit to 4 products per category
-        return products.slice(0, 4);
-      } catch (err) {
-        console.error(
-          `Error loading products for category ${category.title}:`,
-          err,
-        );
-        return [];
-      }
-    },
-    [getProductsByCategory],
-  );
-
-  // Main data loading function
-  const loadFeaturedCategories = useCallback(async () => {
-    // Skip if categories are still loading or not available
-    if (categoriesLoading || !categoriesData?.rootCategories) return;
-
-    // Skip if we already fetched data and there are no errors
-    if (dataFetchedRef.current && !error && featuredCategories.length > 0)
+  // Обработка данных категорий и продуктов
+  useEffect(() => {
+    if (
+      categoriesLoading ||
+      productsLoading ||
+      !categoriesData?.rootCategories ||
+      !productsData?.products
+    ) {
       return;
+    }
 
-    // Set up a new abort controller for this operation
-    abortControllerRef.current = new AbortController();
-    const signal = abortControllerRef.current.signal;
+    if (dataFetchedRef.current) return;
 
     try {
-      // Mark that we started fetching data
-      dataFetchedRef.current = true;
-      setIsLoading(true);
-      setError(null);
-
-      // Get all categories including children
-      const allCategories: Category[] = [];
-
-      categoriesData.rootCategories.forEach((rootCat: Category) => {
-        allCategories.push(rootCat);
-        if (rootCat.children && rootCat.children.length) {
-          allCategories.push(...rootCat.children);
-        }
-      });
-
-      // If no categories found, show error
-      if (allCategories.length === 0) {
-        setError("Категории не найдены");
-        setIsLoading(false);
-        return;
-      }
-
-      // Use stable shuffling instead of random
-      const shuffled = seededShuffle(allCategories);
-      const randomCategories = shuffled.slice(0, Math.min(5, shuffled.length));
-
-      const categoriesWithProducts = [];
-      const seenProductIds = new Set<string>();
-
-      // Load products for each category in parallel
-      const productPromises = randomCategories.map((category) =>
-        fetchProductsForCategory(category, seenProductIds),
+      const allProducts = productsData.products.edges.map(
+        (edge: any) => edge.node
       );
+      const seenProductIds = new Set<string>();
+      const categoriesWithProducts = [];
 
-      // Early return if aborted
-      if (signal.aborted) return;
+      // Берем первые 2 категории с достаточным количеством продуктов
+      for (const category of categoriesData.rootCategories) {
+        const categoryProducts = allProducts
+          .filter((product: Product) => {
+            if (
+              product.category?.id === category.id &&
+              !seenProductIds.has(product.id)
+            ) {
+              seenProductIds.add(product.id);
+              return true;
+            }
+            return false;
+          })
+          .slice(0, 4);
 
-      const productsResults = await Promise.all(productPromises);
-
-      // Check if component is still mounted
-      if (!isMounted.current) return;
-
-      // Combine categories with their products
-      for (let i = 0; i < randomCategories.length; i++) {
-        const products = productsResults[i];
-
-        // Only include categories with products
-        if (products.length > 0) {
+        if (categoryProducts.length > 0) {
           categoriesWithProducts.push({
-            category: randomCategories[i],
-            products,
+            category,
+            products: categoryProducts,
           });
 
-          // Stop once we have enough categories with products
-          if (categoriesWithProducts.length >= 2) {
-            break;
-          }
+          if (categoriesWithProducts.length >= 2) break;
         }
       }
 
-      // If no categories with products found, show empty state
-      if (categoriesWithProducts.length === 0) {
-        setError("Не найдено товаров в выбранных категориях");
-      } else {
-        setFeaturedCategories(categoriesWithProducts);
-      }
-
+      setFeaturedCategories(categoriesWithProducts);
       setIsLoading(false);
+      dataFetchedRef.current = true;
     } catch (err) {
-      if (!signal.aborted && isMounted.current) {
-        console.error("Error loading featured categories:", err);
-        setError("Не удалось загрузить категории товаров");
-        setIsLoading(false);
-      }
+      console.error('Error processing featured categories:', err);
+      setError('Не удалось загрузить популярные категории');
+      setIsLoading(false);
     }
-  }, [
-    categoriesData,
-    categoriesLoading,
-    featuredCategories.length,
-    error,
-    fetchProductsForCategory,
-    seededShuffle,
-  ]);
+  }, [categoriesData, productsData, categoriesLoading, productsLoading]);
 
-  // Load categories and products
+  // Обработка ошибок
   useEffect(() => {
     if (categoriesError) {
-      setError("Ошибка при загрузке категорий товаров");
+      setError('Ошибка при загрузке категорий');
       setIsLoading(false);
-      return;
     }
-
-    loadFeaturedCategories();
-  }, [categoriesError, loadFeaturedCategories]);
-
-  // Effect to track component mounting state
-  useEffect(() => {
-    isMounted.current = true;
-
-    // Cleanup on unmount
-    return () => {
-      isMounted.current = false;
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
-
-  // Handle retry
-  const handleRetry = () => {
-    dataFetchedRef.current = false;
-    setIsLoading(true);
-    setError(null);
-
-    // Refetch categories data
-    refetchCategories();
-  };
+  }, [categoriesError]);
 
   if (isLoading) {
     return (
@@ -298,7 +159,14 @@ export const FeaturedCategories = () => {
   if (error) {
     return (
       <div className="py-4">
-        <ErrorMessage message={error} onRetry={handleRetry} />
+        <ErrorMessage
+          message={error}
+          onRetry={() => {
+            dataFetchedRef.current = false;
+            setIsLoading(true);
+            setError(null);
+          }}
+        />
       </div>
     );
   }
@@ -309,7 +177,11 @@ export const FeaturedCategories = () => {
         title="Нет популярных категорий"
         description="В данный момент нет доступных популярных категорий"
         actionText="Обновить"
-        onAction={handleRetry}
+        onAction={() => {
+          dataFetchedRef.current = false;
+          setIsLoading(true);
+          setError(null);
+        }}
       />
     );
   }

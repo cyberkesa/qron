@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useMutation } from "@apollo/client";
-import { CREATE_DELIVERY_ADDRESS } from "@/lib/queries";
-import Link from "next/link";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useMutation } from '@apollo/client';
+import { CREATE_DELIVERY_ADDRESS } from '@/lib/queries';
+import Link from 'next/link';
 
 export default function NewAddressPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    fullName: "",
-    phoneNumber: "",
-    address: "",
-    city: "",
-    postalCode: "",
+    fullName: '',
+    phoneNumber: '',
+    address: '',
+    city: '',
+    postalCode: '',
     isDefault: false,
   });
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const [createAddress, { loading }] = useMutation(CREATE_DELIVERY_ADDRESS);
 
@@ -24,13 +24,13 @@ export default function NewAddressPage() {
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value,
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
+    setErrorMessage('');
 
     try {
       const result = await createAddress({
@@ -40,7 +40,7 @@ export default function NewAddressPage() {
       });
 
       if (result.data?.addDeliveryAddress?.deliveryAddress?.id) {
-        router.push("/profile/addresses");
+        router.push('/profile/addresses');
       } else if (result.data?.addDeliveryAddress?.message) {
         setErrorMessage(result.data.addDeliveryAddress.message);
       }
@@ -48,7 +48,7 @@ export default function NewAddressPage() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Произошла ошибка при создании адреса";
+          : 'Произошла ошибка при создании адреса';
       setErrorMessage(errorMessage);
     }
   };
@@ -202,7 +202,7 @@ export default function NewAddressPage() {
               disabled={loading}
               className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:bg-blue-400"
             >
-              {loading ? "Сохранение..." : "Сохранить"}
+              {loading ? 'Сохранение...' : 'Сохранить'}
             </button>
           </div>
         </form>

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import Image from "next/image";
+import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import {
   TruckIcon,
   CreditCardIcon,
@@ -12,7 +12,7 @@ import {
   BanknotesIcon,
   CreditCardIcon as CreditCardOutlineIcon,
   GlobeEuropeAfricaIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
 export default function DeliveryPage() {
   return (
@@ -164,41 +164,11 @@ export default function DeliveryPage() {
             <div className="p-2 bg-indigo-100 rounded-full mr-4">
               <CreditCardIcon className="h-8 w-8 text-indigo-600" />
             </div>
-            <h3 className="text-xl font-bold">Банковской картой онлайн</h3>
+            <h3 className="text-xl font-bold">Банковской картой</h3>
           </div>
           <p className="text-gray-600 mb-4">
-            Оплата заказа банковской картой Visa, MasterCard, МИР на сайте через
-            защищенное соединение.
+            Оплата заказа банковской картой Visa, MasterCard, МИР.
           </p>
-          <div className="flex space-x-3">
-            <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center">
-              <Image
-                src="/visa.png"
-                alt="Visa"
-                width={30}
-                height={20}
-                className="object-contain"
-              />
-            </div>
-            <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center">
-              <Image
-                src="/mastercard.png"
-                alt="MasterCard"
-                width={30}
-                height={20}
-                className="object-contain"
-              />
-            </div>
-            <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center">
-              <Image
-                src="/mir.png"
-                alt="МИР"
-                width={30}
-                height={20}
-                className="object-contain"
-              />
-            </div>
-          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">

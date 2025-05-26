@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { createElement, ReactNode } from "react";
+import { createElement, ReactNode } from 'react';
 import {
   ArrowPathIcon,
   ExclamationTriangleIcon,
@@ -8,19 +8,19 @@ import {
   ShoppingBagIcon,
   DocumentIcon,
   InboxIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
 /**
  * EmptyState types
  */
 export type EmptyStateType =
-  | "search"
-  | "cart"
-  | "orders"
-  | "products"
-  | "notification"
-  | "data"
-  | "custom";
+  | 'search'
+  | 'cart'
+  | 'orders'
+  | 'products'
+  | 'notification'
+  | 'data'
+  | 'custom';
 
 /**
  * Props for EmptyState component
@@ -73,13 +73,13 @@ export interface EmptyStateProps {
  * A flexible component for displaying empty states in the application
  */
 export const EmptyState: React.FC<EmptyStateProps> = ({
-  type = "data",
+  type = 'data',
   title,
   description,
   actionText,
   onAction,
   icon,
-  className = "",
+  className = '',
   compact = false,
 }) => {
   // Default icons by type
@@ -98,18 +98,18 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   const IconComponent = icons[type] || icons.data;
 
   return (
-    <div className={`${compact ? "py-5" : "py-10"} ${className}`}>
+    <div className={`${compact ? 'py-5' : 'py-10'} ${className}`}>
       <div
-        className={`rounded-lg border border-gray-200 bg-white ${compact ? "p-4" : "p-8"} text-center flex flex-col items-center justify-center`}
+        className={`rounded-lg border border-gray-200 bg-white ${compact ? 'p-4' : 'p-8'} text-center flex flex-col items-center justify-center`}
       >
         <div
-          className={`bg-gray-100 rounded-full p-3 mb-4 ${compact ? "w-14 h-14" : "w-16 h-16"} flex items-center justify-center`}
+          className={`bg-gray-100 rounded-full p-3 mb-4 ${compact ? 'w-14 h-14' : 'w-16 h-16'} flex items-center justify-center`}
         >
           {IconComponent}
         </div>
 
         <h3
-          className={`${compact ? "text-lg" : "text-xl"} font-medium text-gray-900 mb-1`}
+          className={`${compact ? 'text-lg' : 'text-xl'} font-medium text-gray-900 mb-1`}
         >
           {title}
         </h3>

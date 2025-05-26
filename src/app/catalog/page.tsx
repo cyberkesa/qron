@@ -1,30 +1,31 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo, useEffect } from "react";
-import { useQuery } from "@apollo/client";
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useQuery } from '@apollo/client';
 import {
   GET_PRODUCTS,
   GET_CATEGORIES,
   GET_CURRENT_REGION,
-} from "@/lib/queries";
-import { ProductCard } from "@/components/product/ProductCard";
-import { ProductFilters } from "@/components/product-list/ProductFilters";
+} from '@/lib/queries';
+import { ProductCard } from '@/components/product/ProductCard';
+import { ProductFilters } from '@/components/product-list/ProductFilters';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import {
   ProductSortOrder,
   Product,
   ProductStockAvailabilityStatus,
-} from "@/types/api";
-import Link from "next/link";
+} from '@/types/api';
 import {
   AdjustmentsHorizontalIcon,
-  ChevronRightIcon,
   XMarkIcon,
-} from "@heroicons/react/24/outline";
-import { useInfiniteScroll } from "@/lib/hooks/useInfiniteScroll";
+  Squares2X2Icon,
+  FunnelIcon,
+} from '@heroicons/react/24/outline';
+import { useInfiniteScroll } from '@/lib/hooks/useInfiniteScroll';
 
 export default function CatalogPage() {
-  const [sortOrder, setSortOrder] = useState<ProductSortOrder>("NEWEST_FIRST");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<ProductSortOrder>('NEWEST_FIRST');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [currentRegion, setCurrentRegion] = useState<{
     id: string;
@@ -35,11 +36,11 @@ export default function CatalogPage() {
   const { data: regionData, error: regionError } = useQuery(
     GET_CURRENT_REGION,
     {
-      fetchPolicy: "cache-and-network",
+      fetchPolicy: 'cache-and-network',
       onError: (error) => {
-        console.error("Ошибка при получении региона:", error);
+        console.error('Ошибка при получении региона:', error);
       },
-    },
+    }
   );
 
   const {
@@ -54,9 +55,9 @@ export default function CatalogPage() {
       categoryId: selectedCategory || undefined,
     },
     skip: !currentRegion,
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
     onError: (error) => {
-      console.error("Ошибка при получении товаров:", error);
+      console.error('Ошибка при получении товаров:', error);
     },
   });
 
@@ -65,9 +66,9 @@ export default function CatalogPage() {
     loading: categoriesLoading,
     error: categoriesError,
   } = useQuery(GET_CATEGORIES, {
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
     onError: (error) => {
-      console.error("Ошибка при получении категорий:", error);
+      console.error('Ошибка при получении категорий:', error);
     },
   });
 
@@ -75,25 +76,25 @@ export default function CatalogPage() {
     if (regionData?.viewer?.region) {
       setCurrentRegion(regionData.viewer.region);
 
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         try {
           localStorage.setItem(
-            "selectedRegion",
-            JSON.stringify(regionData.viewer.region),
+            'selectedRegion',
+            JSON.stringify(regionData.viewer.region)
           );
         } catch (error) {
-          console.error("Ошибка при сохранении региона:", error);
+          console.error('Ошибка при сохранении региона:', error);
         }
       }
-    } else if (typeof window !== "undefined") {
+    } else if (typeof window !== 'undefined') {
       try {
-        const savedRegion = localStorage.getItem("selectedRegion");
+        const savedRegion = localStorage.getItem('selectedRegion');
         if (savedRegion) {
           setCurrentRegion(JSON.parse(savedRegion));
         }
       } catch (e) {
-        console.error("Ошибка при разборе сохраненного региона:", e);
-        localStorage.removeItem("selectedRegion");
+        console.error('Ошибка при разборе сохраненного региона:', e);
+        localStorage.removeItem('selectedRegion');
       }
     }
   }, [regionData]);
@@ -120,7 +121,7 @@ export default function CatalogPage() {
     try {
       const allProducts =
         productsData?.products?.edges?.map(
-          (edge: { node: Product }) => edge.node,
+          (edge: { node: Product }) => edge.node
         ) || [];
 
       return hideOutOfStock
@@ -129,30 +130,30 @@ export default function CatalogPage() {
               product.stockAvailabilityStatus ===
                 ProductStockAvailabilityStatus.IN_STOCK ||
               product.stockAvailabilityStatus ===
-                ProductStockAvailabilityStatus.IN_STOCK_SOON,
+                ProductStockAvailabilityStatus.IN_STOCK_SOON
           )
         : allProducts;
     } catch (error) {
-      console.error("Ошибка обработки данных товаров:", error);
+      console.error('Ошибка обработки данных товаров:', error);
       return [];
     }
   }, [productsData?.products?.edges, hideOutOfStock]);
 
   const categories = useMemo(
     () => categoriesData?.rootCategories || [],
-    [categoriesData],
+    [categoriesData]
   );
 
   const totalProductsCount = useMemo(() => products.length, [products.length]);
 
   const isDataLoading = useMemo(
     () => productsLoading || categoriesLoading,
-    [productsLoading, categoriesLoading],
+    [productsLoading, categoriesLoading]
   );
 
   const hasError = useMemo(
     () => productsError || categoriesError || regionError,
-    [productsError, categoriesError, regionError],
+    [productsError, categoriesError, regionError]
   );
 
   const errorMessage = useMemo(
@@ -160,7 +161,7 @@ export default function CatalogPage() {
       productsError?.message ||
       categoriesError?.message ||
       regionError?.message,
-    [productsError, categoriesError, regionError],
+    [productsError, categoriesError, regionError]
   );
 
   const handleCategoryChange = useCallback((categoryId: string) => {
@@ -180,14 +181,14 @@ export default function CatalogPage() {
   }, []);
 
   const resetFilters = useCallback(() => {
-    setSelectedCategory("");
-    setSortOrder("NEWEST_FIRST");
+    setSelectedCategory('');
+    setSortOrder('NEWEST_FIRST');
     setHideOutOfStock(false);
   }, []);
 
   const ProductGrid = ({ products }: { products: Product[] }) =>
     products.length > 0 ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         {products.map((product, index) => (
           <ProductCard
             key={`catalog-${product.id}-${index}`}
@@ -197,124 +198,133 @@ export default function CatalogPage() {
       </div>
     ) : null;
 
-  return (
-    <div className="container mx-auto px-3 md:px-4 py-6 mb-12 animate-fadeIn">
-      <div className="mb-4">
-        <nav className="flex" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center text-sm">
-            <li className="inline-flex items-center">
-              <Link
-                href="/"
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
-              >
-                Главная
-              </Link>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <ChevronRightIcon className="w-4 h-4 text-gray-400 mx-1" />
-                <span className="text-gray-500">Каталог</span>
-              </div>
-            </li>
-          </ol>
-        </nav>
-      </div>
+  // Breadcrumbs для каталога
+  const breadcrumbItems = [
+    { title: 'Главная', href: '/' },
+    { title: 'Каталог', href: '/catalog', isLast: true },
+  ];
 
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-          Каталог товаров
-        </h1>
-        <p className="text-gray-600 text-sm md:text-base">
+  return (
+    <main className="container mx-auto px-4 py-6">
+      {/* Хлебные крошки */}
+      <Breadcrumbs items={breadcrumbItems} className="mb-6" />
+
+      {/* Заголовок */}
+      <header className="mb-8">
+        <div className="flex items-center mb-4">
+          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+            <Squares2X2Icon className="h-6 w-6 text-blue-600" />
+          </div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+            Каталог товаров
+          </h1>
+        </div>
+        <p className="text-gray-600">
           Все товары для строительства, ремонта и обустройства дома
         </p>
-      </div>
+      </header>
 
+      {/* Состояния загрузки и ошибок */}
       {isDataLoading && !productsData ? (
-        <div className="animate-pulse">
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-            {Array.from({ length: 8 }).map((_, index) => (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg p-4 animate-pulse">
+            <div className="flex justify-between items-center">
+              <div className="h-6 bg-gray-200 rounded w-32"></div>
+              <div className="flex gap-2">
+                <div className="h-10 bg-gray-200 rounded w-20"></div>
+                <div className="h-10 bg-gray-200 rounded w-24"></div>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+            {Array.from({ length: 10 }).map((_, index) => (
               <div
                 key={index}
-                className="bg-gray-100 rounded-xl h-64 animate-pulse relative overflow-hidden shadow-sm"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skeleton-loading"></div>
-              </div>
+                className="bg-white rounded-lg h-48 sm:h-56 lg:h-64 animate-pulse"
+              ></div>
             ))}
           </div>
         </div>
       ) : hasError ? (
-        <div className="bg-red-50 border border-red-100 rounded-xl p-6 text-center my-8 shadow-sm">
-          <h2 className="text-lg font-medium text-red-800 mb-2">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <XMarkIcon className="h-8 w-8 text-red-600" />
+          </div>
+          <h2 className="text-lg font-semibold text-red-800 mb-2">
             Произошла ошибка при загрузке данных
           </h2>
-          <p className="text-red-600 mb-4 text-sm md:text-base">
-            {errorMessage}
-          </p>
+          <p className="text-red-600 mb-4">{errorMessage}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors active:scale-[0.98]"
-            style={{ WebkitTapHighlightColor: "transparent" }}
+            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
             Обновить страницу
           </button>
         </div>
       ) : products.length === 0 && !isDataLoading ? (
-        <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-6 md:p-8 text-center my-8 shadow-sm">
-          <h2 className="text-lg font-medium text-yellow-800 mb-3">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FunnelIcon className="h-8 w-8 text-yellow-600" />
+          </div>
+          <h2 className="text-lg font-semibold text-yellow-800 mb-3">
             Товары не найдены
           </h2>
-          <p className="text-yellow-700 mb-4 text-sm md:text-base max-w-lg mx-auto">
+          <p className="text-yellow-700 mb-6">
             По вашему запросу не найдено товаров. Попробуйте изменить параметры
             фильтрации или выбрать другую категорию.
           </p>
           <button
             onClick={resetFilters}
-            className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors active:scale-[0.98]"
-            style={{ WebkitTapHighlightColor: "transparent" }}
+            className="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors"
           >
             Сбросить фильтры
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 md:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+          {/* Мобильные фильтры */}
           {showMobileFilters && (
             <div
-              className="fixed inset-0 z-50 bg-black/60 lg:hidden animate-fadeIn"
+              className="fixed inset-0 z-50 bg-black/60 lg:hidden"
               onClick={toggleMobileFilters}
             >
               <div
-                className="absolute right-0 top-0 h-full w-[300px] max-w-[80vw] bg-white overflow-y-auto p-4 shadow-xl animate-fadeInRight"
+                className="absolute right-0 top-0 h-full w-[320px] max-w-[85vw] bg-white overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="flex justify-between items-center mb-4 border-b pb-4">
-                  <h3 className="font-semibold text-lg text-gray-800">
-                    Фильтры
-                  </h3>
-                  <button
-                    onClick={toggleMobileFilters}
-                    className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors active:scale-95"
-                    style={{ WebkitTapHighlightColor: "transparent" }}
-                  >
-                    <XMarkIcon className="h-5 w-5" />
-                  </button>
+                <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold text-lg text-gray-900">
+                      Фильтры
+                    </h3>
+                    <button
+                      onClick={toggleMobileFilters}
+                      className="text-gray-500 hover:text-gray-700 p-2"
+                    >
+                      <XMarkIcon className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
-                <ProductFilters
-                  categories={categories}
-                  selectedCategory={selectedCategory}
-                  onCategoryChange={handleCategoryChange}
-                  sortOrder={sortOrder}
-                  onSortChange={handleSortChange}
-                  hideOutOfStock={hideOutOfStock}
-                  onStockFilterChange={handleStockFilterChange}
-                  showMobileFilters={showMobileFilters}
-                  onCloseMobileFilters={toggleMobileFilters}
-                />
+                <div className="p-4">
+                  <ProductFilters
+                    categories={categories}
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={handleCategoryChange}
+                    sortOrder={sortOrder}
+                    onSortChange={handleSortChange}
+                    hideOutOfStock={hideOutOfStock}
+                    onStockFilterChange={handleStockFilterChange}
+                    showMobileFilters={showMobileFilters}
+                    onCloseMobileFilters={toggleMobileFilters}
+                  />
+                </div>
               </div>
             </div>
           )}
 
-          <div className="hidden lg:block sticky top-24 h-fit">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 transition-shadow duration-300 hover:shadow-md">
+          {/* Десктопные фильтры */}
+          <div className="hidden lg:block">
+            <div className="sticky top-24">
               <ProductFilters
                 categories={categories}
                 selectedCategory={selectedCategory}
@@ -329,87 +339,74 @@ export default function CatalogPage() {
             </div>
           </div>
 
-          <div className="space-y-4 md:space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 md:p-4 transition-shadow duration-300 hover:shadow-md">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4">
-                <div className="text-sm text-gray-600 flex items-center">
-                  <span className="bg-blue-50 text-blue-700 rounded-full px-3 py-1.5 font-medium">
-                    Найдено товаров: {totalProductsCount}
-                  </span>
-                </div>
-
-                <div className="flex gap-2 self-stretch sm:self-center w-full sm:w-auto">
+          {/* Товары */}
+          <div className="space-y-6">
+            {/* Панель управления */}
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <span className="bg-blue-50 text-blue-700 rounded-full px-4 py-2 text-sm font-medium">
+                  Найдено товаров: {totalProductsCount}
+                </span>
+                <div className="flex gap-3 w-full sm:w-auto">
                   <button
                     onClick={toggleMobileFilters}
-                    className="lg:hidden flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white hover:bg-gray-50 transition-colors w-1/2 sm:w-auto active:scale-[0.98]"
-                    style={{ WebkitTapHighlightColor: "transparent" }}
+                    className="lg:hidden flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-initial"
                   >
-                    <AdjustmentsHorizontalIcon className="h-5 w-5 mr-1.5 text-gray-600" />
+                    <AdjustmentsHorizontalIcon className="h-4 w-4 mr-2 text-gray-600" />
                     Фильтры
                   </button>
-
-                  <div className="relative w-1/2 sm:w-auto">
-                    <select
-                      value={sortOrder}
-                      onChange={(e) =>
-                        handleSortChange(e.target.value as ProductSortOrder)
-                      }
-                      className="block w-full rounded-lg border border-gray-200 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                      style={{ WebkitAppearance: "none" }}
-                    >
-                      <option value="NEWEST_FIRST">Новинки</option>
-                      <option value="PRICE_LOW_TO_HIGH">Сначала дешевле</option>
-                      <option value="PRICE_HIGH_TO_LOW">Сначала дороже</option>
-                      <option value="NAME_A_TO_Z">По названию (А-Я)</option>
-                      <option value="NAME_Z_TO_A">По названию (Я-А)</option>
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      <svg
-                        className="h-4 w-4 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 20 20"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="1.5"
-                          d="M19 9l-7 7-7-7"
-                        ></path>
-                      </svg>
-                    </div>
-                  </div>
+                  <select
+                    value={sortOrder}
+                    onChange={(e) =>
+                      handleSortChange(e.target.value as ProductSortOrder)
+                    }
+                    className="block w-full sm:w-auto rounded-lg border border-gray-200 py-2 pl-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  >
+                    <option value="NEWEST_FIRST">Новинки</option>
+                    <option value="CHEAPEST_FIRST">Сначала дешевле</option>
+                    <option value="EXPENSIVE_FIRST">Сначала дороже</option>
+                    <option value="ALPHABETICALLY">По алфавиту</option>
+                  </select>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-              {products.map((product: Product, index: number) => (
-                <div
-                  key={`catalog-${product.id}-${index}`}
-                  className="animate-fadeIn"
-                  style={{ animationDelay: `${(index % 8) * 50}ms` }}
-                >
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </div>
+            {/* Сетка товаров */}
+            <ProductGrid products={products} />
 
+            {/* Загрузка дополнительных товаров */}
             {infiniteScrollIsLoadingMore && (
-              <div className="flex justify-center py-6">
-                <div className="flex items-center justify-center space-x-2 bg-white px-4 py-2 rounded-full shadow-sm">
-                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent" />
-                  <span className="text-sm text-gray-600 font-medium">
-                    Загрузка товаров...
-                  </span>
-                </div>
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
               </div>
             )}
+
+            {/* Кнопка "Загрузить еще" */}
+            {productsData?.products?.pageInfo?.hasNextPage &&
+              !infiniteScrollIsLoadingMore && (
+                <div className="flex justify-center py-6">
+                  <button
+                    onClick={() => {
+                      if (productsData.products.pageInfo.endCursor) {
+                        fetchMore({
+                          variables: {
+                            after: productsData.products.pageInfo.endCursor,
+                            first: 100,
+                          },
+                        });
+                      }
+                    }}
+                    className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Загрузить еще товары
+                  </button>
+                </div>
+              )}
 
             <div ref={infiniteScrollObserverTarget} className="h-1" />
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }

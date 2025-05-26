@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useMemo, memo } from "react";
-import { useQuery } from "@apollo/client";
-import { GET_REGIONS, GET_CURRENT_REGION } from "@/lib/queries";
-import { MapPinIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Region } from "@/types/api";
+import { useState, useEffect, useMemo, memo } from 'react';
+import { useQuery } from '@apollo/client';
+import { GET_REGIONS, GET_CURRENT_REGION } from '@/lib/queries';
+import { MapPinIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Region } from '@/types/api';
 
 // Определяем константы с контактами для каждого региона
 export const REGION_CONTACTS = {
   MOSCOW: {
-    name: "Москва",
-    phone: "+7 (495) 799-26-66",
-    phoneLink: "tel:+74957992666",
-    email: "info@tovari-kron.ru",
-    address: "Домодедовское шоссе, 4-й километр, 15Б",
-    workingHours: "Пн-Сб: 9:00 - 18:00",
+    name: 'Москва',
+    phone: '+7 (495) 799-26-66',
+    phoneLink: 'tel:+74957992666',
+    email: 'info@tovari-kron.ru',
+    address: 'Домодедовское шоссе, 4-й километр, 15Б',
+    workingHours: 'Пн-Сб: 9:00 - 18:00',
   },
   STAVROPOL: {
-    name: "Ставропольский край",
-    phone: "+7 (903) 418-16-66",
-    phoneLink: "tel:+79034181666",
-    email: "ug@tovari-kron.ru",
-    address: "с. Надежда, ул. Орджоникидзе 79",
-    workingHours: "Пн-Сб: 9:00 - 18:00",
+    name: 'Ставропольский край',
+    phone: '+7 (903) 418-16-66',
+    phoneLink: 'tel:+79034181666',
+    email: 'ug@tovari-kron.ru',
+    address: 'с. Надежда, ул. Орджоникидзе 79',
+    workingHours: 'Пн-Сб: 9:00 - 18:00',
   },
 };
 
@@ -41,16 +41,16 @@ const RegionButton = memo(
       onClick={onClick}
       className={`px-4 py-3 rounded-md text-left ${
         isSelected
-          ? "bg-blue-50 text-blue-700 border border-blue-200 font-medium"
-          : "border border-gray-200 hover:bg-gray-50 text-gray-700"
+          ? 'bg-blue-50 text-blue-700 border border-blue-200 font-medium'
+          : 'border border-gray-200 hover:bg-gray-50 text-gray-700'
       }`}
     >
       {name}
     </button>
-  ),
+  )
 );
 
-RegionButton.displayName = "RegionButton";
+RegionButton.displayName = 'RegionButton';
 
 export default function RegionSelector() {
   const [isOpen, setIsOpen] = useState(false);
@@ -64,8 +64,8 @@ export default function RegionSelector() {
   // При первой загрузке проверяем регион пользователя
   useEffect(() => {
     // Сначала проверяем, есть ли сохраненный регион в localStorage
-    if (typeof window !== "undefined") {
-      const savedRegion = localStorage.getItem("selectedRegion");
+    if (typeof window !== 'undefined') {
+      const savedRegion = localStorage.getItem('selectedRegion');
 
       try {
         if (savedRegion) {
@@ -74,7 +74,7 @@ export default function RegionSelector() {
           return; // Если нашли регион в localStorage, используем его
         }
       } catch {
-        localStorage.removeItem("selectedRegion");
+        localStorage.removeItem('selectedRegion');
       }
     }
 
@@ -83,10 +83,10 @@ export default function RegionSelector() {
       setSelectedRegion(viewerData.viewer.region);
 
       // Сохраняем в localStorage для будущего использования
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         localStorage.setItem(
-          "selectedRegion",
-          JSON.stringify(viewerData.viewer.region),
+          'selectedRegion',
+          JSON.stringify(viewerData.viewer.region)
         );
       }
     }
@@ -96,15 +96,33 @@ export default function RegionSelector() {
   const handleRegionSelect = (region: Region) => {
     setSelectedRegion(region);
 
-    // Сохраняем выбранный регион в localStorage
-    if (typeof window !== "undefined") {
-      localStorage.setItem("selectedRegion", JSON.stringify(region));
+    // Проверяем, авторизован ли пользователь
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    const guestToken = localStorage.getItem('guestToken');
+    const isAuthenticated =
+      !!accessToken &&
+      !!refreshToken &&
+      (!guestToken || accessToken !== guestToken);
 
-      // Очищаем токены для принудительной реаутентификации с новым регионом
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("guestToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("tokenRegionId");
+    // Сохраняем выбранный регион в localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedRegion', JSON.stringify(region));
+
+      // Очищаем токены только для гостевых пользователей
+      if (!isAuthenticated) {
+        // Для неавторизованных пользователей сбрасываем гостевой токен
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('guestToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('tokenRegionId');
+      } else {
+        // Для авторизованных пользователей просто обновляем информацию о
+        // выбранном регионе без сброса авторизации
+        console.log(
+          'Пользователь авторизован, сохраняем регион без сброса токенов'
+        );
+      }
     }
 
     // Закрываем модальное окно
@@ -121,7 +139,7 @@ export default function RegionSelector() {
   const closeModal = () => {
     // Проверяем, выбран ли регион
     if (!selectedRegion && !viewerData?.viewer?.region) {
-      alert("Пожалуйста, выберите регион для продолжения");
+      alert('Пожалуйста, выберите регион для продолжения');
       return;
     }
 
@@ -141,7 +159,7 @@ export default function RegionSelector() {
       >
         <MapPinIcon className="h-4 w-4 mr-1" />
         <span className="mr-1">
-          {selectedRegion?.name || "Выберите регион"}
+          {selectedRegion?.name || 'Выберите регион'}
         </span>
       </button>
 

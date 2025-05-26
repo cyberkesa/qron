@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useQuery, useMutation, useApolloClient } from "@apollo/client";
-import { useRouter } from "next/navigation";
-import React from "react";
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client';
+import { useRouter } from 'next/navigation';
+import React from 'react';
 import {
   GET_PRODUCT,
   ADD_TO_CART,
@@ -11,29 +11,34 @@ import {
   GET_REGIONS,
   GET_VIEWER,
   GET_CART,
-} from "@/lib/queries";
-import { ProductStockAvailabilityStatus, Region } from "@/types/api";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
-import Link from "next/link";
-import { useViewHistory } from "@/lib/hooks/useViewHistory";
-import { SimilarProducts } from "@/components/product-list/SimilarProducts";
-import { useCartContext } from "@/lib/providers/CartProvider";
-import { Notification } from "@/components/ui/Notification";
-import { RecentlyViewed } from "@/components/product-list/RecentlyViewed";
+} from '@/lib/queries';
+import { ProductStockAvailabilityStatus, Region } from '@/types/api';
+import {
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+  ChartBarIcon,
+  MapPinIcon,
+  SparklesIcon,
+} from '@heroicons/react/24/solid';
+import Link from 'next/link';
+import { useViewHistory } from '@/lib/hooks/useViewHistory';
+import { SimilarProducts } from '@/components/product-list/SimilarProducts';
+import { useCartContext } from '@/lib/providers/CartProvider';
+import { useNotificationContext } from '@/lib/providers/NotificationProvider';
+import { RecentlyViewed } from '@/components/product-list/RecentlyViewed';
 import {
   Breadcrumbs,
   buildProductBreadcrumbs,
-} from "@/components/ui/Breadcrumbs";
-import { trackEvent } from "@/lib/analytics";
+} from '@/components/ui/Breadcrumbs';
+import { trackEvent } from '@/lib/analytics';
 
 // Импортируем созданные компоненты
 import ProductImageGallery, {
   ProductImage,
-} from "@/components/product/ProductImageGallery";
-import ProductInfo from "@/components/product/ProductInfo";
-import ProductTabs from "@/components/product/ProductTabs";
-import MobileAddToCart from "@/components/product/MobileAddToCart";
-import RegionSelector from "@/components/product/RegionSelector";
+} from '@/components/product/ProductImageGallery';
+import ProductInfo from '@/components/product/ProductInfo';
+import ProductTabs from '@/components/product/ProductTabs';
+import RegionSelector from '@/components/product/RegionSelector';
 
 // Типы для компонента страницы продукта
 interface ProductPageProps {
@@ -43,12 +48,74 @@ interface ProductPageProps {
 }
 
 // Тип для табов
-type TabType = "description" | "specs" | "delivery";
+type TabType = 'description' | 'specs' | 'delivery';
 
 interface ProductAttribute {
   name: string;
   value: string;
 }
+
+// Компонент для карточки информации
+const InfoCard = ({
+  title,
+  icon: Icon,
+  children,
+  className = '',
+}: {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div
+    className={`bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${className}`}
+  >
+    <div className="p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+          <Icon className="w-5 h-5 text-blue-600" />
+        </div>
+        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+      </div>
+      {children}
+    </div>
+  </div>
+);
+
+// Компонент загрузки
+const ProductSkeleton = () => (
+  <div className="min-h-screen bg-gray-50">
+    <div className="container mx-auto px-4 py-6">
+      <div className="animate-pulse">
+        {/* Breadcrumbs skeleton */}
+        <div className="flex items-center gap-2 mb-6">
+          <div className="h-4 bg-gray-200 rounded w-16"></div>
+          <div className="h-4 bg-gray-200 rounded w-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-24"></div>
+          <div className="h-4 bg-gray-200 rounded w-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-32"></div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Image skeleton */}
+          <div className="aspect-square bg-gray-200 rounded-2xl"></div>
+
+          {/* Info skeleton */}
+          <div className="space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+              <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+            </div>
+            <div className="h-12 bg-gray-200 rounded-xl w-full"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 // Компонент страницы продукта
 export default function ProductPage({ params }: ProductPageProps) {
@@ -62,21 +129,17 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   // Состояния компонента
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<TabType>("description");
-  const [showAddedNotification, setShowAddedNotification] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('description');
   const [currentRegion, setCurrentRegion] = useState<Region | null>(() => {
-    if (typeof window === "undefined") return null;
-    const savedRegion = localStorage.getItem("selectedRegion");
+    if (typeof window === 'undefined') return null;
+    const savedRegion = localStorage.getItem('selectedRegion');
     return savedRegion ? JSON.parse(savedRegion) : null;
   });
   const [notAvailableInRegion, setNotAvailableInRegion] = useState(false);
   const [showRegionModal, setShowRegionModal] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState("");
-  const [notificationType, setNotificationType] = useState<
-    "success" | "error" | "info"
-  >("success");
+
+  // Получаем сервис уведомлений
+  const { showSuccess, showError } = useNotificationContext();
 
   // Получаем текущий регион при загрузке страницы
   const { data: regionData } = useQuery(GET_CURRENT_REGION);
@@ -84,14 +147,14 @@ export default function ProductPage({ params }: ProductPageProps) {
   // Получаем данные о продукте, передавая slug из URL
   const { data, loading, error } = useQuery(GET_PRODUCT, {
     variables: { slug: decodeURIComponent(slug) },
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
   });
 
   const { data: regionsData } = useQuery(GET_REGIONS);
 
   const [addToCart] = useMutation(ADD_TO_CART, {
     onError: (error) => {
-      console.error("Error adding to cart:", error);
+      console.error('Error adding to cart:', error);
       setIsAddingToCart(false);
     },
   });
@@ -123,25 +186,18 @@ export default function ProductPage({ params }: ProductPageProps) {
         ProductStockAvailabilityStatus.OUT_OF_STOCK;
       setNotAvailableInRegion(isOutOfStock);
     }
-  }, [data?.productBySlug, currentRegion]); // Include the full product object
-
-  // Устанавливаем начальное количество только при первой загрузке товара
-  useEffect(() => {
-    if (data?.productBySlug?.quantityMultiplicity && quantity === 1) {
-      setQuantity(data.productBySlug.quantityMultiplicity);
-    }
-  }, [data?.productBySlug?.quantityMultiplicity, quantity, setQuantity]);
+  }, [data?.productBySlug, currentRegion]);
 
   useEffect(() => {
     if (data?.productBySlug) {
       addToHistory(data.productBySlug);
 
       // Отслеживаем просмотр товара в Яндекс.Метрике
-      trackEvent("product_view", {
+      trackEvent('product_view', {
         product_id: data.productBySlug.id,
         product_name: data.productBySlug.name,
         product_price: data.productBySlug.price,
-        product_category: data.productBySlug.category?.title || "Без категории",
+        product_category: data.productBySlug.category?.title || 'Без категории',
       });
     }
   }, [data?.productBySlug, addToHistory]);
@@ -154,13 +210,13 @@ export default function ProductPage({ params }: ProductPageProps) {
       // Для авторизованных пользователей получаем из кэша Apollo
       const cartData = client.readQuery({ query: GET_CART });
       const cartItem = cartData?.cart?.items?.edges?.find(
-        (edge: any) => edge?.node?.product?.id === data.productBySlug.id,
+        (edge: any) => edge?.node?.product?.id === data.productBySlug.id
       );
       return cartItem?.node?.quantity || 0;
     } else {
       // Для гостей получаем из унифицированной корзины
       const cartItem = unifiedCart.items.find(
-        (item) => item.product.id === data.productBySlug.id,
+        (item) => item.product.id === data.productBySlug.id
       );
       return cartItem?.quantity || 0;
     }
@@ -168,36 +224,17 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   const currentCartQuantity = useMemo(
     () => getCurrentCartQuantity(),
-    [getCurrentCartQuantity],
-  );
-
-  const showNotificationWithMessage = useCallback(
-    (message: string, type: "success" | "error" | "info" = "success") => {
-      setNotificationMessage(message);
-      setNotificationType(type);
-      setShowNotification(true);
-    },
-    [],
+    [getCurrentCartQuantity]
   );
 
   // Функция для форматирования цены
   const formatPrice = useCallback((price: number) => {
-    return new Intl.NumberFormat("ru-RU", {
-      style: "currency",
-      currency: "RUB",
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
       maximumFractionDigits: 0,
     }).format(price);
   }, []);
-
-  // Обработчик изменения количества
-  const handleQuantityChange = useCallback(
-    (newQuantity: number) => {
-      if (data?.productBySlug) {
-        setQuantity(newQuantity);
-      }
-    },
-    [data?.productBySlug],
-  );
 
   // Добавление товара в корзину
   const handleAddToCart = useCallback(async () => {
@@ -205,6 +242,8 @@ export default function ProductPage({ params }: ProductPageProps) {
 
     try {
       setIsAddingToCart(true);
+
+      const quantity = data.productBySlug.quantityMultiplicity || 1;
 
       if (userData?.viewer) {
         const result = await addToCart({
@@ -222,34 +261,33 @@ export default function ProductPage({ params }: ProductPageProps) {
         }
 
         await client.refetchQueries({
-          include: ["GetCart"],
+          include: ['GetCart'],
         });
       } else {
         await unifiedAddToCart(data.productBySlug, quantity);
       }
 
-      showNotificationWithMessage("Товар добавлен в корзину");
-      trackEvent("product_added_to_cart", { productId: data.productBySlug.id });
+      // Показываем уведомление через контекст
+      showSuccess(`${data.productBySlug.name} добавлен в корзину`);
+      trackEvent('product_added_to_cart', { productId: data.productBySlug.id });
     } catch (error) {
-      console.error("Error adding to cart:", error);
-      showNotificationWithMessage(
-        "Не удалось добавить товар в корзину",
-        "error",
-      );
+      console.error('Error adding to cart:', error);
+      showError('Не удалось добавить товар в корзину');
     } finally {
       setIsAddingToCart(false);
     }
   }, [
     data,
-    quantity,
     isAddingToCart,
     userData?.viewer,
     addToCart,
     client,
     unifiedAddToCart,
-    showNotificationWithMessage,
+    showSuccess,
+    showError,
   ]);
 
+  // Добавляем или исправляем функцию обновления количества товара в корзине
   const handleUpdateQuantity = useCallback(
     async (delta: number) => {
       if (!data?.productBySlug || isAddingToCart) return;
@@ -272,13 +310,14 @@ export default function ProductPage({ params }: ProductPageProps) {
           });
 
           await client.refetchQueries({
-            include: ["GetCart"],
+            include: ['GetCart'],
           });
         } else {
           await unifiedAddToCart(data.productBySlug, newQuantity);
         }
       } catch (error) {
-        console.error("Error updating cart:", error);
+        console.error('Error updating cart:', error);
+        showError('Не удалось обновить количество товара');
       } finally {
         setIsAddingToCart(false);
       }
@@ -291,44 +330,36 @@ export default function ProductPage({ params }: ProductPageProps) {
       addToCart,
       client,
       unifiedAddToCart,
-    ],
+      showError,
+    ]
   );
 
   const handleRegionSelect = useCallback((region: Region) => {
-    localStorage.setItem("selectedRegion", JSON.stringify(region));
+    localStorage.setItem('selectedRegion', JSON.stringify(region));
     setCurrentRegion(region);
     setShowRegionModal(false);
     window.location.reload(); // Перезагрузка для применения нового региона
   }, []);
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-10 flex justify-center">
-        <div className="animate-pulse">
-          <div className="h-64 bg-gray-200 rounded-lg w-96 mb-4"></div>
-          <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-          <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-        </div>
-      </div>
-    );
+    return <ProductSkeleton />;
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-10">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4 flex items-start">
-          <ExclamationTriangleIcon className="h-5 w-5 text-red-600 mt-0.5 mr-3" />
-          <div>
-            <h3 className="text-sm font-medium text-red-800">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="container mx-auto px-4">
+          <div className="max-w-md mx-auto bg-white rounded-2xl border border-red-200 p-8 text-center shadow-sm">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <ExclamationTriangleIcon className="w-8 h-8 text-red-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-red-800 mb-2">
               Ошибка загрузки товара
             </h3>
-            <p className="text-sm text-red-700 mt-1">{error.message}</p>
+            <p className="text-sm text-red-600 mb-6">{error.message}</p>
             <button
               onClick={() => router.refresh()}
-              className="mt-3 text-sm font-medium text-red-600 hover:text-red-500"
+              className="bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition-colors font-medium"
             >
               Попробовать снова
             </button>
@@ -340,20 +371,25 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   if (!data || !data.productBySlug) {
     return (
-      <div className="container mx-auto px-4 py-10">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-          <h2 className="text-lg font-medium text-yellow-800">
-            Товар не найден
-          </h2>
-          <p className="mt-2 text-yellow-700">
-            К сожалению, запрашиваемый товар не существует или был удален.
-          </p>
-          <Link
-            href="/"
-            className="mt-4 inline-block text-blue-600 hover:text-blue-800"
-          >
-            Вернуться на главную
-          </Link>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="container mx-auto px-4">
+          <div className="max-w-md mx-auto bg-white rounded-2xl border border-yellow-200 p-8 text-center shadow-sm">
+            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <InformationCircleIcon className="w-8 h-8 text-yellow-600" />
+            </div>
+            <h2 className="text-lg font-semibold text-yellow-800 mb-2">
+              Товар не найден
+            </h2>
+            <p className="text-sm text-yellow-600 mb-6">
+              К сожалению, запрашиваемый товар не существует или был удален.
+            </p>
+            <Link
+              href="/"
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium inline-block"
+            >
+              Вернуться на главную
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -366,16 +402,19 @@ export default function ProductPage({ params }: ProductPageProps) {
     (product as { attributes?: ProductAttribute[] }).attributes || [];
 
   return (
-    <div className="bg-white">
-      {/* Хлебные крошки - уменьшенный режим на мобильных */}
-      <div className="container mx-auto px-3 md:px-4 py-2 md:py-5 text-sm">
-        <Breadcrumbs items={buildProductBreadcrumbs(product)} />
+    <div className="min-h-screen bg-gray-50">
+      {/* Хлебные крошки */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="container mx-auto px-4 py-4">
+          <Breadcrumbs items={buildProductBreadcrumbs(product)} />
+        </div>
       </div>
 
-      <div className="container mx-auto px-3 md:px-4 pb-16 mb-16 md:mb-0">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 relative mb-6 md:mb-12">
+      {/* Основной контент */}
+      <div className="container mx-auto px-4 py-6 lg:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-8">
           {/* Галерея изображений */}
-          <div className="lg:sticky lg:top-4 self-start">
+          <div className="lg:sticky lg:top-8 self-start">
             <ProductImageGallery
               images={productImages}
               productName={product.name}
@@ -383,64 +422,78 @@ export default function ProductPage({ params }: ProductPageProps) {
           </div>
 
           {/* Информация о товаре */}
-          <ProductInfo
-            product={product}
-            currentRegion={currentRegion}
-            currentCartQuantity={currentCartQuantity}
-            isAddingToCart={isAddingToCart}
-            notAvailableInRegion={notAvailableInRegion}
-            onAddToCart={handleAddToCart}
-            onUpdateQuantity={handleUpdateQuantity}
-            onRegionChange={() => setShowRegionModal(true)}
-            formatPrice={formatPrice}
-          />
+          <div className="space-y-6">
+            <ProductInfo
+              product={product}
+              currentRegion={currentRegion}
+              currentCartQuantity={currentCartQuantity}
+              isAddingToCart={isAddingToCart}
+              notAvailableInRegion={notAvailableInRegion}
+              onAddToCart={handleAddToCart}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRegionChange={() => setShowRegionModal(true)}
+              formatPrice={formatPrice}
+            />
+          </div>
         </div>
 
-        {/* Вкладки с информацией */}
-        <ProductTabs
-          description={product.description}
-          attributes={productAttributes}
-          currentRegion={currentRegion}
-          onRegionChange={() => setShowRegionModal(true)}
-        />
+        {/* Дополнительная информация */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Описание товара */}
+          {product.description && (
+            <InfoCard title="Описание товара" icon={InformationCircleIcon}>
+              <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+                <div
+                  dangerouslySetInnerHTML={{ __html: product.description }}
+                />
+              </div>
+            </InfoCard>
+          )}
+
+          {/* Характеристики товара */}
+          {productAttributes && productAttributes.length > 0 && (
+            <InfoCard title="Характеристики" icon={ChartBarIcon}>
+              <div className="space-y-4">
+                {productAttributes.map((attribute, index) => (
+                  <div
+                    key={attribute.name}
+                    className={`flex justify-between items-start py-3 ${
+                      index !== productAttributes.length - 1
+                        ? 'border-b border-gray-100'
+                        : ''
+                    }`}
+                  >
+                    <span className="text-sm font-medium text-gray-600 flex-1">
+                      {attribute.name}
+                    </span>
+                    <span className="text-sm font-semibold text-gray-900 flex-1 text-right">
+                      {attribute.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </InfoCard>
+          )}
+        </div>
       </div>
 
-      {/* "Липкая" панель покупки для мобильных устройств */}
-      <MobileAddToCart
-        price={product.price}
-        formatPrice={formatPrice}
-        currentCartQuantity={currentCartQuantity}
-        isAddingToCart={isAddingToCart}
-        notAvailableInRegion={notAvailableInRegion}
-        quantityMultiplicity={product.quantityMultiplicity || 1}
-        onAddToCart={handleAddToCart}
-        onUpdateQuantity={handleUpdateQuantity}
-      />
+      {/* Рекомендации */}
+      <div className="bg-white">
+        <div className="container mx-auto px-4 py-8 lg:py-12">
+          {/* Похожие товары */}
+          {data?.productBySlug && (
+            <div className="mb-8 lg:mb-12">
+              <SimilarProducts currentProduct={data.productBySlug} />
+            </div>
+          )}
 
-      {/* Всплывающее уведомление о добавлении в корзину */}
-      <Notification
-        message={notificationMessage}
-        type={notificationType}
-        isVisible={showNotification}
-        onClose={() => setShowNotification(false)}
-      />
-
-      {/* Блоки рекомендаций */}
-      <div className="pb-24 md:pb-8">
-        {" "}
-        {/* Extra padding at bottom for mobile for sticky cart button */}
-        {/* Блок с похожими товарами */}
-        {data?.productBySlug && (
-          <div className="mt-6 md:mt-12">
-            <SimilarProducts currentProduct={data.productBySlug} />
-          </div>
-        )}
-        {/* Блок с недавно просмотренными товарами */}
-        {data?.productBySlug && (
-          <div className="mt-6 md:mt-12">
-            <RecentlyViewed excludeProductId={data.productBySlug.id} />
-          </div>
-        )}
+          {/* Недавно просмотренные */}
+          {data?.productBySlug && (
+            <div>
+              <RecentlyViewed excludeProductId={data.productBySlug.id} />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Модальное окно выбора региона */}

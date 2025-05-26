@@ -7,10 +7,16 @@ import {
   TypedDocumentNode,
   useApolloClient,
   useQuery,
-} from "@apollo/client";
-import { DefinitionNode, Kind, OperationDefinitionNode } from "graphql";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+} from '@apollo/client';
+import { DefinitionNode, Kind, OperationDefinitionNode } from 'graphql';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+// Our simplified version of the operation definition node type
+interface SimpleOperationDefinitionNode {
+  kind: typeof Kind.OPERATION_DEFINITION;
+  name?: { value: string };
+}
 
 interface QueryCacheEntry<TData> {
   data: TData;
@@ -51,11 +57,11 @@ export interface OptimizedQueryOptions<
    * @default "cache-first"
    */
   fetchPolicy?:
-    | "cache-first"
-    | "network-only"
-    | "cache-and-network"
-    | "no-cache"
-    | "standby";
+    | 'cache-first'
+    | 'network-only'
+    | 'cache-and-network'
+    | 'no-cache'
+    | 'standby';
   /**
    * Number of retry attempts for failed queries
    * @default 1
@@ -96,7 +102,7 @@ export interface OptimizedQueryOptions<
  */
 function generateCacheKey(queryEntry: QueryEntry): string {
   const { query, variables } = queryEntry;
-  return `${query}:${variables ? JSON.stringify(variables) : ""}`;
+  return `${query}:${variables ? JSON.stringify(variables) : ''}`;
 }
 
 /**
@@ -105,22 +111,22 @@ function generateCacheKey(queryEntry: QueryEntry): string {
 function getQueryName(query: DocumentNode): string {
   const operationDef = query.definitions.find(
     (def): def is OperationDefinitionNode =>
-      def.kind === Kind.OPERATION_DEFINITION,
+      def.kind === Kind.OPERATION_DEFINITION
   );
 
-  return operationDef?.name?.value || "query";
+  return operationDef?.name?.value || 'query';
 }
 
 // Create proper return types for refetch and fetchMore functions
 type EnhancedRefetchFunction<TData, TVariables> = (
-  variables?: Partial<TVariables>,
+  variables?: Partial<TVariables>
 ) => Promise<ApolloQueryResult<TData>>;
 
 type EnhancedFetchMoreFunction<TData> = () => Promise<ApolloQueryResult<any>>;
 
 // Update the QueryResult mock with the missing properties
 const createQueryResultMock = <TData, TVariables extends OperationVariables>(
-  options: Partial<QueryResult<TData, TVariables>> = {},
+  options: Partial<QueryResult<TData, TVariables>> = {}
 ): QueryResult<TData, TVariables> => {
   return {
     loading: true,
@@ -156,13 +162,13 @@ export function useOptimizedQuery<
   TVariables extends OperationVariables = OperationVariables,
 >(
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
-  options: OptimizedQueryOptions<TData, TVariables> = {},
+  options: OptimizedQueryOptions<TData, TVariables> = {}
 ): QueryResult<TData, TVariables> {
   const {
     variables,
     cacheTime = 5 * 60 * 1000, // 5 minutes default
     skip = false,
-    fetchPolicy = "cache-first",
+    fetchPolicy = 'cache-first',
     retryCount = 1,
     retryDelay = 1000,
     logErrors = true,
@@ -348,7 +354,7 @@ export function useOptimizedQuery<
         TData,
         TVariables
       >,
-    }),
+    })
   );
 
   // Main effect to execute the query and handle caching
@@ -419,7 +425,7 @@ export function useOptimizedQuery<
   // Fetch regular query for SSR benefits
   const apolloResult = useQuery<TData, TVariables>(query, {
     ...options,
-    skip: queryCalled.current || process.env.NODE_ENV !== "development",
+    skip: queryCalled.current || process.env.NODE_ENV !== 'development',
   } as any);
 
   // If we have cache/optimized results, use those, otherwise use Apollo's
@@ -479,7 +485,7 @@ export async function prefetchQuery<
 >(
   client: ReturnType<typeof useApolloClient>,
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
-  options: { variables?: TVariables; cacheTime?: number } = {},
+  options: { variables?: TVariables; cacheTime?: number } = {}
 ): Promise<TData | null> {
   const { variables, cacheTime = 5 * 60 * 1000 } = options;
 
@@ -496,7 +502,7 @@ export async function prefetchQuery<
     const result = await client.query<TData, TVariables>({
       query,
       variables,
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only',
     });
 
     // Cache the result

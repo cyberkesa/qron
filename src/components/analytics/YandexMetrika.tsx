@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import Script from "next/script";
-import Image from "next/image";
+import { useEffect } from 'react';
+import Script from 'next/script';
+import Image from 'next/image';
 
 // Фиксированный ID счетчика Яндекс.Метрики
-const YANDEX_METRIKA_ID = "100995493";
+const YANDEX_METRIKA_ID = '100995493';
 
 export function YandexMetrika() {
   useEffect(() => {
     // Отправка просмотра страницы при изменении маршрута в SPA
     const handleRouteChange = (url: string) => {
       if (window.ym) {
-        window.ym(Number(YANDEX_METRIKA_ID), "hit", url);
+        window.ym(Number(YANDEX_METRIKA_ID), 'hit', url);
       }
     };
 
     // Добавляем слушатель для Next.js
-    document.addEventListener("routeChangeComplete", handleRouteChange as any);
+    document.addEventListener('routeChangeComplete', handleRouteChange as any);
 
     return () => {
       document.removeEventListener(
-        "routeChangeComplete",
-        handleRouteChange as any,
+        'routeChangeComplete',
+        handleRouteChange as any
       );
     };
   }, []);
@@ -53,7 +53,7 @@ export function YandexMetrika() {
             alt=""
             width={1}
             height={1}
-            style={{ position: "absolute", left: "-9999px" }}
+            style={{ position: 'absolute', left: '-9999px' }}
             unoptimized
           />
         </div>

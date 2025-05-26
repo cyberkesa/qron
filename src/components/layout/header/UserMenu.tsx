@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { memo } from "react";
+import Link from 'next/link';
+import { memo } from 'react';
 
 // Компонент меню пользователя
 const UserMenu = memo(
@@ -19,44 +19,63 @@ const UserMenu = memo(
     if (!isOpen) return null;
 
     return (
-      <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-xl py-2 z-60 animate-zoom-in border border-gray-200">
-        <div className="px-4 py-2 border-b border-gray-100">
-          <p className="text-sm font-medium text-gray-900">{userInfo.name}</p>
-          <p className="text-xs text-gray-500 truncate">{userInfo.email}</p>
+      <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-60 animate-zoom-in overflow-hidden">
+        {/* Информация о пользователе */}
+        <div className="px-4 py-4 border-b border-gray-100 bg-gray-50/50">
+          <p className="text-sm font-semibold text-gray-900 truncate">
+            {userInfo.name || 'Пользователь'}
+          </p>
+          <p className="text-xs text-gray-600 truncate mt-0.5">
+            {userInfo.email}
+          </p>
         </div>
-        <Link
-          href="/profile"
-          className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150"
-          onClick={onClose}
-        >
-          Личный кабинет
-        </Link>
-        <Link
-          href="/profile/orders"
-          className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150"
-          onClick={onClose}
-        >
-          Мои заказы
-        </Link>
-        <Link
-          href="/profile/addresses"
-          className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150"
-          onClick={onClose}
-        >
-          Мои адреса
-        </Link>
-        <div className="border-t border-gray-100 my-1"></div>
-        <button
-          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150"
-          onClick={onLogout}
-        >
-          Выйти
-        </button>
+
+        {/* Навигационные ссылки */}
+        <div className="py-2">
+          <Link
+            href="/profile"
+            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 font-medium"
+            onClick={onClose}
+          >
+            Личный кабинет
+          </Link>
+          <Link
+            href="/profile/orders"
+            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 font-medium"
+            onClick={onClose}
+          >
+            Мои заказы
+          </Link>
+          <Link
+            href="/profile/addresses"
+            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 font-medium"
+            onClick={onClose}
+          >
+            Мои адреса
+          </Link>
+          <Link
+            href="/wishlist"
+            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 font-medium"
+            onClick={onClose}
+          >
+            Избранное
+          </Link>
+        </div>
+
+        {/* Разделитель и кнопка выхода */}
+        <div className="border-t border-gray-100">
+          <button
+            className="flex items-center w-full h-12 px-4 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 font-medium"
+            onClick={onLogout}
+          >
+            Выйти из аккаунта
+          </button>
+        </div>
       </div>
     );
-  },
+  }
 );
 
-UserMenu.displayName = "UserMenu";
+UserMenu.displayName = 'UserMenu';
 
 export default UserMenu;

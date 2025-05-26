@@ -1,19 +1,18 @@
-"use client";
+'use client';
 
-import { useQuery } from "@apollo/client";
-import Link from "next/link";
-import Image from "next/image";
-import { GET_CATEGORIES } from "@/lib/queries";
-import { Category } from "@/types/api";
+import { useQuery } from '@apollo/client';
+import Link from 'next/link';
+import Image from 'next/image';
+import { GET_CATEGORIES } from '@/lib/queries';
+import { Category } from '@/types/api';
 
 export default function CategoriesPage() {
   const { data, loading, error } = useQuery(GET_CATEGORIES);
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         <div className="h-10 bg-gray-200 rounded w-56 mb-8 animate-pulse"></div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
@@ -26,18 +25,18 @@ export default function CategoriesPage() {
             </div>
           ))}
         </div>
-      </div>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
+      <main className="container mx-auto px-4 py-8 text-center">
         <h2 className="text-xl font-semibold text-red-600 mb-2">
           Ошибка загрузки категорий
         </h2>
         <p className="text-gray-600">{error.message}</p>
-      </div>
+      </main>
     );
   }
 

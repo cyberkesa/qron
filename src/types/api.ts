@@ -1,13 +1,13 @@
 export type ProductSortOrder =
-  | "ALPHABETICALLY"
-  | "CHEAPEST_FIRST"
-  | "EXPENSIVE_FIRST"
-  | "NEWEST_FIRST";
+  | 'ALPHABETICALLY'
+  | 'CHEAPEST_FIRST'
+  | 'EXPENSIVE_FIRST'
+  | 'NEWEST_FIRST';
 
 export enum ProductStockAvailabilityStatus {
-  IN_STOCK = "IN_STOCK",
-  IN_STOCK_SOON = "IN_STOCK_SOON",
-  OUT_OF_STOCK = "OUT_OF_STOCK",
+  IN_STOCK = 'IN_STOCK',
+  IN_STOCK_SOON = 'IN_STOCK_SOON',
+  OUT_OF_STOCK = 'OUT_OF_STOCK',
 }
 
 export interface ProductImage {
@@ -102,13 +102,13 @@ export interface DeliveryAddress {
 }
 
 export enum PaymentMethod {
-  CARD = "CARD",
-  CASH = "CASH",
+  CARD = 'CARD',
+  CASH = 'CASH',
 }
 
 export enum DeliveryMethod {
-  PICKUP = "PICKUP",
-  DELIVERY = "DELIVERY",
+  PICKUP = 'PICKUP',
+  DELIVERY = 'DELIVERY',
 }
 
 export interface OrderItem {
@@ -130,11 +130,11 @@ export interface OrderItemConnection {
 }
 
 export enum OrderStatus {
-  PENDING = "PENDING",
-  PROCESSING = "PROCESSING",
-  SHIPPED = "SHIPPED",
-  DELIVERED = "DELIVERED",
-  CANCELLED = "CANCELLED",
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  SHIPPED = 'SHIPPED',
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED',
 }
 
 export interface Order {
@@ -161,8 +161,7 @@ export interface OrderResponse {
 
 export interface CheckoutInput {
   deliveryAddressId: string;
-  paymentMethod: PaymentMethod;
-  deliveryMethod: DeliveryMethod;
+  phoneNumber: string;
 }
 
 export interface CheckoutResponse {

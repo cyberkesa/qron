@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { ArrowUpIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from 'react';
+import { ArrowUpIcon } from '@heroicons/react/24/outline';
 
 export function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
@@ -18,8 +18,8 @@ export function ScrollToTop() {
       }
     };
 
-    window.addEventListener("scroll", checkScroll);
-    return () => window.removeEventListener("scroll", checkScroll);
+    window.addEventListener('scroll', checkScroll);
+    return () => window.removeEventListener('scroll', checkScroll);
   }, [isVisible]);
 
   const scrollToTop = () => {
@@ -28,7 +28,7 @@ export function ScrollToTop() {
     // Плавный скролл с анимацией
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
 
     // Сбрасываем анимацию когда скролл закончен
@@ -43,7 +43,7 @@ export function ScrollToTop() {
     <button
       onClick={scrollToTop}
       className={`fixed bottom-6 right-6 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg z-50 transition-all duration-300 ${
-        isAnimating ? "animate-bounce" : "hover:transform hover:scale-110"
+        isAnimating ? 'animate-bounce' : 'hover:transform hover:scale-110'
       } hover-lift`}
       aria-label="Прокрутить вверх"
     >

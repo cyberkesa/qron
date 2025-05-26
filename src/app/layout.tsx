@@ -1,22 +1,22 @@
-import "./globals.css";
-import { Inter } from "next/font/google";
-import ClientLayout from "./client-layout";
-import { ScrollToTop } from "@/components/ui/ScrollToTop";
-import Script from "next/script";
-import { YandexMetrika } from "@/components/analytics/YandexMetrika";
+import './globals.css';
+import { Inter } from 'next/font/google';
+import ClientLayout from './client-layout';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import Script from 'next/script';
+import { YandexMetrika } from '@/components/analytics/YandexMetrika';
 
 const inter = Inter({
-  subsets: ["latin", "cyrillic"],
-  display: "swap",
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
   preload: true,
 });
 
 export const metadata = {
-  title: "КРОН – онлайн-магазин товаров для сада и огорода",
+  title: 'КРОН – онлайн-магазин товаров для сада и огорода',
   description:
-    "Широкий ассортимент качественных товаров для дома, ремонта, сада и огорода с доставкой по всей России",
+    'Широкий ассортимент качественных товаров для дома, ремонта, сада и огорода с доставкой по всей России',
   viewport:
-    "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
+    'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
 };
 
 export default function RootLayout({

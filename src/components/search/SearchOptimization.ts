@@ -2,7 +2,7 @@
  * Утилиты для оптимизации поиска
  */
 
-import { Category, Product, ProductStockAvailabilityStatus } from "@/types/api";
+import { Category, Product, ProductStockAvailabilityStatus } from '@/types/api';
 
 /**
  * Нормализует строку для поиска:
@@ -11,51 +11,51 @@ import { Category, Product, ProductStockAvailabilityStatus } from "@/types/api";
  * - Удаляет диакритические знаки и специальные символы
  */
 export function normalizeSearchString(text: string): string {
-  if (!text) return "";
+  if (!text) return '';
 
   // Приводим к нижнему регистру и удаляем множественные пробелы
-  let normalized = text.toLowerCase().trim().replace(/\s+/g, " ");
+  let normalized = text.toLowerCase().trim().replace(/\s+/g, ' ');
 
   // Удаляем диакритические знаки (например, преобразуем "é" в "e")
-  normalized = normalized.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   // Транслитерация русских символов (пример: "лопата" -> "lopata")
   // Это поможет найти результаты даже если пользователь случайно переключился
   // на другую раскладку
   const russianMap: Record<string, string> = {
-    а: "a",
-    б: "b",
-    в: "v",
-    г: "g",
-    д: "d",
-    е: "e",
-    ё: "yo",
-    ж: "zh",
-    з: "z",
-    и: "i",
-    й: "y",
-    к: "k",
-    л: "l",
-    м: "m",
-    н: "n",
-    о: "o",
-    п: "p",
-    р: "r",
-    с: "s",
-    т: "t",
-    у: "u",
-    ф: "f",
-    х: "h",
-    ц: "ts",
-    ч: "ch",
-    ш: "sh",
-    щ: "sch",
-    ъ: "",
-    ы: "y",
-    ь: "",
-    э: "e",
-    ю: "yu",
-    я: "ya",
+    а: 'a',
+    б: 'b',
+    в: 'v',
+    г: 'g',
+    д: 'd',
+    е: 'e',
+    ё: 'yo',
+    ж: 'zh',
+    з: 'z',
+    и: 'i',
+    й: 'y',
+    к: 'k',
+    л: 'l',
+    м: 'm',
+    н: 'n',
+    о: 'o',
+    п: 'p',
+    р: 'r',
+    с: 's',
+    т: 't',
+    у: 'u',
+    ф: 'f',
+    х: 'h',
+    ц: 'ts',
+    ч: 'ch',
+    ш: 'sh',
+    щ: 'sch',
+    ъ: '',
+    ы: 'y',
+    ь: '',
+    э: 'e',
+    ю: 'yu',
+    я: 'ya',
   };
 
   return normalized;
@@ -66,7 +66,7 @@ export function normalizeSearchString(text: string): string {
  */
 export function calculateProductRelevance(
   product: Product,
-  searchQuery: string,
+  searchQuery: string
 ): number {
   if (!searchQuery || !product) return 0;
 
@@ -128,7 +128,7 @@ export function calculateProductRelevance(
  */
 export function sortProductsByRelevance(
   products: Product[],
-  searchQuery: string,
+  searchQuery: string
 ): Product[] {
   const normalizedQuery = normalizeSearchString(searchQuery);
 
@@ -173,7 +173,7 @@ export function removeDuplicateProducts(products: Product[]): Product[] {
 export function processSearchResults(
   products: Product[],
   searchQuery: string,
-  hideOutOfStock = true,
+  hideOutOfStock = true
 ): Product[] {
   // Удаляем дубликаты
   let processedProducts = removeDuplicateProducts(products);
@@ -186,7 +186,7 @@ export function processSearchResults(
     processedProducts = processedProducts.filter(
       (product) =>
         product.stockAvailabilityStatus !==
-        ProductStockAvailabilityStatus.OUT_OF_STOCK,
+        ProductStockAvailabilityStatus.OUT_OF_STOCK
     );
   }
 

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useQuery, useMutation } from "@apollo/client";
-import { GET_VIEWER, LOGOUT } from "@/lib/queries";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
-import { useState } from "react";
+import { useQuery, useMutation } from '@apollo/client';
+import { GET_VIEWER, LOGOUT } from '@/lib/queries';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { useState } from 'react';
 import {
   UserIcon,
   ShoppingBagIcon,
@@ -12,7 +12,7 @@ import {
   ArrowRightOnRectangleIcon,
   ChevronRightIcon,
   HomeIcon,
-} from "@heroicons/react/24/outline";
+} from '@heroicons/react/24/outline';
 
 export default function ProfileLayout({
   children,
@@ -21,7 +21,7 @@ export default function ProfileLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [logoutMessage, setLogoutMessage] = useState("");
+  const [logoutMessage, setLogoutMessage] = useState('');
 
   const { data, loading, error } = useQuery(GET_VIEWER);
   const [logout, { loading: logoutLoading }] = useMutation(LOGOUT);
@@ -29,23 +29,23 @@ export default function ProfileLayout({
   const handleLogout = async () => {
     try {
       const result = await logout();
-      if (result.data?.logOut?.__typename === "LogOutSuccessResult") {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("guestToken");
-        localStorage.removeItem("tokenRegionId");
-        setLogoutMessage("Вы успешно вышли из аккаунта");
+      if (result.data?.logOut?.__typename === 'LogOutSuccessResult') {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('guestToken');
+        localStorage.removeItem('tokenRegionId');
+        setLogoutMessage('Вы успешно вышли из аккаунта');
         setTimeout(() => {
-          router.push("/login");
+          router.push('/login');
         }, 1000);
       } else {
-        setLogoutMessage("Ошибка: не удалось выйти из аккаунта");
+        setLogoutMessage('Ошибка: не удалось выйти из аккаунта');
       }
     } catch (error) {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Произошла ошибка при выходе из аккаунта";
+          : 'Произошла ошибка при выходе из аккаунта';
       setLogoutMessage(`Ошибка: ${errorMessage}`);
     }
   };
@@ -57,25 +57,25 @@ export default function ProfileLayout({
   // Breadcrumbs setup
   const getBreadcrumbItems = () => {
     const items = [
-      { label: "Главная", path: "/" },
-      { label: "Личный кабинет", path: "/profile" },
+      { label: 'Главная', path: '/' },
+      { label: 'Личный кабинет', path: '/profile' },
     ];
 
-    if (pathname && pathname.includes("/profile/orders")) {
-      items.push({ label: "Мои заказы", path: "/profile/orders" });
-    } else if (pathname && pathname.includes("/profile/addresses")) {
-      items.push({ label: "Мои адреса", path: "/profile/addresses" });
+    if (pathname && pathname.includes('/profile/orders')) {
+      items.push({ label: 'Мои заказы', path: '/profile/orders' });
+    } else if (pathname && pathname.includes('/profile/addresses')) {
+      items.push({ label: 'Мои адреса', path: '/profile/addresses' });
 
-      if (pathname && pathname.includes("/new")) {
+      if (pathname && pathname.includes('/new')) {
         items.push({
-          label: "Добавление адреса",
-          path: "/profile/addresses/new",
+          label: 'Добавление адреса',
+          path: '/profile/addresses/new',
         });
-      } else if (pathname && pathname.includes("/edit")) {
-        items.push({ label: "Редактирование адреса", path: pathname });
+      } else if (pathname && pathname.includes('/edit')) {
+        items.push({ label: 'Редактирование адреса', path: pathname });
       }
-    } else if (pathname && pathname.includes("/profile/edit")) {
-      items.push({ label: "Редактирование профиля", path: "/profile/edit" });
+    } else if (pathname && pathname.includes('/profile/edit')) {
+      items.push({ label: 'Редактирование профиля', path: '/profile/edit' });
     }
 
     return items;
@@ -85,20 +85,20 @@ export default function ProfileLayout({
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8 animate-fadeIn">
+      <main className="container mx-auto px-4 py-6">
         <div className="bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-lg mb-6 shadow-sm">
-          {error.message || "Произошла ошибка при загрузке профиля"}
+          {error.message || 'Произошла ошибка при загрузке профиля'}
         </div>
         <div className="flex justify-center">
           <Link
             href="/login"
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors active:scale-[0.98]"
-            style={{ WebkitTapHighlightColor: "transparent" }}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             Войти в аккаунт
           </Link>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -106,7 +106,7 @@ export default function ProfileLayout({
 
   if (!user && !loading) {
     return (
-      <div className="container mx-auto px-4 py-8 animate-fadeIn">
+      <main className="container mx-auto px-4 py-6">
         <div className="bg-yellow-50 border border-yellow-100 text-yellow-700 px-4 py-3 rounded-lg mb-6 shadow-sm">
           Вы не авторизованы
         </div>
@@ -114,28 +114,28 @@ export default function ProfileLayout({
           <Link
             href="/login"
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors active:scale-[0.98]"
-            style={{ WebkitTapHighlightColor: "transparent" }}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             Войти в аккаунт
           </Link>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 animate-fadeIn">
+      <main className="container mx-auto px-4 py-6">
         <div className="flex justify-center items-center min-h-[50vh]">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           <div className="ml-4 text-blue-600">Загрузка...</div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8 animate-fadeIn">
+    <main className="container mx-auto px-4 py-6">
       {/* Breadcrumbs */}
       <div className="flex items-center mb-4 text-sm">
         {breadcrumbItems.map((item, index) => (
@@ -171,9 +171,9 @@ export default function ProfileLayout({
       {logoutMessage && (
         <div
           className={`px-4 py-3 rounded-lg mb-6 ${
-            logoutMessage.startsWith("Ошибка:")
-              ? "bg-red-50 border border-red-100 text-red-700"
-              : "bg-green-50 border border-green-100 text-green-700"
+            logoutMessage.startsWith('Ошибка:')
+              ? 'bg-red-50 border border-red-100 text-red-700'
+              : 'bg-green-50 border border-green-100 text-green-700'
           }`}
         >
           {logoutMessage}
@@ -203,15 +203,15 @@ export default function ProfileLayout({
                   <Link
                     href="/profile"
                     className={`flex items-center ${
-                      isActive("/profile")
-                        ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
-                        : "text-gray-700 hover:bg-gray-50"
+                      isActive('/profile')
+                        ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                        : 'text-gray-700 hover:bg-gray-50'
                     } transition-colors duration-200 rounded-lg p-3`}
                   >
                     <UserIcon
-                      className={`w-5 h-5 mr-3 ${isActive("/profile") ? "" : "text-gray-500"}`}
+                      className={`w-5 h-5 mr-3 ${isActive('/profile') ? '' : 'text-gray-500'}`}
                     />
-                    <span className={isActive("/profile") ? "font-medium" : ""}>
+                    <span className={isActive('/profile') ? 'font-medium' : ''}>
                       Личные данные
                     </span>
                   </Link>
@@ -220,17 +220,17 @@ export default function ProfileLayout({
                   <Link
                     href="/profile/orders"
                     className={`flex items-center ${
-                      isActive("/profile/orders")
-                        ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
-                        : "text-gray-700 hover:bg-gray-50"
+                      isActive('/profile/orders')
+                        ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                        : 'text-gray-700 hover:bg-gray-50'
                     } transition-colors duration-200 rounded-lg p-3`}
                   >
                     <ShoppingBagIcon
-                      className={`w-5 h-5 mr-3 ${isActive("/profile/orders") ? "" : "text-gray-500"}`}
+                      className={`w-5 h-5 mr-3 ${isActive('/profile/orders') ? '' : 'text-gray-500'}`}
                     />
                     <span
                       className={
-                        isActive("/profile/orders") ? "font-medium" : ""
+                        isActive('/profile/orders') ? 'font-medium' : ''
                       }
                     >
                       Мои заказы
@@ -241,23 +241,23 @@ export default function ProfileLayout({
                   <Link
                     href="/profile/addresses"
                     className={`flex items-center ${
-                      pathname && pathname.includes("/profile/addresses")
-                        ? "text-blue-600 bg-blue-50 hover:bg-blue-100"
-                        : "text-gray-700 hover:bg-gray-50"
+                      pathname && pathname.includes('/profile/addresses')
+                        ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                        : 'text-gray-700 hover:bg-gray-50'
                     } transition-colors duration-200 rounded-lg p-3`}
                   >
                     <MapPinIcon
                       className={`w-5 h-5 mr-3 ${
-                        pathname && pathname.includes("/profile/addresses")
-                          ? ""
-                          : "text-gray-500"
+                        pathname && pathname.includes('/profile/addresses')
+                          ? ''
+                          : 'text-gray-500'
                       }`}
                     />
                     <span
                       className={
-                        pathname && pathname.includes("/profile/addresses")
-                          ? "font-medium"
-                          : ""
+                        pathname && pathname.includes('/profile/addresses')
+                          ? 'font-medium'
+                          : ''
                       }
                     >
                       Мои адреса
@@ -269,11 +269,11 @@ export default function ProfileLayout({
                     onClick={handleLogout}
                     disabled={logoutLoading}
                     className="flex items-center w-full text-left text-red-600 hover:bg-red-50 transition-colors duration-200 rounded-lg p-3"
-                    style={{ WebkitTapHighlightColor: "transparent" }}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     <ArrowRightOnRectangleIcon className="w-5 h-5 mr-3" />
                     <span>
-                      {logoutLoading ? "Выход..." : "Выйти из аккаунта"}
+                      {logoutLoading ? 'Выход...' : 'Выйти из аккаунта'}
                     </span>
                   </button>
                 </li>
@@ -285,6 +285,6 @@ export default function ProfileLayout({
         {/* Main content */}
         <div className="lg:col-span-3">{children}</div>
       </div>
-    </div>
+    </main>
   );
 }
