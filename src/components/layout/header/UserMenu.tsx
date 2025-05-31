@@ -34,28 +34,28 @@ const UserMenu = memo(
         <div className="py-2">
           <Link
             href="/profile"
-            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 font-medium"
+            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 font-medium"
             onClick={onClose}
           >
             Личный кабинет
           </Link>
           <Link
             href="/profile/orders"
-            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 font-medium"
+            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 font-medium"
             onClick={onClose}
           >
             Мои заказы
           </Link>
           <Link
             href="/profile/addresses"
-            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 font-medium"
+            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 font-medium"
             onClick={onClose}
           >
             Мои адреса
           </Link>
           <Link
             href="/wishlist"
-            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 font-medium"
+            className="flex items-center h-12 px-4 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 font-medium"
             onClick={onClose}
           >
             Избранное

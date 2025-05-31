@@ -76,50 +76,33 @@ const HERO_BENEFITS = [
 
 const COMPANY_INFO = {
   title: 'О компании Крон',
-  description:
-    'Ведущий поставщик товаров для строительства, ремонта и обустройства дома с собственным производством и прямыми поставками из 7 стран.',
-  advantages: [
-    'Прямые поставки от производителей',
-    'Собственное производство в России',
-    'Широкий ассортимент товаров',
-    'Быстрая доставка по всей России',
-    'Профессиональная консультация',
-    'Гарантия качества на все товары',
-  ],
-  metrics: [
-    {
-      value: '50+',
-      label: 'Сотрудников',
-      icon: UsersIcon,
-    },
-    {
-      value: '7',
-      label: 'Стран-партнёров',
-      icon: GlobeAsiaAustraliaIcon,
-    },
-    {
-      value: '24/7',
-      label: 'Поддержка',
-      icon: ChatBubbleLeftRightIcon,
-    },
-    {
-      value: '3',
-      label: 'Собственных бренда',
-      icon: TagIcon,
-    },
-  ],
+  summary: 'Компания Крон — это быстро развивающаяся компания, которая насчитывает штат из более 50 сотрудников по всей России, имеет собственный парк автомобилей, а также собственное производство товаров народного потребления в России.',
+  whatWeDo: {
+    title: 'Что мы делаем',
+    items: [
+      'Прямой экспорт от крупнейших производителей: Китай, Индия, Иран, Армения, Узбекистан, Туркменистан, Вьетнам',
+      'Сферы: товары для сада и огорода, хозяйственные товары',
+      'Собственные бренды: «Крон», «Крон эксперт», «Крон эконом» — лучшее соотношение цены и качества',
+      'Помогаем импортировать товары из перечисленных стран'
+    ]
+  },
+  technologies: {
+    title: 'Наши технологии',
+    items: [
+      'Мобильное приложение и онлайн-каталог — ассортимент в любой момент'
+    ]
+  },
+  history: {
+    title: 'История компании',
+    text: 'Компания была основана в 2010 году и за это время прошла путь от небольшого регионального поставщика до федерального игрока с широкой сетью партнёров и клиентов по всей России.'
+  }
 };
 
 const APP_INFO = {
   title: 'Мобильное приложение',
   description:
-    'Скачайте наше приложение для удобных покупок. Получайте эксклюзивные предложения и отслеживайте заказы.',
-  benefits: [
-    'Уведомления о скидках',
-    'Отслеживание заказов',
-    'Быстрое оформление',
-    'Эксклюзивные предложения',
-  ],
+    'Скачайте наше приложение для удобных покупок.',
+  benefits: []
 };
 
 // ==============================
@@ -261,103 +244,66 @@ BestDealsSection.displayName = 'BestDealsSection';
 
 // Компонент о компании
 const CompanySection = memo(() => (
-  <section className="mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 lg:p-8 xl:p-12 border border-blue-100 shadow-lg">
-      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-12">
-        {/* Резерв под иллюстрацию - только на больших экранах */}
-        <div className="hidden lg:flex items-center justify-center">
-          <div className="w-full h-48 lg:h-64 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl border-2 border-dashed border-blue-200 flex items-center justify-center">
-            <div className="text-center text-blue-400">
-              <BuildingStorefrontIcon className="h-12 w-12 lg:h-16 lg:w-16 mx-auto mb-2 opacity-50" />
-              <p className="text-xs lg:text-sm font-medium">
-                Место для изображения
-              </p>
-            </div>
-          </div>
-        </div>
+  <section className="bg-[#F8FAFC] py-[60px] md:py-[40px]">
+    <div className="container mx-auto max-w-[1120px] px-4 md:px-3">
+      {/* Заголовок */}
+      <h2 className="text-[28px] md:text-[24px] font-bold text-[#1A1A1A] leading-[1.3] mb-6 md:mb-4">
+        {COMPANY_INFO.title}
+      </h2>
 
-        {/* Основной контент */}
-        <div className="lg:col-span-2 space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-8">
-          {/* Заголовок и описание */}
-          <div>
-            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">
-              {COMPANY_INFO.title}
-            </h2>
-            <p className="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed">
-              {COMPANY_INFO.description}
-            </p>
-          </div>
+      {/* Краткое описание */}
+      <p className="text-base md:text-[15px] text-[#4A4A4A] leading-[1.6] mb-8 md:mb-6">
+        {COMPANY_INFO.summary}
+      </p>
 
-          {/* Преимущества */}
-          <div>
-            <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 sm:mb-3 md:mb-4">
-              Наши преимущества
-            </h3>
-            <div className="grid gap-1.5 sm:gap-2 md:gap-3">
-              {COMPANY_INFO.advantages.map((advantage, index) => (
-                <div
-                  key={index}
-                  className="flex items-start space-x-2 sm:space-x-3"
-                >
-                  <div className="flex-shrink-0 mt-0.5">
-                    <CheckIcon className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-500" />
-                  </div>
-                  <span className="text-xs sm:text-sm md:text-base text-gray-700">
-                    {advantage}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* Что мы делаем */}
+      <div className="mb-8 md:mb-6">
+        <h3 className="text-xl md:text-lg font-semibold text-[#2C2C2C] mb-4 md:mb-3 pl-2 relative before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-6 before:bg-[#2563EB] before:rounded-sm">
+          {COMPANY_INFO.whatWeDo.title}
+        </h3>
+        <ul className="space-y-3 md:space-y-2.5">
+          {COMPANY_INFO.whatWeDo.items.map((item, index) => (
+            <li key={index} className="flex items-start gap-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] flex-shrink-0 mt-2"></span>
+              <span className="text-base md:text-[15px] text-[#4A4A4A] leading-[1.6]">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-          {/* Метрики */}
-          <div>
-            <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-6">
-              Цифры и факты
-            </h3>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-              {COMPANY_INFO.metrics.map((metric, index) => {
-                const IconComponent = metric.icon;
-                return (
-                  <div
-                    key={index}
-                    className="bg-white p-2 sm:p-3 md:p-4 lg:p-6 rounded-md sm:rounded-lg md:rounded-xl shadow-md border border-gray-100 text-center hover:shadow-lg transition-shadow"
-                  >
-                    <div className="flex justify-center mb-1 sm:mb-2 md:mb-3">
-                      <div className="p-1 sm:p-2 md:p-3 bg-blue-100 rounded-full">
-                        <IconComponent className="h-3 w-3 sm:h-4 sm:w-4 md:h-6 md:w-6 text-blue-600" />
-                      </div>
-                    </div>
-                    <div className="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-blue-600 mb-0.5 sm:mb-1">
-                      {metric.value}
-                    </div>
-                    <div className="text-xs sm:text-sm text-gray-600 font-medium">
-                      {metric.label}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+      {/* Наши технологии */}
+      <div className="mb-8 md:mb-6">
+        <h3 className="text-xl md:text-lg font-semibold text-[#2C2C2C] mb-4 md:mb-3 pl-2 relative before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-6 before:bg-[#2563EB] before:rounded-sm">
+          {COMPANY_INFO.technologies.title}
+        </h3>
+        <ul className="space-y-3 md:space-y-2.5">
+          {COMPANY_INFO.technologies.items.map((item, index) => (
+            <li key={index} className="flex items-start gap-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] flex-shrink-0 mt-2"></span>
+              <span className="text-base md:text-[15px] text-[#4A4A4A] leading-[1.6]">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-          {/* Кнопки */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4">
-            <Link
-              href="/contact"
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white font-medium rounded-md sm:rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
-            >
-              <PhoneIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-              Связаться с нами
-            </Link>
-            <Link
-              href="/about"
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-white text-blue-600 font-medium rounded-md sm:rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-colors text-sm sm:text-base"
-            >
-              Подробнее о компании
-              <ChevronRightIcon className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-            </Link>
-          </div>
-        </div>
+      {/* История компании */}
+      <div className="mb-10 md:mb-8">
+        <h3 className="text-xl md:text-lg font-semibold text-[#2C2C2C] mb-4 md:mb-3 pl-2 relative before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-6 before:bg-[#2563EB] before:rounded-sm">
+          {COMPANY_INFO.history.title}
+        </h3>
+        <p className="text-base md:text-[15px] text-[#4A4A4A] leading-[1.6]">
+          {COMPANY_INFO.history.text}
+        </p>
+      </div>
+
+      {/* CTA */}
+      <div className="text-center">
+        <Link
+          href="/contact"
+          className="inline-block w-full md:max-w-[280px] bg-[#2563EB] hover:bg-[#1E4BB8] text-white font-semibold text-base py-3 px-6 rounded-md transition-all duration-200 hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
+        >
+          Связаться с нами
+        </Link>
       </div>
     </div>
   </section>
@@ -377,23 +323,8 @@ const MobileAppSection = memo(() => (
           {APP_INFO.description}
         </p>
 
-        {/* Преимущества приложения */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-1 sm:gap-2 md:gap-4 mb-4 sm:mb-6 md:mb-8 app-benefits-mobile">
-          {APP_INFO.benefits.map((benefit, index) => (
-            <div
-              key={index}
-              className="bg-white/50 backdrop-blur-sm p-1 sm:p-2 md:p-4 rounded-md sm:rounded-lg border border-blue-100 app-benefit-mobile"
-            >
-              <CheckIcon className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-500 mx-auto mb-1 sm:mb-2 icon" />
-              <p className="text-xs sm:text-sm font-medium text-gray-700">
-                {benefit}
-              </p>
-            </div>
-          ))}
-        </div>
-
         {/* Кнопки скачивания */}
-        <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-6 md:mb-8">
+        <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 md:gap-4">
           <Link
             href="https://apps.apple.com/ru/app/крон-интернет-магазин/id1611541742"
             target="_blank"
@@ -429,22 +360,6 @@ const MobileAppSection = memo(() => (
               RuStore
             </span>
           </Link>
-        </div>
-
-        {/* QR код */}
-        <div className="flex justify-center">
-          <div className="bg-white p-2 sm:p-3 md:p-4 rounded-md sm:rounded-lg border border-gray-200 shadow-sm">
-            <Image
-              src="/images/qr-code.svg"
-              alt="QR код для скачивания приложения"
-              width={100}
-              height={100}
-              className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28"
-            />
-            <p className="text-xs sm:text-sm text-gray-600 mt-2 text-center font-medium">
-              Сканируйте QR-код
-            </p>
-          </div>
         </div>
       </div>
     </div>
@@ -502,19 +417,24 @@ ErrorSection.displayName = 'ErrorSection';
 // ==============================
 
 export default function Home() {
+  // Add client-side only state
+  const [isClient, setIsClient] = useState(false);
+
+  // Use effect to mark when we're on client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // Состояния компонента
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>('NEWEST_FIRST');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [currentRegion, setCurrentRegion] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
   const [hideOutOfStock, setHideOutOfStock] = useState(true);
 
   // Получение текущего региона
   const { data: regionData, error: regionError } = useQuery(
     GET_CURRENT_REGION,
     {
+      skip: !isClient, // Skip on server-side
       fetchPolicy: 'cache-and-network',
       onError: (error) => {
         console.error('Ошибка при получении региона:', error);
@@ -534,7 +454,7 @@ export default function Home() {
       sortOrder,
       categoryId: selectedCategory || undefined,
     },
-    skip: !currentRegion,
+    skip: !isClient || !regionData?.currentRegion, // Skip on server-side and when no region
     fetchPolicy: 'cache-and-network',
     onError: (error) => {
       console.error('Ошибка при получении товаров:', error);
@@ -547,6 +467,7 @@ export default function Home() {
     loading: categoriesLoading,
     error: categoriesError,
   } = useQuery(GET_CATEGORIES, {
+    skip: !isClient, // Skip on server-side
     fetchPolicy: 'cache-and-network',
     onError: (error) => {
       console.error('Ошибка при получении категорий:', error);
@@ -559,7 +480,7 @@ export default function Home() {
     loading: bestDealsLoading,
     error: bestDealsError,
   } = useQuery(GET_BEST_DEAL_PRODUCTS, {
-    skip: !currentRegion,
+    skip: !isClient || !regionData?.currentRegion, // Skip on server-side and when no region
     fetchPolicy: 'cache-and-network',
     onError: (error) => {
       console.error('Ошибка при получении лучших предложений:', error);
@@ -630,33 +551,20 @@ export default function Home() {
     [productsError, categoriesError, bestDealsError, regionError]
   );
 
-  // Эффект для работы с регионом
+  // Запрос текущего региона
   useEffect(() => {
-    if (regionData?.viewer?.region) {
-      setCurrentRegion(regionData.viewer.region);
-
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem(
-            'selectedRegion',
-            JSON.stringify(regionData.viewer.region)
-          );
-        } catch (error) {
-          console.error('Ошибка при сохранении региона:', error);
-        }
-      }
-    } else if (typeof window !== 'undefined') {
-      try {
-        const savedRegion = localStorage.getItem('selectedRegion');
-        if (savedRegion) {
-          setCurrentRegion(JSON.parse(savedRegion));
-        }
-      } catch (e) {
-        console.error('Ошибка при разборе сохраненного региона:', e);
-        localStorage.removeItem('selectedRegion');
-      }
+    if (regionData?.currentRegion) {
+      // Update any UI elements that depend on the region
+      // but don't use setCurrentRegion since we're using regionData directly
+      console.log('Region updated:', regionData.currentRegion);
     }
   }, [regionData]);
+
+  useEffect(() => {
+    if (regionError) {
+      console.error('Error fetching region:', regionError);
+    }
+  }, [regionError]);
 
   // Обработчик перезагрузки
   const handleRetry = useCallback(() => {
@@ -704,9 +612,22 @@ export default function Home() {
     );
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="container mx-auto px-4 py-6">{renderContent()}</main>
-    </div>
-  );
+  // Initial loading state
+  if (!isClient) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 rounded-xl mb-8" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-gray-200 h-72 rounded-lg" />
+            <div className="bg-gray-200 h-72 rounded-lg" />
+            <div className="bg-gray-200 h-72 rounded-lg" />
+            <div className="bg-gray-200 h-72 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <div className="min-h-screen bg-gray-50">{renderContent()}</div>;
 }

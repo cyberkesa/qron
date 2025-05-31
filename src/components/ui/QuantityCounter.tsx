@@ -94,14 +94,14 @@ export function QuantityCounter({
 
   return (
     <div
-      className={`inline-flex items-center border rounded-lg overflow-hidden ${
+      className={`inline-flex items-center border border-gray-300 rounded-lg overflow-hidden ${
         disabled ? 'bg-gray-100 opacity-75' : 'bg-white'
-      } shadow-sm transition-all duration-200 ${className}`}
+      } shadow-sm transition-colors duration-150 ${className}`}
     >
       <button
         onClick={handleDecrement}
         disabled={isLoading || disabled || quantity <= minQuantity}
-        className={`${sizeClasses.button} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:hover:bg-white disabled:active:scale-100 disabled:hover:text-gray-600 touch-manipulation`}
+        className={`${sizeClasses.button} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-150 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-gray-600 touch-manipulation`}
         aria-label="Уменьшить количество"
       >
         <MinusIcon className={sizeClasses.icon} />
@@ -114,8 +114,8 @@ export function QuantityCounter({
           <div className="animate-pulse h-3 w-3 sm:h-4 sm:w-4 bg-gray-200 rounded-full"></div>
         ) : (
           <span
-            className={`inline-block transition-all duration-300 ${
-              animateValue ? 'animate-pulse scale-110' : ''
+            className={`inline-block transition-opacity duration-200 ${
+              animateValue ? 'opacity-70' : ''
             } ${sizeClasses.text} font-semibold`}
           >
             {quantity}
@@ -126,7 +126,7 @@ export function QuantityCounter({
       <button
         onClick={handleIncrement}
         disabled={isLoading || disabled}
-        className={`${sizeClasses.button} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:hover:bg-white disabled:active:scale-100 disabled:hover:text-gray-600 touch-manipulation`}
+        className={`${sizeClasses.button} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-150 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-gray-600 touch-manipulation`}
         aria-label="Увеличить количество"
       >
         <PlusIcon className={sizeClasses.icon} />

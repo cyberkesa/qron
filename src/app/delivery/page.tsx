@@ -16,7 +16,7 @@ import {
 
 export default function DeliveryPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Доставка и оплата
@@ -24,7 +24,7 @@ export default function DeliveryPage() {
         <nav className="flex" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-3 text-sm">
             <li className="inline-flex items-center">
-              <Link href="/" className="text-gray-600 hover:text-blue-600">
+              <Link href="/" className="text-gray-700 hover:text-blue-700">
                 Главная
               </Link>
             </li>
@@ -284,6 +284,6 @@ export default function DeliveryPage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

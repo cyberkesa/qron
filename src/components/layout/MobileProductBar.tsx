@@ -3,15 +3,34 @@
 import { usePathname } from 'next/navigation';
 import { useQuery } from '@apollo/client';
 import { GET_PRODUCT } from '@/lib/queries';
-import { ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { QuantityCounter } from '@/components/ui/QuantityCounter';
+import { AddToCartButton } from '@/components/ui/AddToCartButton';
 import { useState, useEffect } from 'react';
 
 interface MobileProductBarProps {
-  // Эти пропсы будут передаваться из контекста или состояния
+  product?: {
+    id: string;
+    name: string;
+    price: number;
+    available?: boolean;
+  };
+  currentCartQuantity?: number;
+  isAddingToCart?: boolean;
+  notAvailableInRegion?: boolean;
+  onAddToCart?: () => Promise<void>;
+  onUpdateQuantity?: (delta: number) => Promise<void>;
+  formatPrice?: (price: number) => string;
 }
 
-export const MobileProductBar: React.FC = () => {
+export const MobileProductBar: React.FC<MobileProductBarProps> = ({
+  product: propProduct,
+  currentCartQuantity = 0,
+  isAddingToCart = false,
+  notAvailableInRegion = false,
+  onAddToCart,
+  onUpdateQuantity,
+  formatPrice: propFormatPrice,
+}) => {
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
   const [productSlug, setProductSlug] = useState<string | null>(null);
@@ -36,16 +55,18 @@ export const MobileProductBar: React.FC = () => {
     fetchPolicy: 'cache-first',
   });
 
-  const product = productData?.productBySlug;
+  const product = propProduct || productData?.productBySlug;
 
   // Функция для форматирования цены
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
+  const formatPrice =
+    propFormatPrice ||
+    ((price: number) => {
+      return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        maximumFractionDigits: 0,
+      }).format(price);
+    });
 
   // Не показываем, если не на странице товара или нет данных товара
   if (!isVisible || !product) {
@@ -54,31 +75,55 @@ export const MobileProductBar: React.FC = () => {
 
   return (
     <div
-      className="fixed left-0 right-0 md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] z-40"
+      className="fixed left-0 right-0 md:hidden bg-white border-t border-gray-300 shadow-[0_-2px_12px_rgba(0,0,0,0.15)] z-40"
       style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom))' }}
     >
       {/* Основное содержимое */}
-      <div className="px-4 py-3">
-        <div className="flex items-center gap-3 max-w-screen-lg mx-auto">
-          {/* Цена */}
-          <div className="flex-shrink-0 bg-blue-50 px-3 py-2 rounded-lg">
-            <span className="text-lg font-bold text-blue-700">
-              {formatPrice(product.price)}
-            </span>
+      <div className="container mx-auto max-w-7xl px-4 py-3">
+        <div className="flex items-center gap-3">
+          {/* Информация о товаре */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {/* Цена */}
+            <div className="flex-shrink-0">
+              <div className="text-xs text-gray-600 leading-none">Цена</div>
+              <div className="text-lg font-semibold text-gray-900 leading-tight">
+                {formatPrice(product.price)}
+              </div>
+            </div>
+
+            {/* Название товара (сокращенное) */}
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-gray-900 truncate">
+                {product.name}
+              </div>
+              <div className="text-xs text-gray-600">
+                {!notAvailableInRegion ? 'В наличии' : 'Нет в наличии'}
+              </div>
+            </div>
           </div>
 
-          {/* Кнопка добавления в корзину */}
-          <button
-            className="ml-auto px-6 py-3 rounded-xl font-semibold text-sm bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-            }}
-          >
-            <span className="flex items-center justify-center">
-              <ShoppingCartIcon className="h-5 w-5 mr-2" />
-              <span>В корзину</span>
-            </span>
-          </button>
+          {/* Кнопка добавления в корзину или счетчик количества */}
+          {currentCartQuantity > 0 && onUpdateQuantity ? (
+            <QuantityCounter
+              quantity={currentCartQuantity}
+              minQuantity={1}
+              onIncrement={() => onUpdateQuantity(1)}
+              onDecrement={() => onUpdateQuantity(-1)}
+              isLoading={isAddingToCart}
+              size="sm"
+              className="flex-shrink-0"
+            />
+          ) : (
+            <AddToCartButton
+              productId={product.id}
+              productName={product.name}
+              price={product.price}
+              variant="primary"
+              size="sm"
+              disabled={notAvailableInRegion}
+              className="flex-shrink-0"
+            />
+          )}
         </div>
       </div>
     </div>

@@ -148,7 +148,7 @@ export default function ProfileLayout({
             ) : (
               <Link
                 href={item.path}
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                className="text-gray-700 hover:text-blue-700 transition-colors duration-200"
               >
                 {index === 0 ? (
                   <div className="flex items-center">

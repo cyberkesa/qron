@@ -175,7 +175,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
   // Стили для карточки на основе доступности товара - адаптивные
   const cardClassName = useMemo(() => {
     const baseClasses =
-      'group rounded-lg sm:rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg relative h-full flex flex-col product-card hover:border-blue-200';
+      'group rounded-lg sm:rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg relative h-full flex flex-col product-card hover:border-gray-300';
 
     if (isOutOfStock) {
       return `${baseClasses} bg-gray-50 opacity-80`;
@@ -196,7 +196,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
 
   const titleClassName = useMemo(() => {
     const baseClasses =
-      'text-sm sm:text-base font-medium line-clamp-2 mb-1 sm:mb-2 min-h-[2rem] sm:min-h-[2.5rem] group-hover:text-blue-600 transition-colors leading-tight';
+      'text-sm sm:text-base font-medium line-clamp-2 mb-1 sm:mb-2 min-h-[2rem] sm:min-h-[2.5rem] group-hover:text-blue-700 transition-colors leading-tight product-card-title';
 
     if (isOutOfStock) {
       return `${baseClasses} text-gray-600`;
@@ -206,7 +206,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
   }, [isOutOfStock]);
 
   const priceClassName = useMemo(() => {
-    const baseClasses = 'text-base sm:text-lg font-semibold';
+    const baseClasses = 'text-base sm:text-lg font-semibold product-card-price';
 
     if (isOutOfStock) {
       return `${baseClasses} text-gray-600`;
@@ -230,7 +230,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
       )}
 
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="h-32 sm:h-40 lg:h-48 overflow-hidden relative flex items-center justify-center p-2 sm:p-3 lg:p-4 bg-white product-card-image group">
+        <div className="h-28 sm:h-40 lg:h-48 overflow-hidden relative flex items-center justify-center p-1 sm:p-3 lg:p-4 bg-white product-card-image group">
           {product.images && product.images.length > 0 ? (
             <>
               {product.images.length > 1 ? (
@@ -303,7 +303,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
           {/* Quick view indicator with image count - скрыто на мобиле */}
           {product.images && product.images.length > 1 && (
             <div
-              className={`hidden sm:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-50 to-transparent p-2 transition-opacity text-center ${
+              className={`hidden sm:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-50 to-transparent p-2 transition-opacity text-center ${
                 isHovering ? 'opacity-100' : 'opacity-0'
               }`}
             >
@@ -311,16 +311,16 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
                 {product.images.slice(0, 4).map((_, index) => (
                   <span
                     key={index}
-                    className={`w-1.5 h-1.5 rounded-full ${index === (isHovering ? 1 : 0) ? 'bg-blue-600' : 'bg-blue-300'}`}
+                    className={`w-1.5 h-1.5 rounded-full ${index === (isHovering ? 1 : 0) ? 'bg-gray-600' : 'bg-gray-300'}`}
                   ></span>
                 ))}
                 {product.images.length > 4 && (
-                  <span className="text-xs text-blue-700">
+                  <span className="text-xs text-gray-700">
                     +{product.images.length - 4}
                   </span>
                 )}
               </div>
-              <span className="text-xs text-blue-700 font-medium mt-0.5 inline-block">
+              <span className="text-xs text-gray-700 font-medium mt-0.5 inline-block">
                 {product.images.length} фото
               </span>
             </div>
@@ -332,7 +332,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
         {product.category && (
           <Link
             href={`/categories/${product.category.slug}`}
-            className="text-xs text-gray-500 hover:text-blue-600 transition-colors mb-1 inline-block hover-bright line-clamp-1"
+            className="text-xs text-gray-500 hover:text-gray-700 transition-colors mb-1 inline-block hover-bright line-clamp-1 truncate product-card-category"
             onClick={(e) => e.stopPropagation()}
           >
             {formatCategoryPath(product.category)}
@@ -356,14 +356,16 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
         )}
 
         <div className="mt-auto">
-          <div className="flex justify-between items-end mt-2 gap-2">
+          <div className="flex justify-between items-end mt-2 gap-1 sm:gap-2">
             <div className="min-w-0 flex-1">
               {formattedOldPrice && (
-                <div className="text-xs text-gray-500 line-through">
+                <div className="text-xs text-gray-500 line-through truncate">
                   {formattedOldPrice}
                 </div>
               )}
-              <div className={priceClassName}>{formattedPrice}</div>
+              <div className={`${priceClassName} truncate`}>
+                {formattedPrice}
+              </div>
             </div>
 
             {!isOutOfStock && currentCartQuantity > 0 ? (
@@ -384,7 +386,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
                 className={`flex items-center justify-center p-1.5 sm:p-2 rounded-lg transition-colors btn-pulse flex-shrink-0 ${
                   isOutOfStock
                     ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-900 text-white hover:bg-gray-800'
                 }`}
                 aria-label="Добавить в корзину"
               >

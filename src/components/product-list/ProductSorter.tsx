@@ -70,31 +70,21 @@ export const ProductSorter = ({
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
-      <div className="flex items-center">
-        {/* Лейбл - скрыт на мобиле */}
-        <span className="hidden sm:block mr-2 lg:mr-3 text-gray-700 font-medium text-sm lg:text-base whitespace-nowrap">
-          Сортировка:
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="bg-white border border-gray-300 rounded-md py-1.5 px-2 flex items-center justify-between w-full hover:border-blue-500 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs touch-manipulation"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <span className="text-gray-800 truncate text-xs">
+          {selectedOption.shortLabel}
         </span>
-
-        {/* Мобильная иконка */}
-        <FunnelIcon className="h-4 w-4 text-gray-500 mr-2 sm:hidden flex-shrink-0" />
-
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="bg-white border border-gray-300 rounded-lg py-2 px-3 sm:px-4 flex items-center justify-between w-full sm:min-w-[160px] lg:min-w-[200px] hover:border-blue-500 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base touch-manipulation"
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-        >
-          <span className="text-gray-800 truncate">
-            {isMobile ? selectedOption.shortLabel : selectedOption.label}
-          </span>
-          <ChevronDownIcon
-            className={`h-4 w-4 text-gray-500 transition-transform duration-200 ml-2 flex-shrink-0 ${
-              isOpen ? 'transform rotate-180' : ''
-            }`}
-          />
-        </button>
-      </div>
+        <ChevronDownIcon
+          className={`h-3 w-3 text-gray-500 transition-transform duration-200 ml-1 flex-shrink-0 ${
+            isOpen ? 'transform rotate-180' : ''
+          }`}
+        />
+      </button>
 
       {/* Выпадающий список для опций сортировки */}
       {isOpen && (
@@ -111,11 +101,9 @@ export const ProductSorter = ({
               role="option"
               aria-selected={option.value === value}
             >
-              <span className="truncate">
-                {isMobile ? option.shortLabel : option.label}
-              </span>
+              <span className="truncate text-xs">{option.shortLabel}</span>
               {option.value === value && (
-                <CheckIcon className="h-4 w-4 flex-shrink-0 ml-2" />
+                <CheckIcon className="h-3 w-3 flex-shrink-0 ml-1" />
               )}
             </button>
           ))}

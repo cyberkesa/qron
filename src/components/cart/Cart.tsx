@@ -208,7 +208,7 @@ export function Cart() {
             <div className="flex-1 min-w-0">
               <Link
                 href={`/product/${item.product.slug}`}
-                className={`font-medium hover:text-blue-600 transition-colors line-clamp-2 ${
+                className={`font-medium hover:text-blue-700 transition-colors line-clamp-2 ${
                   isProblematic ? 'text-red-700' : 'text-gray-900'
                 }`}
               >

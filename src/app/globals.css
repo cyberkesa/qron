@@ -51,16 +51,16 @@ body {
   a,
   input[type='button'],
   input[type='submit'] {
-    min-height: 44px; /* Apple's recommended minimum touch target size */
-    min-width: 44px;
+    min-height: 2.75rem; /* Apple's recommended minimum touch target size */
+    min-width: 2.75rem;
   }
 
   /* Improve form field spacing */
   input,
   select,
   textarea {
-    margin-bottom: 12px;
-    font-size: 16px !important; /* Prevent zoom on focus in iOS */
+    margin-bottom: 0.75rem;
+    font-size: 1rem !important; /* Prevent zoom on focus in iOS */
   }
 }
 
@@ -136,6 +136,108 @@ body {
     padding-right: 8px !important;
   }
 
+  /* Исправляем контейнеры на очень маленьких экранах */
+  main.container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* Исправляем отступы в футере */
+  footer .container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* Исправляем отступы в хедере */
+  .header-container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  /* Минимальные отступы для всех элементов */
+  .px-4 {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  .px-3 {
+    padding-left: 0.375rem !important;
+    padding-right: 0.375rem !important;
+  }
+
+  .px-2 {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+  }
+
+  /* Исправляем отступы между элементами */
+  .gap-4 {
+    gap: 0.5rem !important;
+  }
+
+  .gap-3 {
+    gap: 0.375rem !important;
+  }
+
+  .gap-2 {
+    gap: 0.25rem !important;
+  }
+
+  /* Исправляем margin */
+  .mr-3 {
+    margin-right: 0.375rem !important;
+  }
+
+  .mr-2 {
+    margin-right: 0.25rem !important;
+  }
+
+  .ml-2 {
+    margin-left: 0.25rem !important;
+  }
+
+  .ml-3 {
+    margin-left: 0.375rem !important;
+  }
+
+  /* Исправляем размеры иконок */
+  .h-5.w-5 {
+    height: 1rem !important;
+    width: 1rem !important;
+  }
+
+  .h-4.w-4 {
+    height: 0.875rem !important;
+    width: 0.875rem !important;
+  }
+
+  /* Исправляем кнопки аккордеонов */
+  .py-3 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  /* Исправляем текст в футере */
+  .text-lg {
+    font-size: 0.875rem !important;
+    line-height: 1.125rem !important;
+  }
+
+  /* Исправляем flex элементы */
+  .flex-shrink-0 {
+    flex-shrink: 0 !important;
+  }
+
+  .min-w-0 {
+    min-width: 0 !important;
+  }
+
+  .truncate {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
   /* Adjust product cards for mobile */
   .product-card {
     margin-bottom: 8px !important;
@@ -143,37 +245,37 @@ body {
 
   /* Компактные карточки товаров на мобильных */
   .product-card .p-2 {
-    padding: 6px !important;
+    padding: 0.375rem !important;
   }
 
   .product-card .sm\\:p-3 {
-    padding: 6px !important;
+    padding: 0.375rem !important;
   }
 
   /* Уменьшенные отступы в карточках */
   .product-card .mb-1 {
-    margin-bottom: 2px !important;
+    margin-bottom: 0.125rem !important;
   }
 
   .product-card .mb-2 {
-    margin-bottom: 4px !important;
+    margin-bottom: 0.25rem !important;
   }
 
   .product-card .mt-1 {
-    margin-top: 2px !important;
+    margin-top: 0.125rem !important;
   }
 
   .product-card .mt-2 {
-    margin-top: 4px !important;
+    margin-top: 0.25rem !important;
   }
 
   .product-card .gap-2 {
-    gap: 4px !important;
+    gap: 0.25rem !important;
   }
 
   /* Компактные кнопки */
   button:not(.no-compact) {
-    padding: 6px 12px !important;
+    padding: 0.375rem 0.75rem !important;
     font-size: 0.6875rem !important;
   }
 
@@ -181,7 +283,7 @@ body {
   input:not(.no-compact),
   select:not(.no-compact),
   textarea:not(.no-compact) {
-    padding: 6px 8px !important;
+    padding: 0.375rem 0.5rem !important;
     font-size: 0.75rem !important;
   }
 
@@ -199,7 +301,7 @@ body {
   /* Навигация */
   .nav-link {
     font-size: 0.6875rem !important;
-    padding: 4px 8px !important;
+    padding: 0.25rem 0.5rem !important;
   }
 
   /* Хлебные крошки */
@@ -211,7 +313,7 @@ body {
   .badge,
   .label {
     font-size: 0.5625rem !important;
-    padding: 2px 6px !important;
+    padding: 0.125rem 0.375rem !important;
   }
 }
 
@@ -1089,13 +1191,25 @@ a:not(.no-hover) {
    SIMPLIFIED LAYOUT CLASSES
    ============================== */
 
-/* Упрощенные контейнеры */
+/* Единые контейнеры для всего приложения */
+.app-container {
+  @apply container mx-auto max-w-7xl px-4;
+}
+
 .header-container {
-  @apply container mx-auto;
+  @apply app-container;
+}
+
+.footer-container {
+  @apply app-container;
 }
 
 .header-padding {
   @apply px-4;
+}
+
+.page-container {
+  @apply app-container py-4;
 }
 
 /* ==============================
@@ -1534,24 +1648,24 @@ a:not(.no-hover) {
 .product-sorter-dropdown {
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 6px;
   box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   z-index: 50;
-  max-height: 240px;
+  max-height: 160px;
   overflow-y: auto;
 }
 
 .product-sorter-option {
   width: 100%;
   text-align: left;
-  padding: 8px 12px;
+  padding: 6px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   transition: background-color 0.2s ease;
-  font-size: 14px;
+  font-size: 12px;
   color: #374151;
 }
 
@@ -1564,13 +1678,6 @@ a:not(.no-hover) {
   color: #1d4ed8;
 }
 
-@media (min-width: 640px) {
-  .product-sorter-option {
-    padding: 10px 16px;
-    font-size: 16px;
-  }
-}
-
 /* ==============================
    MOBILE TOGGLE SWITCHES
    ============================== */
@@ -1579,21 +1686,40 @@ a:not(.no-hover) {
 @media (max-width: 640px) {
   /* Переключатели на мобильных устройствах */
   .mobile-toggle {
-    height: 16px !important;
-    width: 32px !important;
-    border-radius: 4px !important;
+    height: 1rem !important;
+    width: 2rem !important;
+    border-radius: 0.25rem !important;
   }
 
   .mobile-toggle-thumb {
-    height: 8px !important;
-    width: 8px !important;
-    border-radius: 2px !important;
+    height: 0.5rem !important;
+    width: 0.5rem !important;
+    border-radius: 0.125rem !important;
   }
 
   /* Улучшенные переходы для переключателей */
   .mobile-toggle,
   .mobile-toggle-thumb {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  /* Исправляем переключатели фильтров */
+  [role='switch'] {
+    min-height: 1.25rem !important;
+    min-width: 2.25rem !important;
+  }
+
+  /* Исправляем анимацию margin-left - заменяем на transform */
+  .transition-all {
+    transition-property:
+      color, background-color, border-color, text-decoration-color, fill,
+      stroke, opacity, box-shadow, transform, filter, backdrop-filter !important;
+  }
+
+  /* Текст рядом с переключателями */
+  [role='switch'] + span {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
   }
 }
 
@@ -1726,24 +1852,68 @@ a:not(.no-hover) {
 @media (max-width: 639px) {
   /* Search form optimizations for very small screens */
   .search-form input {
-    padding-left: 44px !important;
-    padding-right: 36px !important;
+    padding-left: 40px !important;
+    padding-right: 32px !important;
     height: 44px !important;
     font-size: 15px !important;
   }
 
   /* Search icons adjustment for small screens */
-  .search-form .absolute.left-4 {
-    left: 12px !important;
+  .search-form .absolute.left-3 {
+    left: 0.625rem !important;
   }
 
-  .search-form .absolute.right-3 {
-    right: 10px !important;
+  .search-form .absolute.right-2 {
+    right: 0.5rem !important;
   }
 
   /* Mobile header optimizations */
   .mobile-header-logo {
-    font-size: 22px !important;
+    font-size: 1.25rem !important;
+  }
+
+  /* Footer accordion buttons */
+  .footer-accordion-button {
+    padding: 0.5rem 0.25rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Footer links */
+  .footer-link {
+    padding: 0.25rem 0.125rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Breadcrumbs on very small screens */
+  .breadcrumb-item {
+    font-size: 0.625rem !important;
+  }
+
+  .breadcrumb-item svg {
+    height: 0.625rem !important;
+    width: 0.625rem !important;
+  }
+
+  /* Mobile navigation text */
+  .mobile-nav-text {
+    font-size: 0.5625rem !important;
+    line-height: 0.75rem !important;
+  }
+
+  /* Product cards on very small screens */
+  .product-card-title {
+    font-size: 0.6875rem !important;
+    line-height: 0.875rem !important;
+  }
+
+  .product-card-price {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+  }
+
+  .product-card-category {
+    font-size: 0.5625rem !important;
+    line-height: 0.75rem !important;
   }
 }
 
@@ -1757,37 +1927,37 @@ a:not(.no-hover) {
 
   /* Уменьшенные отступы для мобильного header */
   .header-container {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
   }
 
   .header-padding {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
   }
 
   /* Компактная мобильная навигация */
   .mobile-nav-compact {
-    height: 28px !important;
+    height: 1.75rem !important;
   }
 
   /* Уменьшенные иконки в топбаре */
   .topbar-icon {
-    width: 12px !important;
-    height: 12px !important;
+    width: 0.75rem !important;
+    height: 0.75rem !important;
   }
 
   /* Компактный поиск на мобильных */
   .mobile-search-compact input {
-    height: 36px !important;
-    font-size: 12px !important;
-    padding: 6px 10px 6px 32px !important;
+    height: 2.25rem !important;
+    font-size: 0.75rem !important;
+    padding: 0.375rem 0.625rem 0.375rem 2rem !important;
   }
 
   .mobile-search-compact .search-icon {
-    left: 8px !important;
-    width: 14px !important;
-    height: 14px !important;
+    left: 0.5rem !important;
+    width: 0.875rem !important;
+    height: 0.875rem !important;
   }
 
   /* Топбар текст */
@@ -1815,60 +1985,60 @@ a:not(.no-hover) {
 @media (max-width: 640px) {
   /* Уменьшенные отступы между секциями */
   .home-section-compact {
-    margin-bottom: 16px !important;
+    margin-bottom: 1rem !important;
   }
 
   /* Компактные карточки преимуществ */
   .benefit-card-mobile {
-    padding: 12px !important;
-    border-radius: 8px !important;
+    padding: 0.75rem !important;
+    border-radius: 0.5rem !important;
   }
 
   .benefit-card-mobile h3 {
-    font-size: 14px !important;
+    font-size: 0.875rem !important;
     line-height: 1.3 !important;
-    margin-bottom: 4px !important;
+    margin-bottom: 0.25rem !important;
   }
 
   .benefit-card-mobile p {
-    font-size: 12px !important;
+    font-size: 0.75rem !important;
     line-height: 1.4 !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 0.5rem !important;
   }
 
   .benefit-card-mobile .icon {
-    width: 20px !important;
-    height: 20px !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
   }
 
   /* Компактные метрики компании */
   .company-metric-mobile {
-    padding: 8px !important;
-    border-radius: 6px !important;
+    padding: 0.5rem !important;
+    border-radius: 0.375rem !important;
   }
 
   .company-metric-mobile .metric-value {
-    font-size: 16px !important;
+    font-size: 1rem !important;
     line-height: 1.2 !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 0.125rem !important;
   }
 
   .company-metric-mobile .metric-label {
-    font-size: 10px !important;
+    font-size: 0.625rem !important;
     line-height: 1.3 !important;
   }
 
   .company-metric-mobile .metric-icon {
-    width: 12px !important;
-    height: 12px !important;
-    padding: 4px !important;
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+    padding: 0.25rem !important;
   }
 
   /* Компактные кнопки */
   .mobile-button-compact {
-    padding: 8px 16px !important;
-    font-size: 13px !important;
-    border-radius: 6px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.8125rem !important;
+    border-radius: 0.375rem !important;
   }
 
   /* Уменьшенные заголовки секций */
@@ -1910,20 +2080,20 @@ a:not(.no-hover) {
 @media (max-width: 479px) {
   /* Еще более компактный header */
   .mobile-header-logo {
-    font-size: 14px !important;
+    font-size: 0.875rem !important;
   }
 
   /* Минимальные отступы */
   .header-container,
   .header-padding {
-    padding-left: 6px !important;
-    padding-right: 6px !important;
+    padding-left: 0.375rem !important;
+    padding-right: 0.375rem !important;
   }
 
   /* Очень компактные карточки */
   .benefit-card-mobile {
-    padding: 4px !important;
-    min-height: 80px !important;
+    padding: 0.25rem !important;
+    min-height: 5rem !important;
   }
 
   .benefit-card-mobile h3 {
@@ -1938,14 +2108,14 @@ a:not(.no-hover) {
 
   /* Минимальные кнопки */
   .mobile-button-compact {
-    padding: 4px 8px !important;
+    padding: 0.25rem 0.5rem !important;
     font-size: 0.5625rem !important;
-    height: 24px !important;
+    height: 1.5rem !important;
   }
 
   /* Компактные метрики */
   .company-metric-mobile {
-    padding: 4px !important;
+    padding: 0.25rem !important;
   }
 
   .company-metric-mobile .metric-value {
@@ -1958,21 +2128,21 @@ a:not(.no-hover) {
 
   /* Очень маленькие иконки */
   .icon-xs {
-    width: 10px !important;
-    height: 10px !important;
+    width: 0.625rem !important;
+    height: 0.625rem !important;
   }
 
   /* Компактный поиск */
   .mobile-search-compact input {
-    height: 32px !important;
+    height: 2rem !important;
     font-size: 0.625rem !important;
-    padding: 4px 8px 4px 28px !important;
+    padding: 0.25rem 0.5rem 0.25rem 1.75rem !important;
   }
 
   /* Навигация */
   .nav-item {
     font-size: 0.5625rem !important;
-    padding: 2px 4px !important;
+    padding: 0.125rem 0.25rem !important;
   }
 
   /* Карточки товаров */
@@ -1986,46 +2156,46 @@ a:not(.no-hover) {
 
   .product-card-button {
     font-size: 0.5625rem !important;
-    padding: 3px 6px !important;
-    height: 24px !important;
+    padding: 0.1875rem 0.375rem !important;
+    height: 1.5rem !important;
   }
 
   /* Убираем лишние отступы в карточках на очень маленьких экранах */
   .product-card {
-    margin-bottom: 4px !important;
+    margin-bottom: 0.25rem !important;
   }
 
   .product-card .p-2,
   .product-card .sm\\:p-3,
   .product-card .lg\\:p-4 {
-    padding: 4px !important;
+    padding: 0.25rem !important;
   }
 
   .product-card .mb-1,
   .product-card .sm\\:mb-2 {
-    margin-bottom: 1px !important;
+    margin-bottom: 0.0625rem !important;
   }
 
   .product-card .mt-1,
   .product-card .mt-2 {
-    margin-top: 1px !important;
+    margin-top: 0.0625rem !important;
   }
 
   .product-card .gap-2 {
-    gap: 2px !important;
+    gap: 0.125rem !important;
   }
 
   /* Компактные изображения товаров */
   .product-card .h-32 {
-    height: 80px !important;
+    height: 5rem !important;
   }
 
   .product-card .sm\\:h-40 {
-    height: 80px !important;
+    height: 5rem !important;
   }
 
   .product-card .lg\\:h-48 {
-    height: 80px !important;
+    height: 5rem !important;
   }
 
   /* Общие элементы */
@@ -2055,8 +2225,8 @@ a:not(.no-hover) {
   .form-input,
   .form-select {
     font-size: 0.625rem !important;
-    height: 28px !important;
-    padding: 4px 6px !important;
+    height: 1.75rem !important;
+    padding: 0.25rem 0.375rem !important;
   }
 
   .form-label {
@@ -2072,19 +2242,19 @@ a:not(.no-hover) {
 @media (max-width: 640px) {
   /* Компактные карточки преимуществ */
   .benefit-card-compact {
-    min-height: 100px !important;
-    padding: 6px !important;
-    border-radius: 6px !important;
+    min-height: 6.25rem !important;
+    padding: 0.375rem !important;
+    border-radius: 0.375rem !important;
     text-align: center !important;
   }
 
   .benefit-card-compact .icon-container {
-    margin-bottom: 4px !important;
+    margin-bottom: 0.25rem !important;
   }
 
   .benefit-card-compact .icon {
-    width: 14px !important;
-    height: 14px !important;
+    width: 0.875rem !important;
+    height: 0.875rem !important;
   }
 
   .benefit-card-compact h3 {
@@ -2125,27 +2295,27 @@ a:not(.no-hover) {
   /* Кнопки в карточках */
   .product-card-button {
     font-size: 0.625rem !important;
-    padding: 4px 8px !important;
-    height: 28px !important;
+    padding: 0.25rem 0.5rem !important;
+    height: 1.75rem !important;
   }
 
   /* Компактные плашки преимуществ в карточках товаров */
   .benefit-card-compact {
-    min-height: 60px !important;
-    padding: 4px !important;
-    margin-bottom: 4px !important;
+    min-height: 3.75rem !important;
+    padding: 0.25rem !important;
+    margin-bottom: 0.25rem !important;
   }
 
   .benefit-card-compact .icon {
-    width: 12px !important;
-    height: 12px !important;
-    margin-bottom: 2px !important;
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+    margin-bottom: 0.125rem !important;
   }
 
   .benefit-card-compact h3 {
     font-size: 0.5625rem !important;
     line-height: 1.1 !important;
-    margin-bottom: 1px !important;
+    margin-bottom: 0.0625rem !important;
   }
 
   .benefit-card-compact p {
@@ -2156,55 +2326,55 @@ a:not(.no-hover) {
 
   /* Убираем лишние отступы в сетке преимуществ */
   .benefits-grid {
-    gap: 4px !important;
+    gap: 0.25rem !important;
   }
 
   /* Бейджи и статусы */
   .status-badge {
     font-size: 0.5rem !important;
-    padding: 1px 4px !important;
+    padding: 0.0625rem 0.25rem !important;
   }
 
   /* Фильтры */
   .filter-item {
     font-size: 0.6875rem !important;
-    padding: 4px 8px !important;
+    padding: 0.25rem 0.5rem !important;
   }
 
   /* Хлебные крошки */
   .breadcrumb-item {
     font-size: 0.5625rem !important;
-    height: 16px !important;
-    line-height: 16px !important;
+    height: 1rem !important;
+    line-height: 1rem !important;
   }
 
   .breadcrumb-item ol {
-    height: 16px !important;
+    height: 1rem !important;
     align-items: center !important;
   }
 
   .breadcrumb-item li {
-    height: 16px !important;
+    height: 1rem !important;
     align-items: center !important;
   }
 
   .breadcrumb-item a,
   .breadcrumb-item span {
-    height: 16px !important;
-    line-height: 16px !important;
+    height: 1rem !important;
+    line-height: 1rem !important;
     display: flex !important;
     align-items: center !important;
   }
 
   .breadcrumb-item svg {
-    width: 10px !important;
-    height: 10px !important;
+    width: 0.625rem !important;
+    height: 0.625rem !important;
   }
 
   /* Уведомления */
   .notification {
     font-size: 0.6875rem !important;
-    padding: 6px 10px !important;
+    padding: 0.375rem 0.625rem !important;
   }
 
   /* Модальные окна */
@@ -2219,46 +2389,119 @@ a:not(.no-hover) {
   /* Табы */
   .tab-item {
     font-size: 0.625rem !important;
-    padding: 4px 8px !important;
+    padding: 0.25rem 0.5rem !important;
   }
 
   /* Поля ввода в формах */
   .form-input {
     font-size: 0.6875rem !important;
-    padding: 6px 8px !important;
-    height: 32px !important;
+    padding: 0.375rem 0.5rem !important;
+    height: 2rem !important;
   }
 
   .form-label {
     font-size: 0.625rem !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 0.125rem !important;
   }
 
   /* Селекты */
   .form-select {
     font-size: 0.6875rem !important;
-    padding: 4px 6px !important;
-    height: 32px !important;
+    padding: 0.25rem 0.375rem !important;
+    height: 2rem !important;
   }
 }
 
 /* Средние экраны - показываем больше информации */
 @media (min-width: 641px) and (max-width: 768px) {
   .benefit-card-compact {
-    min-height: 140px !important;
-    padding: 12px !important;
+    min-height: 8.75rem !important;
+    padding: 0.75rem !important;
   }
 
   .benefit-card-compact .icon {
-    width: 20px !important;
-    height: 20px !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
   }
 
   .benefit-card-compact h3 {
-    font-size: 13px !important;
+    font-size: 0.8125rem !important;
   }
 
   .benefit-card-compact p {
-    font-size: 11px !important;
+    font-size: 0.6875rem !important;
   }
+}
+
+/* ==============================
+   PRICE RANGE SLIDER STYLES
+   ============================== */
+
+/* Стили для слайдеров цены */
+.slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.slider-thumb::-webkit-slider-track {
+  background: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.slider-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #3b82f6;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
+}
+
+.slider-thumb::-webkit-slider-thumb:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.slider-thumb::-webkit-slider-thumb:active {
+  background: #1d4ed8;
+  transform: scale(1.2);
+}
+
+/* Firefox */
+.slider-thumb::-moz-range-track {
+  background: #e5e7eb;
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+}
+
+.slider-thumb::-moz-range-thumb {
+  background: #3b82f6;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
+}
+
+.slider-thumb::-moz-range-thumb:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.slider-thumb::-moz-range-thumb:active {
+  background: #1d4ed8;
+  transform: scale(1.2);
 }

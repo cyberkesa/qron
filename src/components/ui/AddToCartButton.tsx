@@ -30,18 +30,17 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
 
   // Styles based on variant and size - с мобильной адаптацией
   const getVariantClasses = () => {
-    const baseClasses =
-      'transition-all duration-200 active:scale-95 touch-manipulation';
+    const baseClasses = 'transition-colors duration-150 touch-manipulation';
 
     switch (variant) {
       case 'primary':
-        return `${baseClasses} bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm hover:shadow-md`;
+        return `${baseClasses} bg-gray-900 hover:bg-gray-800 active:bg-gray-700 text-white shadow-sm`;
       case 'secondary':
-        return `${baseClasses} bg-green-600 hover:bg-green-700 active:bg-green-800 text-white shadow-sm hover:shadow-md`;
+        return `${baseClasses} bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white shadow-sm`;
       case 'outline':
-        return `${baseClasses} bg-white hover:bg-blue-50 active:bg-blue-100 text-blue-600 border border-blue-300 hover:border-blue-400`;
+        return `${baseClasses} bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-900 border border-gray-300 hover:border-gray-400`;
       default:
-        return `${baseClasses} bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-sm hover:shadow-md`;
+        return `${baseClasses} bg-gray-900 hover:bg-gray-800 active:bg-gray-700 text-white shadow-sm`;
     }
   };
 
@@ -120,8 +119,8 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         ${sizeClasses.padding} 
         ${fullWidth ? 'w-full' : ''} 
         ${className}
-        ${isDisabled ? 'opacity-60 cursor-not-allowed' : 'hover:scale-[1.02]'} 
-        ${isAdded ? 'scale-95' : ''}
+        ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''} 
+        ${isAdded ? 'opacity-90' : ''}
         min-h-[2.5rem] sm:min-h-[3rem]
       `}
       aria-label={`Добавить ${productName} в корзину`}
@@ -182,25 +181,6 @@ export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
           )}
         </span>
       </span>
-
-      {/* Success animation */}
-      {isAdded && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center animate-ping">
-            <svg
-              className="w-3 h-3 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              ></path>
-            </svg>
-          </div>
-        </div>
-      )}
     </button>
   );
 };

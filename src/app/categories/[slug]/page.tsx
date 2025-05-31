@@ -244,7 +244,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                         <path d="M6 12a2 2 0 012-2h8a2 2 0 012 2v2a2 2 0 01-2 2H2h2a2 2 0 002-2v-2z" />
                       </svg>
                     </div>
-                    <h3 className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-sm font-medium text-gray-900 group-hover:text-blue-700 transition-colors">
                       {subcategory.title}
                     </h3>
                   </div>

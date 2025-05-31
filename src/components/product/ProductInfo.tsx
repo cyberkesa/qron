@@ -108,9 +108,9 @@ const ProductInfo = ({
           {product.category && (
             <Link
               href={`/categories/${product.category.slug}`}
-              className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg border border-blue-100 text-blue-700 hover:bg-blue-100 transition-colors group"
+              className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors group"
             >
-              <TagIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <TagIcon className="w-4 h-4 transition-transform" />
               <span className="font-medium">{product.category.title}</span>
             </Link>
           )}
@@ -131,7 +131,7 @@ const ProductInfo = ({
                 <span className="text-lg text-gray-500 line-through">
                   {formatPrice(product.oldPrice!)}
                 </span>
-                <span className="px-3 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-bold rounded-full shadow-sm">
+                <span className="px-3 py-1 bg-gray-800 text-white text-sm font-bold rounded-full shadow-sm">
                   -{salePercentage}%
                 </span>
               </div>
@@ -141,13 +141,13 @@ const ProductInfo = ({
           {/* Статус наличия */}
           <div className="ml-auto">
             {!notAvailableInRegion ? (
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 rounded-xl availability-badge">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-300 text-gray-800 rounded-xl availability-badge">
+                <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
                 <span className="font-semibold text-sm">В наличии</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-200 text-red-700 rounded-xl">
-                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-400 text-gray-700 rounded-xl">
+                <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
                 <span className="font-semibold text-sm">Нет в наличии</span>
               </div>
             )}
@@ -156,9 +156,9 @@ const ProductInfo = ({
 
         {/* Дополнительная информация о товаре */}
         {!notAvailableInRegion && product.stock > 0 && (
-          <div className="flex items-center gap-2 mb-6 px-4 py-3 bg-blue-50 rounded-xl border border-blue-100">
-            <ClockIcon className="w-5 h-5 text-blue-600" />
-            <span className="text-sm text-blue-800">
+          <div className="flex items-center gap-2 mb-6 px-4 py-3 bg-gray-50 rounded-xl border border-gray-200">
+            <ClockIcon className="w-5 h-5 text-gray-600" />
+            <span className="text-sm text-gray-800">
               Осталось:{' '}
               <span className="font-semibold">
                 {product.stock} {product.unit || 'шт'}
@@ -184,9 +184,9 @@ const ProductInfo = ({
             <button
               onClick={onAddToCart}
               disabled={isAddingToCart || notAvailableInRegion}
-              className={`w-full h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] ${
+              className={`w-full h-14 bg-gray-900 text-white rounded-xl font-semibold text-lg shadow-md hover:bg-gray-800 transition-colors duration-200 ${
                 isAddingToCart || notAvailableInRegion
-                  ? 'opacity-50 cursor-not-allowed hover:scale-100'
+                  ? 'opacity-50 cursor-not-allowed'
                   : ''
               }`}
               style={{ WebkitTapHighlightColor: 'transparent' }}

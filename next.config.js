@@ -7,6 +7,19 @@ const nextConfig = {
       'backend.qron.ru',
       'api.qron.ru',
       'images.qron.ru',
+      'tovari-kron.ru',
+    ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.tovari-kron.ru',
+        pathname: '/product-images/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'files.tovari-kron.ru',
+        pathname: '/**',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 3600, // 1 hour cache
@@ -17,13 +30,33 @@ const nextConfig = {
   experimental: {
     serverMinification: true,
     optimizeCss: true,
-    optimizePackageImports: ['@heroicons/react', 'lodash'],
+    cssChunking: 'strict',
+    optimizePackageImports: [
+      '@heroicons/react', 
+      'lodash', 
+      '@apollo/client',
+      'react-phone-input-2'
+    ],
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    // Включаем tree shaking для лучшей оптимизации
+    esmExternals: true,
   },
+  // Таймаут для генерации статических страниц
+  staticPageGenerationTimeout: 60,
   poweredByHeader: false,
   compress: true, // Enable gzip compression
+  httpAgentOptions: {
+    keepAlive: true,
+  },
+  // Исправляем проблемы с Safari
+  async rewrites() {
+    return [];
+  },
+  async redirects() {
+    return [];
+  },
   // Cache immutable assets for longer time
   headers: async () => [
     {
@@ -32,6 +65,10 @@ const nextConfig = {
         {
           key: 'Cache-Control',
           value: 'public, max-age=31536000, immutable',
+        },
+        {
+          key: 'X-Content-Type-Options',
+          value: 'nosniff',
         },
       ],
     },
@@ -42,12 +79,87 @@ const nextConfig = {
           key: 'Cache-Control',
           value: 'public, max-age=86400, stale-while-revalidate=604800',
         },
+        {
+          key: 'Accept-Ranges',
+          value: 'bytes',
+        },
+      ],
+    },
+    {
+      source: '/(.*)',
+      headers: [
+        {
+          key: 'X-Content-Type-Options',
+          value: 'nosniff',
+        },
+        {
+          key: 'X-Frame-Options',
+          value: 'DENY',
+        },
+        {
+          key: 'X-XSS-Protection',
+          value: '1; mode=block',
+        },
+        {
+          key: 'Referrer-Policy',
+          value: 'origin-when-cross-origin',
+        },
+        {
+          key: 'X-DNS-Prefetch-Control',
+          value: 'on',
+        },
+        {
+          key: 'Strict-Transport-Security',
+          value: 'max-age=31536000; includeSubDomains',
+        },
+      ],
+    },
+    // Специальные заголовки для изображений с внешних доменов
+    {
+      source: '/api/images/(.*)',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+        {
+          key: 'Cross-Origin-Resource-Policy',
+          value: 'cross-origin',
+        },
+        {
+          key: 'Access-Control-Allow-Origin',
+          value: '*',
+        },
       ],
     },
   ],
   webpack: (config, { dev, isServer }) => {
-    // Remove the problematic optimization setting
-    // config.optimization.usedExports = true;
+    // Optimize for production
+    if (!dev) {
+      config.optimization = {
+        ...config.optimization,
+        usedExports: true,
+        sideEffects: false,
+        minimize: true,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+              maxSize: 244000, // 244KB chunks
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              maxSize: 244000,
+            },
+          },
+        },
+      };
+    }
 
     // Add bundle analyzer in production build when ANALYZE=true
     if (process.env.ANALYZE === 'true') {

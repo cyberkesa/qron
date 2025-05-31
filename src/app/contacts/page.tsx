@@ -70,7 +70,7 @@ export default function ContactsPage() {
   };
 
   return (
-    <main className="container mx-auto px-4 py-6">
+    <>
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           Контакты
@@ -80,7 +80,7 @@ export default function ContactsPage() {
             <li className="inline-flex items-center">
               <Link
                 href="/"
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                className="text-gray-700 hover:text-blue-700 transition-colors duration-200"
               >
                 Главная
               </Link>
@@ -229,6 +229,6 @@ export default function ContactsPage() {
           </div>
         </div>
       </div>
-    </main>
+    </>
   );
 }

@@ -24,24 +24,24 @@ export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
 
   return (
     <nav className={`breadcrumb-item ${className}`} aria-label="Breadcrumb">
-      <ol className="flex items-center text-sm overflow-x-auto whitespace-nowrap h-5 sm:h-5">
+      <ol className="flex items-center text-xs sm:text-sm overflow-x-auto whitespace-nowrap h-5 sm:h-5">
         {items.map((item, index) => (
           <li
             key={`${item.href}-${index}`}
-            className="flex items-center flex-shrink-0 h-5 sm:h-5"
+            className="flex items-center flex-shrink-0 h-5 sm:h-5 min-w-0"
           >
             {index > 0 && (
               <ChevronRightIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-gray-400 mx-1 sm:mx-2 flex-shrink-0" />
             )}
 
             {item.isLast ? (
-              <span className="text-gray-800 font-medium h-5 sm:h-5 flex items-center">
+              <span className="text-gray-900 font-medium h-5 sm:h-5 flex items-center">
                 {item.title}
               </span>
             ) : (
               <Link
                 href={item.href}
-                className="text-gray-600 hover:text-blue-600 transition-colors h-5 sm:h-5 flex items-center"
+                className="text-gray-600 hover:text-gray-800 transition-colors h-5 sm:h-5 flex items-center"
                 title={item.title}
               >
                 {index === 0 && (

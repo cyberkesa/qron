@@ -155,7 +155,7 @@ export default function RegionSelector() {
     <div className="flex items-center">
       <button
         onClick={openModal}
-        className="flex items-center text-sm text-gray-600 hover:text-blue-600 transition-colors"
+        className="flex items-center text-sm text-gray-700 hover:text-blue-700 transition-colors"
       >
         <MapPinIcon className="h-4 w-4 mr-1" />
         <span className="mr-1">

@@ -10,12 +10,10 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main className="container mx-auto px-4 py-6">
-      <Providers>
-        <Suspense fallback={<div>Загрузка...</div>}>
-          <LoginClient />
-        </Suspense>
-      </Providers>
-    </main>
+    <Providers>
+      <Suspense fallback={<div>Загрузка...</div>}>
+        <LoginClient />
+      </Suspense>
+    </Providers>
   );
 }

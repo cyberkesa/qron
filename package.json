@@ -14,6 +14,14 @@
     "validate-pagination-usage": "node --loader ts-node/esm src/scripts/validatePaginationUsage.ts",
     "check-imports": "node --loader ts-node/esm src/scripts/checkImports.ts",
     "validate-all": "npm run validate-queries && npm run validate-pagination && npm run validate-pagination-usage && npm run check-imports",
+    "analyze": "ANALYZE=true npm run build",
+    "lighthouse": "npx lighthouse http://localhost:3000 --view --chrome-flags=\"--headless\"",
+    "lighthouse:ci": "npx lighthouse http://localhost:3000 --output=json --output-path=./lighthouse-report.json --chrome-flags=\"--headless\"",
+    "performance": "npm run build && npm run lighthouse",
+    "performance:ci": "npm run build && npm run lighthouse:ci",
+    "bundle-size": "npx bundlesize",
+    "optimize-images": "npx next-optimized-images",
+    "check-unused-css": "npx purgecss --css ./src/**/*.css --content ./src/**/*.{js,jsx,ts,tsx} --output ./optimized-css/",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -27,9 +35,12 @@
     "@apollo/experimental-nextjs-app-support": "^0.12.1",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@types/dompurify": "^3.0.5",
     "@types/next": "^9.0.0",
+    "@types/uuid": "^10.0.0",
     "clsx": "^2.1.1",
     "critters": "^0.0.25",
+    "dompurify": "^3.2.6",
     "glob": "^11.0.1",
     "graphql": "^16.10.0",
     "next": "^15.2.5",
@@ -38,7 +49,8 @@
     "react-dom": "^18",
     "react-phone-input-2": "^2.15.1",
     "rxjs": "^7.8.2",
-    "tailwind-merge": "^3.2.0"
+    "tailwind-merge": "^3.2.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",

@@ -49,14 +49,14 @@ const getIconsByType = (type: NotificationType) => {
 const getBgColorByType = (type: NotificationType) => {
   switch (type) {
     case 'success':
-      return 'bg-green-50';
+      return 'bg-gray-50';
     case 'error':
-      return 'bg-red-50';
+      return 'bg-gray-50';
     case 'warning':
-      return 'bg-amber-50';
+      return 'bg-gray-50';
     case 'info':
     default:
-      return 'bg-gradient-to-r from-blue-50 to-blue-100';
+      return 'bg-gray-50';
   }
 };
 
@@ -77,42 +77,42 @@ const getGlowColorByType = (type: NotificationType) => {
 const getBorderColorByType = (type: NotificationType) => {
   switch (type) {
     case 'success':
-      return 'border-green-400';
+      return 'border-gray-300';
     case 'error':
-      return 'border-red-400';
+      return 'border-gray-400';
     case 'warning':
-      return 'border-amber-400';
+      return 'border-gray-300';
     case 'info':
     default:
-      return 'border-blue-400';
+      return 'border-gray-300';
   }
 };
 
 const getTextColorByType = (type: NotificationType) => {
   switch (type) {
     case 'success':
-      return 'text-green-700';
+      return 'text-gray-800';
     case 'error':
-      return 'text-red-700';
+      return 'text-gray-900';
     case 'warning':
-      return 'text-amber-700';
+      return 'text-gray-800';
     case 'info':
     default:
-      return 'text-blue-700';
+      return 'text-gray-800';
   }
 };
 
 const getIconColorByType = (type: NotificationType) => {
   switch (type) {
     case 'success':
-      return 'text-green-500';
+      return 'text-gray-600';
     case 'error':
-      return 'text-red-500';
+      return 'text-gray-700';
     case 'warning':
-      return 'text-amber-500';
+      return 'text-gray-600';
     case 'info':
     default:
-      return 'text-blue-500';
+      return 'text-gray-600';
   }
 };
 
@@ -162,7 +162,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
   return (
     <div
-      className={`${bgColor} px-3 py-2 rounded-md shadow-sm ${animationClass} transition-all duration-300 w-full max-w-[280px] border border-gray-200/50 bg-opacity-80`}
+      className={`${bgColor} px-3 py-2 rounded-lg shadow-md ${animationClass} transition-all duration-200 w-full max-w-[280px] border ${borderColor}`}
       role="alert"
       style={{
         animationDelay: `${animationDelay}ms`,

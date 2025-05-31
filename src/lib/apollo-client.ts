@@ -642,26 +642,68 @@ export const client = new ApolloClient({
             merge(
               existing = {
                 edges: [],
+                pageInfo: { hasNextPage: false, endCursor: null },
               },
               incoming
             ) {
               return {
                 ...incoming,
-                edges: [...existing.edges, ...incoming.edges],
+                edges: [...(existing.edges || []), ...(incoming.edges || [])],
+                pageInfo: incoming.pageInfo,
               };
             },
+          },
+          // Кэшируем категории агрессивно - они редко меняются
+          rootCategories: {
+            merge: false, // Заменяем полностью при обновлении
+          },
+          // Кэшируем корзину с merge стратегией
+          cart: {
+            merge(existing, incoming) {
+              return incoming;
+            },
+          },
+          // Кэшируем пользователя
+          viewer: {
+            merge(existing, incoming) {
+              return { ...existing, ...incoming };
+            },
+          },
+        },
+      },
+      Product: {
+        fields: {
+          // Кэшируем изображения товаров
+          images: {
+            merge: false,
+          },
+        },
+      },
+      Category: {
+        fields: {
+          // Кэшируем дочерние категории
+          children: {
+            merge: false,
           },
         },
       },
     },
   }),
-  // Настройки для предотвращения запросов на сервере
+  // Оптимизированные настройки по умолчанию
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'cache-first', // Приоритет кэшу для лучшей производительности
+      errorPolicy: 'all',
+      notifyOnNetworkStatusChange: false, // Уменьшаем количество ре-рендеров
     },
     query: {
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'cache-first', // Используем кэш когда возможно
+      errorPolicy: 'all',
+    },
+    mutate: {
+      errorPolicy: 'all',
     },
   },
+  // Включаем дедупликацию запросов
+  assumeImmutableResults: true,
 });

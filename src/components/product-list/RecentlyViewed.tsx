@@ -29,7 +29,7 @@ export function RecentlyViewed({
   if (recentProducts.length === 0) return null;
 
   return (
-    <section className="container mx-auto px-4 py-6">
+    <section className="container mx-auto max-w-7xl px-4 py-6">
       <div className="flex items-center mb-6">
         <ClockIcon className="h-6 w-6 text-blue-600 mr-2" />
         <h2 className="text-2xl font-bold text-gray-900">

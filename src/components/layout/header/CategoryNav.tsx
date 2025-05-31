@@ -34,7 +34,7 @@ const CategoryNav = memo(({ categories }: { categories: Category[] }) => {
           >
             <button
               className={`
-                flex items-center gap-2 text-gray-700 hover:text-blue-600 
+                flex items-center gap-2 text-gray-700 hover:text-blue-700 
                 h-8 px-3 rounded-lg font-medium text-sm
                 transition-all duration-200 active:scale-95
                 ${showCategories ? 'bg-blue-50 text-blue-600 shadow-sm border border-blue-100' : 'hover:bg-gray-50 border border-transparent'}
@@ -59,7 +59,7 @@ const CategoryNav = memo(({ categories }: { categories: Category[] }) => {
                       href={`/categories/${category.slug}`}
                       className={`
                         flex items-center h-10 px-4 mx-2 text-gray-700 
-                        hover:bg-blue-50 hover:text-blue-600 
+                        hover:bg-blue-50 hover:text-blue-700 
                         transition-all duration-200 rounded-lg active:scale-95
                         ${index !== categories.length - 1 ? 'mb-1' : ''}
                       `}
@@ -87,19 +87,19 @@ const CategoryNav = memo(({ categories }: { categories: Category[] }) => {
           <div className="flex items-center gap-3">
             <Link
               href="/catalog"
-              className="text-gray-700 hover:text-blue-600 font-medium text-sm transition-all duration-200 px-2 py-1.5 rounded-lg hover:bg-gray-50 active:scale-95"
+              className="text-gray-700 hover:text-blue-700 font-medium text-sm transition-all duration-200 px-2 py-1.5 rounded-lg hover:bg-gray-50 active:scale-95"
             >
               Каталог
             </Link>
             <Link
               href="/best-deals"
-              className="text-gray-700 hover:text-blue-600 font-medium text-sm transition-all duration-200 px-2 py-1.5 rounded-lg hover:bg-gray-50 active:scale-95"
+              className="text-gray-700 hover:text-blue-700 font-medium text-sm transition-all duration-200 px-2 py-1.5 rounded-lg hover:bg-gray-50 active:scale-95"
             >
               Акции
             </Link>
             <Link
               href="/new"
-              className="text-gray-700 hover:text-blue-600 font-medium text-sm transition-all duration-200 px-2 py-1.5 rounded-lg hover:bg-gray-50 active:scale-95"
+              className="text-gray-700 hover:text-blue-700 font-medium text-sm transition-all duration-200 px-2 py-1.5 rounded-lg hover:bg-gray-50 active:scale-95"
             >
               Новинки
             </Link>

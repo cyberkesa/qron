@@ -32,8 +32,6 @@ interface BottomNavItem {
 
 export const BottomNavigation: React.FC = () => {
   const pathname = usePathname();
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
   // Получаем данные корзины и пользователя
@@ -58,27 +56,6 @@ export const BottomNavigation: React.FC = () => {
 
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  // Скрытие/показ навигации при скролле
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY < 10) {
-        setIsVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        setIsVisible(true);
-      }
-
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
 
   // Навигационные элементы
   const navItems: BottomNavItem[] = [
@@ -137,15 +114,7 @@ export const BottomNavigation: React.FC = () => {
   return (
     <>
       {/* Bottom Navigation */}
-      <nav
-        className={`
-          fixed bottom-0 left-0 right-0 z-50 
-          bg-white/95 backdrop-blur-md border-t border-gray-200/80 
-          shadow-[0_-4px_20px_rgba(0,0,0,0.08)]
-          transition-transform duration-300 ease-out md:hidden
-          ${isVisible ? 'translate-y-0' : 'translate-y-full'}
-        `}
-      >
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-300 shadow-[0_-2px_8px_rgba(0,0,0,0.15)] md:hidden">
         {/* Контейнер навигации */}
         <div className="flex items-center justify-around h-16 px-2 pb-safe">
           {navItems.map((item) => {
@@ -160,13 +129,13 @@ export const BottomNavigation: React.FC = () => {
                 href={item.href}
                 className={`
                   flex flex-col items-center justify-center 
-                  min-w-0 flex-1 h-12 mx-1 rounded-xl
-                  transition-all duration-200 ease-out
-                  active:scale-95 touch-manipulation
+                  min-w-0 flex-1 h-12 mx-1 rounded-lg
+                  transition-all duration-150 ease-out
+                  touch-manipulation
                   ${
                     isActive
-                      ? 'text-blue-600 bg-blue-50/80 shadow-sm'
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50/80'
+                      ? 'text-gray-900 bg-gray-100'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                   }
                 `}
               >
@@ -179,11 +148,11 @@ export const BottomNavigation: React.FC = () => {
                     <span
                       className="
                       absolute -top-2 -right-2 
-                      bg-red-500 text-white text-xs 
-                      min-w-[20px] h-5 px-1
+                      bg-gray-800 text-white text-xs 
+                      min-w-[18px] h-[18px] px-1
                       flex items-center justify-center 
-                      rounded-full font-semibold
-                      shadow-sm border-2 border-white
+                      rounded-full font-medium
+                      border border-white
                     "
                     >
                       {item.badge > 99 ? '99+' : item.badge}
@@ -195,8 +164,8 @@ export const BottomNavigation: React.FC = () => {
                 <span
                   className={`
                   text-[10px] leading-tight font-medium mt-0.5
-                  truncate max-w-full
-                  ${isActive ? 'text-blue-600' : 'text-gray-600'}
+                  truncate max-w-full mobile-nav-text
+                  ${isActive ? 'text-gray-900' : 'text-gray-500'}
                 `}
                 >
                   {item.label}

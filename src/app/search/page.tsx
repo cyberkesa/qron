@@ -23,6 +23,7 @@ import {
   normalizeSearchString,
   processSearchResults,
 } from '@/components/search/SearchOptimization';
+import { SearchDebugger } from '@/components/search/SearchDebugger';
 import { Suspense } from 'react';
 
 // Create a client component that uses useSearchParams
@@ -53,9 +54,9 @@ function SearchPageContent() {
     variables: {
       first: 100, // Загружаем по 100 товаров за раз (максимальный лимит)
       sortOrder: sortOrder,
-      searchQuery: normalizedQuery,
+      searchQuery: searchQuery, // Отправляем оригинальный запрос на сервер
     },
-    skip: !normalizedQuery,
+    skip: !searchQuery,
   });
 
   // Обработка и фильтрация результатов
@@ -142,7 +143,7 @@ function SearchPageContent() {
             after: productsData.products.pageInfo.endCursor,
             first: 100,
             sortOrder,
-            searchQuery: normalizedQuery,
+            searchQuery: searchQuery, // Отправляем оригинальный запрос на сервер
           },
         });
       }
@@ -154,10 +155,10 @@ function SearchPageContent() {
     !isDataLoading &&
     !productsError &&
     filteredProducts.length === 0 &&
-    normalizedQuery;
+    searchQuery;
 
   return (
-    <main className="container mx-auto px-4 py-6">
+    <>
       {/* Заголовок и поисковая строка */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -202,6 +203,15 @@ function SearchPageContent() {
           <span className="font-medium">{totalProductsCount}</span>
         </div>
       </div>
+
+      {/* Debug component (only in development) */}
+      {process.env.NODE_ENV === 'development' && searchQuery && (
+        <SearchDebugger
+          products={products}
+          searchQuery={searchQuery}
+          className="mb-6"
+        />
+      )}
 
       {/* Results grid */}
       {isDataLoading ? (
@@ -258,14 +268,14 @@ function SearchPageContent() {
         </>
       )}
       <div ref={infiniteObserverTarget} className="h-1" />
-    </main>
+    </>
   );
 }
 
 // Load indicator for Suspense
 function SearchLoading() {
   return (
-    <main className="container mx-auto px-4 py-6">
+    <>
       <div className="h-12 bg-gray-200 rounded-lg w-full mb-8 animate-pulse"></div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -290,7 +300,7 @@ function SearchLoading() {
           </div>
         </div>
       </div>
-    </main>
+    </>
   );
 }
 

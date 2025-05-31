@@ -1,3 +1,5 @@
+'use client';
+
 import { ProductSortOrder, Category } from '@/types/api';
 import Image from 'next/image';
 import { StockFilter } from '@/components/product-list/StockFilter';
@@ -6,18 +8,25 @@ import {
   FunnelIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { ProductSorter } from './ProductSorter';
+import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 
 interface ProductFiltersProps {
   categories: Category[];
-  selectedCategory?: string;
+  filters: ProductFiltersState;
+  onFiltersChange: (filters: Partial<ProductFiltersState>) => void;
+  showMobileFilters: boolean;
+  onCloseMobileFilters: () => void;
+  className?: string;
+}
+
+export interface ProductFiltersState {
+  selectedCategory: string;
   sortOrder: ProductSortOrder;
   hideOutOfStock: boolean;
-  onCategoryChange: (category: string) => void;
-  onSortChange: (sort: ProductSortOrder) => void;
-  onStockFilterChange: (hideOutOfStock: boolean) => void;
-  showMobileFilters?: boolean;
-  onCloseMobileFilters?: () => void;
+  priceRange: [number, number];
+  hasImages: boolean;
 }
 
 // Компонент для элемента категории
@@ -36,7 +45,7 @@ const CategoryItem = ({
       category-item filter-item w-full flex items-center px-3 py-2.5 rounded-lg text-left
       ${
         isSelected
-          ? 'active bg-blue-50 text-blue-700 border border-blue-200 shadow-sm'
+          ? 'active bg-gray-50 text-gray-900 border border-gray-300 shadow-sm'
           : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 border border-transparent'
       }
     `}
@@ -98,20 +107,111 @@ const FilterSection = ({
   );
 };
 
-export function ProductFilters({
+// Компонент слайдера для цены
+const PriceRangeSlider = ({
+  value,
+  onChange,
+  min = 0,
+  max = 100000,
+  step = 100,
+}: {
+  value: [number, number];
+  onChange: (value: [number, number]) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+}) => {
+  const [localValue, setLocalValue] = useState(value);
+
+  const handleMinChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newMin = Math.min(Number(e.target.value), localValue[1] - step);
+      const newValue: [number, number] = [newMin, localValue[1]];
+      setLocalValue(newValue);
+      onChange(newValue);
+    },
+    [localValue, onChange, step]
+  );
+
+  const handleMaxChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newMax = Math.max(Number(e.target.value), localValue[0] + step);
+      const newValue: [number, number] = [localValue[0], newMax];
+      setLocalValue(newValue);
+      onChange(newValue);
+    },
+    [localValue, onChange, step]
+  );
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center space-x-2">
+        <div className="flex-1">
+          <label className="block text-xs text-gray-600 mb-1">От</label>
+          <input
+            type="number"
+            value={localValue[0]}
+            onChange={handleMinChange}
+            min={min}
+            max={max}
+            step={step}
+            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div className="flex-1">
+          <label className="block text-xs text-gray-600 mb-1">До</label>
+          <input
+            type="number"
+            value={localValue[1]}
+            onChange={handleMaxChange}
+            min={min}
+            max={max}
+            step={step}
+            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      <div className="relative h-5 flex items-center">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={localValue[0]}
+          onChange={handleMinChange}
+          className="absolute w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"
+        />
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={localValue[1]}
+          onChange={handleMaxChange}
+          className="absolute w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"
+        />
+      </div>
+
+      <div className="text-center text-xs text-gray-600 bg-gray-50 rounded py-1.5">
+        {localValue[0].toLocaleString()} ₽ - {localValue[1].toLocaleString()} ₽
+      </div>
+    </div>
+  );
+};
+
+export const ProductFilters = ({
   categories,
-  selectedCategory,
-  sortOrder,
-  hideOutOfStock,
-  onCategoryChange,
-  onSortChange,
-  onStockFilterChange,
+  filters,
+  onFiltersChange,
   showMobileFilters,
   onCloseMobileFilters,
-}: ProductFiltersProps) {
+  className = '',
+}: ProductFiltersProps) => {
   const [isMobile, setIsMobile] = useState(false);
 
-  const hasActiveFilters = selectedCategory !== '' || !hideOutOfStock;
+  const hasActiveFilters =
+    filters.selectedCategory !== '' || !filters.hideOutOfStock;
 
   // Проверка мобильного устройства
   useEffect(() => {
@@ -131,154 +231,191 @@ export function ProductFilters({
     }
   }, [isMobile, showMobileFilters]);
 
-  const resetFilters = () => {
-    onCategoryChange('');
-    onStockFilterChange(true);
-  };
+  const handleCategoryChange = useCallback(
+    (categoryId: string) => {
+      onFiltersChange({ selectedCategory: categoryId });
+    },
+    [onFiltersChange]
+  );
 
-  // Мобильная версия
-  if (isMobile) {
-    return (
-      <>
-        {/* Backdrop */}
-        {showMobileFilters && (
-          <div
-            className="fixed inset-0 bg-black/50 z-40 animate-fade-in mobile-filter-panel"
-            onClick={onCloseMobileFilters}
-          />
-        )}
+  const handleSortChange = useCallback(
+    (sortOrder: ProductSortOrder) => {
+      onFiltersChange({ sortOrder });
+    },
+    [onFiltersChange]
+  );
 
-        {/* Mobile Panel */}
-        <div
-          className={`
-          fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl transform transition-transform duration-300
-          ${showMobileFilters ? 'translate-y-0' : 'translate-y-full'}
-        `}
-        >
-          {/* Handle */}
-          <div className="flex justify-center pt-4 pb-2">
-            <div className="w-12 h-1 bg-gray-300 rounded-full" />
-          </div>
+  const handleStockFilterChange = useCallback(
+    (hideOutOfStock: boolean) => {
+      onFiltersChange({ hideOutOfStock });
+    },
+    [onFiltersChange]
+  );
 
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-            <div className="flex items-center gap-2">
-              <FunnelIcon className="w-5 h-5 text-blue-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Фильтры</h2>
-            </div>
-            <button
-              onClick={onCloseMobileFilters}
-              className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
-            >
-              <XMarkIcon className="w-5 h-5 text-gray-500" />
-            </button>
-          </div>
+  const handlePriceRangeChange = useCallback(
+    (priceRange: [number, number]) => {
+      onFiltersChange({ priceRange });
+    },
+    [onFiltersChange]
+  );
 
-          {/* Content */}
-          <div className="px-4 py-4 max-h-[70vh] overflow-y-auto">
-            <div className="space-y-6">
-              {/* Категории */}
-              <FilterSection title="Категория">
-                <CategoryItem
-                  category={null}
-                  isSelected={!selectedCategory}
-                  onClick={() => onCategoryChange('')}
-                />
-                {categories.map((category) => (
-                  <CategoryItem
-                    key={category.id}
-                    category={category}
-                    isSelected={selectedCategory === category.id}
-                    onClick={() => onCategoryChange(category.id)}
-                  />
-                ))}
-              </FilterSection>
+  const handleImagesFilterChange = useCallback(
+    (hasImages: boolean) => {
+      onFiltersChange({ hasImages });
+    },
+    [onFiltersChange]
+  );
 
-              {/* Наличие */}
-              <FilterSection title="Наличие">
-                <StockFilter
-                  value={hideOutOfStock}
-                  onChange={onStockFilterChange}
-                />
-              </FilterSection>
-            </div>
-          </div>
+  const resetFilters = useCallback(() => {
+    onFiltersChange({
+      selectedCategory: '',
+      sortOrder: 'NEWEST_FIRST',
+      hideOutOfStock: false,
+      priceRange: [0, 100000],
+      hasImages: false,
+    });
+  }, [onFiltersChange]);
 
-          {/* Footer */}
-          <div className="px-4 py-4 bg-gray-50 border-t border-gray-200">
-            <div className="flex gap-3">
-              {hasActiveFilters && (
-                <button
-                  onClick={resetFilters}
-                  className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-xl border border-gray-300 transition-colors"
-                >
-                  Сбросить
-                </button>
-              )}
-              <button
-                onClick={onCloseMobileFilters}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-colors"
-              >
-                Применить
-              </button>
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
+  // Подсчет активных фильтров
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (filters.selectedCategory) count++;
+    if (filters.hideOutOfStock) count++;
+    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000) count++;
+    if (filters.hasImages) count++;
+    return count;
+  }, [filters]);
 
-  // Десктопная версия
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="w-5 h-5 text-blue-600" />
-          <h2 className="font-semibold text-gray-900">Фильтры</h2>
-        </div>
-        {hasActiveFilters && (
+  const filtersContent = (
+    <div className="space-y-4">
+      {/* Заголовок с кнопкой сброса */}
+      <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+        <h3 className="text-base font-semibold text-gray-900 flex items-center">
+          <FunnelIcon className="h-4 w-4 mr-2 text-gray-600" />
+          Фильтры
+          {activeFiltersCount > 0 && (
+            <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+              {activeFiltersCount}
+            </span>
+          )}
+        </h3>
+        {activeFiltersCount > 0 && (
           <button
             onClick={resetFilters}
-            className="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+            className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
           >
-            <XMarkIcon className="w-3 h-3" />
             Сбросить
           </button>
         )}
       </div>
 
-      {/* Content */}
-      <div className="p-4 space-y-6">
-        {/* Категории */}
-        <FilterSection title="Категория" isCollapsible defaultExpanded>
-          <div className="max-h-64 overflow-y-auto space-y-1 filter-scrollbar">
-            <CategoryItem
-              category={null}
-              isSelected={!selectedCategory}
-              onClick={() => onCategoryChange('')}
-            />
+      {/* Сортировка */}
+      <div>
+        <h4 className="text-sm font-medium text-gray-900 mb-2">Сортировка</h4>
+        <ProductSorter value={filters.sortOrder} onChange={handleSortChange} />
+      </div>
+
+      {/* Категории */}
+      {categories.length > 0 && (
+        <div>
+          <h4 className="text-sm font-medium text-gray-900 mb-2">Категории</h4>
+          <div className="space-y-1 max-h-48 overflow-y-auto">
+            <button
+              onClick={() => handleCategoryChange('')}
+              className={`w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 ${
+                !filters.selectedCategory
+                  ? 'bg-blue-50 text-blue-700 font-medium border border-blue-200'
+                  : 'text-gray-700 hover:bg-gray-50 border border-transparent'
+              }`}
+            >
+              Все категории
+            </button>
             {categories.map((category) => (
-              <CategoryItem
+              <button
                 key={category.id}
-                category={category}
-                isSelected={selectedCategory === category.id}
-                onClick={() => onCategoryChange(category.id)}
-              />
+                onClick={() => handleCategoryChange(category.id)}
+                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200 ${
+                  filters.selectedCategory === category.id
+                    ? 'bg-blue-50 text-blue-700 font-medium border border-blue-200'
+                    : 'text-gray-700 hover:bg-gray-50 border border-transparent'
+                }`}
+              >
+                {category.title}
+              </button>
             ))}
           </div>
-        </FilterSection>
+        </div>
+      )}
 
-        {/* Наличие */}
-        <FilterSection title="Наличие">
-          <StockFilter value={hideOutOfStock} onChange={onStockFilterChange} />
-        </FilterSection>
+      {/* Цена */}
+      <div>
+        <h4 className="text-sm font-medium text-gray-900 mb-2">Цена, ₽</h4>
+        <PriceRangeSlider
+          value={filters.priceRange}
+          onChange={handlePriceRangeChange}
+          min={0}
+          max={100000}
+          step={100}
+        />
+      </div>
 
-        {/* Скрыть отсутствующие */}
-        <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-          Скрыть отсутствующие товары поможет найти только доступные позиции
+      {/* Дополнительные фильтры */}
+      <div>
+        <h4 className="text-sm font-medium text-gray-900 mb-2">
+          Дополнительно
+        </h4>
+        <div className="space-y-2">
+          <StockFilter
+            value={filters.hideOutOfStock}
+            onChange={handleStockFilterChange}
+          />
+
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={filters.hasImages}
+              onChange={(e) => handleImagesFilterChange(e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+            />
+            <span className="ml-2 text-sm text-gray-700">Только с фото</span>
+          </label>
         </div>
       </div>
     </div>
   );
-}
+
+  return (
+    <>
+      {/* Десктопная версия */}
+      <div className={`hidden lg:block ${className}`}>
+        <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm max-h-[calc(100vh-200px)] overflow-y-auto">
+          {filtersContent}
+        </div>
+      </div>
+
+      {/* Мобильная версия */}
+      {showMobileFilters && (
+        <div className="lg:hidden fixed inset-0 z-50 overflow-hidden">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={onCloseMobileFilters}
+          />
+          <div className="absolute right-0 top-0 h-full w-80 max-w-full bg-white shadow-xl">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">Фильтры</h2>
+              <button
+                onClick={onCloseMobileFilters}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto h-full pb-20">
+              {filtersContent}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};

@@ -12,6 +12,7 @@ import {
   normalizeSearchString,
   processSearchResults,
 } from '@/components/search/SearchOptimization';
+import { ClockIcon, FireIcon } from '@heroicons/react/24/outline';
 
 // Компонент для элемента товара в выпадающем списке результатов
 const ProductResultItem = memo(({ product }: { product: Product }) => (
@@ -41,7 +42,7 @@ const ProductResultItem = memo(({ product }: { product: Product }) => (
       </div>
     )}
     <div className="flex-1 min-w-0">
-      <div className="font-medium text-gray-900 text-sm truncate group-hover:text-blue-600 transition-colors">
+      <div className="font-medium text-gray-900 text-sm truncate group-hover:text-blue-700 transition-colors">
         {product.name}
       </div>
       <div className="text-blue-600 text-sm font-semibold mt-0.5">
@@ -85,7 +86,7 @@ const CategoryResultItem = memo(({ category }: { category: Category }) => (
         <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full mr-3 font-medium">
           Категория
         </span>
-        <span className="font-medium text-gray-900 text-sm group-hover:text-blue-600 transition-colors truncate">
+        <span className="font-medium text-gray-900 text-sm group-hover:text-blue-700 transition-colors truncate">
           {category.title}
         </span>
       </div>
@@ -203,6 +204,152 @@ const SearchResults = memo(
 
 SearchResults.displayName = 'SearchResults';
 
+// Популярные поисковые запросы (обновлены на основе реального каталога)
+const popularSearches = [
+  'шланг',
+  'лейка',
+  'сумка',
+  'гвоздодер',
+  'ключи',
+  'молоток',
+  'дрель',
+  'отвертка',
+  'лопата',
+  'краска',
+  'провод',
+  'труба',
+];
+
+// Хук для работы с историей поиска
+function useSearchHistory() {
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Загружаем историю из localStorage
+    const saved = localStorage.getItem('searchHistory');
+    if (saved) {
+      try {
+        setSearchHistory(JSON.parse(saved));
+      } catch (error) {
+        console.error('Error loading search history:', error);
+      }
+    }
+  }, []);
+
+  const addToHistory = useCallback((query: string) => {
+    if (!query.trim() || query.length < 2) return;
+
+    setSearchHistory((prev) => {
+      const filtered = prev.filter((item) => item !== query);
+      const newHistory = [query, ...filtered].slice(0, 10); // Максимум 10 записей
+
+      try {
+        localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+      } catch (error) {
+        console.error('Error saving search history:', error);
+      }
+
+      return newHistory;
+    });
+  }, []);
+
+  const clearHistory = useCallback(() => {
+    setSearchHistory([]);
+    localStorage.removeItem('searchHistory');
+  }, []);
+
+  return { searchHistory, addToHistory, clearHistory };
+}
+
+// Компонент автодополнения
+const SearchSuggestions = memo(
+  ({
+    searchQuery,
+    searchHistory,
+    onSuggestionClick,
+    onClearHistory,
+  }: {
+    searchQuery: string;
+    searchHistory: string[];
+    onSuggestionClick: (suggestion: string) => void;
+    onClearHistory: () => void;
+  }) => {
+    const normalizedQuery = normalizeSearchString(searchQuery);
+
+    // Фильтруем историю по текущему запросу
+    const filteredHistory = searchHistory
+      .filter((item) => normalizeSearchString(item).includes(normalizedQuery))
+      .slice(0, 5);
+
+    // Фильтруем популярные запросы
+    const filteredPopular = popularSearches
+      .filter(
+        (item) =>
+          normalizeSearchString(item).includes(normalizedQuery) &&
+          !searchHistory.includes(item)
+      )
+      .slice(0, 5);
+
+    if (filteredHistory.length === 0 && filteredPopular.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="border-t border-gray-100">
+        {/* История поиска */}
+        {filteredHistory.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between px-4 py-2 bg-gray-50">
+              <span className="text-xs text-gray-600 uppercase font-semibold">
+                История поиска
+              </span>
+              <button
+                onClick={onClearHistory}
+                className="text-xs text-gray-500 hover:text-gray-700"
+              >
+                Очистить
+              </button>
+            </div>
+            {filteredHistory.map((item, index) => (
+              <button
+                key={`history-${index}`}
+                onClick={() => onSuggestionClick(item)}
+                className="w-full text-left px-4 py-2 hover:bg-blue-50 transition-colors flex items-center"
+              >
+                <ClockIcon className="h-4 w-4 text-gray-400 mr-3" />
+                <span className="text-sm text-gray-700">{item}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Популярные запросы */}
+        {filteredPopular.length > 0 && (
+          <div>
+            <div className="px-4 py-2 bg-gray-50">
+              <span className="text-xs text-gray-600 uppercase font-semibold">
+                Популярные запросы
+              </span>
+            </div>
+            {filteredPopular.map((item, index) => (
+              <button
+                key={`popular-${index}`}
+                onClick={() => onSuggestionClick(item)}
+                className="w-full text-left px-4 py-2 hover:bg-blue-50 transition-colors flex items-center"
+              >
+                <FireIcon className="h-4 w-4 text-orange-400 mr-3" />
+                <span className="text-sm text-gray-700">{item}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+);
+
+SearchSuggestions.displayName = 'SearchSuggestions';
+
 // Custom hook для дебаунса поискового запроса
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -225,8 +372,12 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [isResultsOpen, setIsResultsOpen] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Используем хук для истории поиска
+  const { searchHistory, addToHistory, clearHistory } = useSearchHistory();
 
   // Используем debounced значение для поисковых запросов
   const debouncedSearchQuery = useDebounce(searchQuery, 200);
@@ -243,9 +394,9 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
       variables: {
         first: 8, // Увеличиваем для более полных результатов
         sortOrder: 'NEWEST_FIRST',
-        searchQuery: normalizedQuery,
+        searchQuery: debouncedSearchQuery, // Отправляем оригинальный запрос на сервер
       },
-      skip: !normalizedQuery || normalizedQuery.length < 2,
+      skip: !debouncedSearchQuery || debouncedSearchQuery.length < 2,
       // Добавляем политику кэширования для быстрых повторных запросов
       fetchPolicy: 'cache-first',
     }
@@ -336,17 +487,49 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
 
       if (value.trim().length >= 2) {
         setIsResultsOpen(true);
+        setShowSuggestions(false);
       } else if (value.trim().length === 0) {
         setIsResultsOpen(false);
+        setShowSuggestions(true);
+      } else {
+        setIsResultsOpen(false);
+        setShowSuggestions(false);
       }
     },
     []
+  );
+
+  // Обработчик фокуса на поле поиска
+  const handleInputFocus = useCallback(() => {
+    if (searchQuery.length >= 2) {
+      setIsResultsOpen(true);
+    } else {
+      setShowSuggestions(true);
+    }
+  }, [searchQuery]);
+
+  // Обработчик клика по подсказке
+  const handleSuggestionClick = useCallback(
+    (suggestion: string) => {
+      setSearchQuery(suggestion);
+      setShowSuggestions(false);
+      setIsResultsOpen(true);
+
+      // Добавляем в историю
+      addToHistory(suggestion);
+
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    },
+    [addToHistory]
   );
 
   // Очистка поискового запроса
   const clearSearch = useCallback(() => {
     setSearchQuery('');
     setIsResultsOpen(false);
+    setShowSuggestions(false);
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -357,13 +540,17 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
     (e?: React.FormEvent) => {
       if (e) e.preventDefault();
       if (searchQuery.trim()) {
+        // Добавляем в историю поиска
+        addToHistory(searchQuery.trim());
+
         router.push(
           `/search?q=${encodeURIComponent(searchQuery)}&sort=NEWEST_FIRST`
         );
         setIsResultsOpen(false);
+        setShowSuggestions(false);
       }
     },
-    [searchQuery, router]
+    [searchQuery, router, addToHistory]
   );
 
   // Закрываем результаты при клике вне компонента
@@ -403,24 +590,25 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
           type="text"
           placeholder="Поиск товаров и категорий..."
           className="
-            w-full h-12 px-4 pl-12 pr-10
+            w-full h-12 px-3 pl-10 pr-8
             bg-white border border-gray-300 rounded-xl
             text-gray-900 placeholder-gray-500
-            focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+            focus:outline-none focus:ring-2 focus:ring-gray-500/20 focus:border-gray-500
             transition-all duration-200 ease-out
             hover:border-gray-400 hover:shadow-sm
             text-sm font-medium
             shadow-sm
+            min-h-[3rem]
           "
           value={searchQuery}
           onChange={handleInputChange}
-          onFocus={() => searchQuery.length >= 2 && setIsResultsOpen(true)}
+          onFocus={handleInputFocus}
           aria-label="Поиск"
           autoComplete="off"
         />
 
         {/* Иконка поиска */}
-        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none flex-shrink-0" />
 
         {/* Кнопка очистки */}
         {searchQuery && (
@@ -428,7 +616,7 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
             type="button"
             onClick={clearSearch}
             className="
-              absolute right-3 top-1/2 transform -translate-y-1/2 
+              absolute right-2 top-1/2 transform -translate-y-1/2 
               w-6 h-6 flex items-center justify-center
               text-gray-400 hover:text-gray-600 
               rounded-full hover:bg-gray-100
@@ -463,6 +651,27 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
           />
         </div>
       )}
+
+      {/* Подсказки и история поиска */}
+      {showSuggestions &&
+        (searchHistory.length > 0 || searchQuery.length === 0) && (
+          <div
+            className="
+          absolute top-full left-0 right-0 mt-2 
+          bg-white rounded-xl shadow-xl border border-gray-200 
+          z-50 overflow-hidden
+          animate-fade-in-down
+          max-w-full
+        "
+          >
+            <SearchSuggestions
+              searchQuery={searchQuery}
+              searchHistory={searchHistory}
+              onSuggestionClick={handleSuggestionClick}
+              onClearHistory={clearHistory}
+            />
+          </div>
+        )}
     </div>
   );
 });

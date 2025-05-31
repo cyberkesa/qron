@@ -603,7 +603,7 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 text-sm line-clamp-1 group-hover:text-blue-600 transition-colors">
+                    <p className="font-medium text-gray-900 text-sm line-clamp-1 group-hover:text-blue-700 transition-colors">
                       {item.product.name}
                     </p>
                     <div className="flex justify-between mt-1.5">

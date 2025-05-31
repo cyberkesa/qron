@@ -23,7 +23,7 @@ const TopBar = memo(
             <RegionSelector />
             <a
               href={regionContacts.phoneLink}
-              className="text-gray-600 hover:text-blue-600 flex items-center transition-all duration-200 text-xs md:text-sm font-medium hover:scale-105 active:scale-95"
+              className="text-gray-700 hover:text-blue-700 flex items-center transition-all duration-200 text-xs md:text-sm font-medium hover:scale-105 active:scale-95"
             >
               <PhoneIcon className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-1.5 flex-shrink-0" />
               <span className="hidden sm:inline">{regionContacts.phone}</span>
@@ -37,21 +37,21 @@ const TopBar = memo(
           <div className="hidden lg:flex items-center space-x-4">
             <Link
               href="/delivery"
-              className="text-gray-600 hover:text-blue-600 flex items-center transition-all duration-200 text-sm font-medium hover:scale-105 active:scale-95 px-2 py-1 rounded-lg hover:bg-gray-50"
+              className="text-gray-700 hover:text-blue-700 flex items-center transition-all duration-200 text-sm font-medium hover:scale-105 active:scale-95 px-2 py-1 rounded-lg hover:bg-gray-50"
             >
               <TruckIcon className="h-4 w-4 mr-1.5 flex-shrink-0" />
               <span>Доставка</span>
             </Link>
             <Link
               href="/about"
-              className="text-gray-600 hover:text-blue-600 flex items-center transition-all duration-200 text-sm font-medium hover:scale-105 active:scale-95 px-2 py-1 rounded-lg hover:bg-gray-50"
+              className="text-gray-700 hover:text-blue-700 flex items-center transition-all duration-200 text-sm font-medium hover:scale-105 active:scale-95 px-2 py-1 rounded-lg hover:bg-gray-50"
             >
               <InformationCircleIcon className="h-4 w-4 mr-1.5 flex-shrink-0" />
               <span>О компании</span>
             </Link>
             <Link
               href="/contacts"
-              className="text-gray-600 hover:text-blue-600 flex items-center transition-all duration-200 text-sm font-medium hover:scale-105 active:scale-95 px-2 py-1 rounded-lg hover:bg-gray-50"
+              className="text-gray-700 hover:text-blue-700 flex items-center transition-all duration-200 text-sm font-medium hover:scale-105 active:scale-95 px-2 py-1 rounded-lg hover:bg-gray-50"
             >
               <EnvelopeIcon className="h-4 w-4 mr-1.5 flex-shrink-0" />
               <span>Контакты</span>

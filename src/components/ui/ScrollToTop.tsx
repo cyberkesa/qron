@@ -1,11 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 
 export function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const pathname = usePathname();
+
+  // Проверяем, есть ли мобильная панель товара
+  const isProductPage = pathname?.startsWith('/product/');
+
+  // Определяем позицию кнопки в зависимости от контекста
+  const getBottomPosition = () => {
+    if (isProductPage) {
+      // На странице товара: отступ от мобильной панели товара + мобильное меню
+      return 'calc(9rem + env(safe-area-inset-bottom))';
+    } else {
+      // На других страницах: отступ только от мобильного меню
+      return 'calc(5rem + env(safe-area-inset-bottom))';
+    }
+  };
 
   useEffect(() => {
     const checkScroll = () => {
@@ -42,9 +58,10 @@ export function ScrollToTop() {
   return (
     <button
       onClick={scrollToTop}
-      className={`fixed bottom-6 right-6 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg z-50 transition-all duration-300 ${
-        isAnimating ? 'animate-bounce' : 'hover:transform hover:scale-110'
-      } hover-lift`}
+      className={`fixed right-6 p-3 bg-gray-800 hover:bg-gray-900 text-white rounded-lg shadow-md z-30 transition-all duration-200 md:bottom-6 ${
+        isAnimating ? 'opacity-70' : 'hover:shadow-lg'
+      }`}
+      style={{ bottom: getBottomPosition() }}
       aria-label="Прокрутить вверх"
     >
       <ArrowUpIcon className="h-5 w-5" />

@@ -33,6 +33,12 @@ import CategoryNav from './header/CategoryNav';
 
 // Lazy load components that aren't immediately visible
 const LazyUserMenu = lazy(() => import('./header/UserMenu'));
+const LazyMobileMenu = lazy(() => import('./header/MobileMenu'));
+const LazyRegionSelector = lazy(() =>
+  import('@/components/region/RegionSelector').then((module) => ({
+    default: module.default,
+  }))
+);
 
 // Компонент для главной части хедера с логотипом, поиском и корзиной
 const MainHeader = memo(
@@ -76,7 +82,9 @@ const MainHeader = memo(
               {/* Иконка корзины */}
               <Link
                 href="/cart"
-                className="relative p-2.5 text-gray-700 hover:text-blue-600 transition-all duration-200 rounded-xl hover:bg-gray-50 active:scale-95"
+                className="relative p-2.5 text-gray-700 hover:text-blue-700 transition-all duration-200 rounded-xl hover:bg-gray-50 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                aria-label={cartItemsCount > 0 ? `Корзина (${cartItemsCount} товаров)` : 'Корзина'}
+                title={cartItemsCount > 0 ? `В корзине ${cartItemsCount} товаров` : 'Перейти в корзину'}
               >
                 <ShoppingCartIcon className="h-6 w-6" />
                 {cartItemsCount > 0 && (
@@ -245,7 +253,7 @@ export default memo(function Header() {
       return (
         <div id="user-menu" className="relative group" ref={profileMenuRef}>
           <button
-            className="flex items-center text-gray-700 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
+            className="flex items-center text-gray-700 hover:text-blue-700 p-2 rounded-full hover:bg-gray-100 transition-colors"
             onClick={toggleUserMenu}
             aria-expanded={isUserMenuOpen}
             aria-haspopup="true"
@@ -281,7 +289,7 @@ export default memo(function Header() {
       <div className="flex items-center">
         <Link
           href="/login"
-          className="flex items-center text-gray-700 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
+          className="flex items-center text-gray-700 hover:text-blue-700 p-2 rounded-full hover:bg-gray-100 transition-colors"
           onClick={handleCloseMenus}
         >
           <UserIcon className="w-6 h-6" />
