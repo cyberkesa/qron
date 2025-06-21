@@ -21,9 +21,9 @@ const OptimizedProductCard = memo(
     const { addToCart: addToUnifiedCart, cart: unifiedCart } = useCartContext();
 
     // Получаем текущее количество товара в корзине
-    const currentCartQuantity = unifiedCart.items.find(
-      (item) => item.product?.id === product.id
-    )?.quantity || 0;
+    const currentCartQuantity =
+      unifiedCart.items.find((item) => item.product?.id === product.id)
+        ?.quantity || 0;
 
     // Адаптивное форматирование цены
     const formattedPrice = new Intl.NumberFormat('ru-RU', {
@@ -62,7 +62,13 @@ const OptimizedProductCard = memo(
       } finally {
         setIsAddingToCart(false);
       }
-    }, [product, addToUnifiedCart, showSuccess, showError, currentCartQuantity]);
+    }, [
+      product,
+      addToUnifiedCart,
+      showSuccess,
+      showError,
+      currentCartQuantity,
+    ]);
 
     const isOutOfStock =
       product.stockAvailabilityStatus ===

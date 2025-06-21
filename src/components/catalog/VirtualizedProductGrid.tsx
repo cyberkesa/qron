@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { OptimizedProductCard } from '@/components/product/OptimizedProductCard';
+import OptimizedProductCard from '@/components/product/OptimizedProductCard';
 import { Product } from '@/types/api';
 
 interface VirtualizedProductGridProps {

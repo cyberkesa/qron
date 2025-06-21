@@ -63,28 +63,36 @@ export default function ProfileLayout({
     ];
 
     if (pathname && pathname.includes('/profile/orders')) {
-      items.push({ title: 'Мои заказы', href: '/profile/orders', isLast: true });
+      items.push({
+        title: 'Мои заказы',
+        href: '/profile/orders',
+        isLast: true,
+      });
     } else if (pathname && pathname.includes('/profile/addresses')) {
-      items.push({ title: 'Мои адреса', href: '/profile/addresses', isLast: !pathname.includes('/new') && !pathname.includes('/edit') });
+      items.push({
+        title: 'Мои адреса',
+        href: '/profile/addresses',
+        isLast: !pathname.includes('/new') && !pathname.includes('/edit'),
+      });
 
       if (pathname && pathname.includes('/new')) {
         items.push({
           title: 'Добавление адреса',
           href: '/profile/addresses/new',
-          isLast: true
+          isLast: true,
         });
       } else if (pathname && pathname.includes('/edit')) {
-        items.push({ 
-          title: 'Редактирование адреса', 
+        items.push({
+          title: 'Редактирование адреса',
           href: pathname,
-          isLast: true
+          isLast: true,
         });
       }
     } else if (pathname && pathname.includes('/profile/edit')) {
-      items.push({ 
-        title: 'Редактирование профиля', 
+      items.push({
+        title: 'Редактирование профиля',
         href: '/profile/edit',
-        isLast: true
+        isLast: true,
       });
     } else if (pathname === '/profile') {
       items[items.length - 1].isLast = true;

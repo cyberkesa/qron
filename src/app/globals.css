@@ -22,11 +22,11 @@ object {
 
 /* Utility для скрытия полосы прокрутки */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari, Opera */
+  display: none; /* Chrome, Safari, Opera */
 }
 
 :root {
@@ -1292,7 +1292,7 @@ a:not(.no-hover) {
   .breadcrumb-nav {
     padding: 0.5rem 0;
   }
-  
+
   .breadcrumb-nav ol {
     font-size: 0.75rem;
   }

@@ -20,30 +20,27 @@ interface BreadcrumbsProps {
  * Улучшенный компонент хлебных крошек с mobile-first подходом
  * и pixel-perfect версткой
  */
-export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
+export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
+  items = [],
+  className = '',
+}) => {
   if (!items || items.length === 0) return null;
 
   return (
-    <nav 
-      className={`breadcrumb-nav py-2 sm:py-3 w-full ${className}`} 
+    <nav
+      className={`breadcrumb-nav py-2 sm:py-3 w-full ${className}`}
       aria-label="Breadcrumb"
     >
-      <ol className="flex items-center flex-wrap text-xs sm:text-sm overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide">
-        {items.map((item, index) => (
-          <li
-            key={`${item.href}-${index}`}
-            className="flex items-center flex-shrink-0"
-          >
-            {index > 0 && (
-              <ChevronRightIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-gray-400 mx-1.5 sm:mx-2 flex-shrink-0" 
-                aria-hidden="true"
-              />
+      <ul className="flex flex-wrap items-center space-x-0.5 text-sm">
+        {items.map((item, i) => (
+          <li key={i} className="flex items-center">
+            {i > 0 && (
+              <ChevronRightIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-gray-400 mx-1.5 sm:mx-2 flex-shrink-0" />
             )}
-
             {item.isLast ? (
-              <span 
-                className="text-gray-600 font-medium py-1 truncate max-w-[160px] sm:max-w-xs" 
-                aria-current="page"
+              <span
+                className="font-medium text-blue-700 truncate max-w-[120px] sm:max-w-[200px] lg:max-w-none"
+                title={item.title}
               >
                 {item.title}
               </span>
@@ -53,7 +50,7 @@ export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
                 className="text-gray-500 hover:text-gray-900 transition-colors py-1 flex items-center"
                 title={item.title}
               >
-                {index === 0 && (
+                {i === 0 && (
                   <HomeIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-0.5 sm:mr-1 flex-shrink-0 text-gray-500" />
                 )}
                 <span className="truncate max-w-[120px] sm:max-w-xs hover:underline">
@@ -63,10 +60,10 @@ export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
             )}
           </li>
         ))}
-      </ol>
+      </ul>
     </nav>
   );
-}
+};
 
 /**
  * Вспомогательная функция для построения полного пути к категории

@@ -190,9 +190,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   return (
     <main className="container mx-auto px-4 py-6">
       {/* Хлебные крошки */}
-      <Breadcrumbs
-        items={buildCategoryBreadcrumbs(category)}
-      />
+      <Breadcrumbs items={buildCategoryBreadcrumbs(category)} />
 
       {/* Заголовок категории */}
       <header className="mb-6">
@@ -270,7 +268,12 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         </p>
         <div className="flex gap-3 w-full sm:w-auto">
           <div className="flex-1 sm:flex-initial min-w-[120px]">
-            <ProductSorter value={sortOrder} onChange={handleSortChange} className="w-full" />
+            {/* Sort */}
+            <ProductSorter
+              value={sortOrder}
+              onChange={handleSortChange}
+              className="w-full"
+            />
           </div>
           <StockFilter
             value={hideOutOfStock}
