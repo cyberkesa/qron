@@ -19,6 +19,16 @@ object {
   max-width: 100%;
   height: auto;
 }
+
+/* Utility для скрытия полосы прокрутки */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;
@@ -1242,6 +1252,55 @@ a:not(.no-hover) {
 
 .breadcrumb-item svg {
   flex-shrink: 0;
+}
+
+/* Улучшенные стили для хлебных крошек */
+.breadcrumb-nav {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.breadcrumb-nav ol {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.breadcrumb-nav li {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-nav a {
+  color: #6b7280;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.breadcrumb-nav a:hover {
+  color: #111827;
+}
+
+.breadcrumb-nav .truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .breadcrumb-nav {
+    padding: 0.5rem 0;
+  }
+  
+  .breadcrumb-nav ol {
+    font-size: 0.75rem;
+  }
+
+  .breadcrumb-nav svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
 }
 
 /* ==============================

@@ -83,8 +83,16 @@ const MainHeader = memo(
               <Link
                 href="/cart"
                 className="relative p-2.5 text-gray-700 hover:text-blue-700 transition-all duration-200 rounded-xl hover:bg-gray-50 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                aria-label={cartItemsCount > 0 ? `Корзина (${cartItemsCount} товаров)` : 'Корзина'}
-                title={cartItemsCount > 0 ? `В корзине ${cartItemsCount} товаров` : 'Перейти в корзину'}
+                aria-label={
+                  cartItemsCount > 0
+                    ? `Корзина (${cartItemsCount} товаров)`
+                    : 'Корзина'
+                }
+                title={
+                  cartItemsCount > 0
+                    ? `В корзине ${cartItemsCount} товаров`
+                    : 'Перейти в корзину'
+                }
               >
                 <ShoppingCartIcon className="h-6 w-6" />
                 {cartItemsCount > 0 && (

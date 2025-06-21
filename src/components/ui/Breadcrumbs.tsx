@@ -17,37 +17,46 @@ interface BreadcrumbsProps {
 }
 
 /**
- * Упрощенный компонент хлебных крошек без излишней вложенности
+ * Улучшенный компонент хлебных крошек с mobile-first подходом
+ * и pixel-perfect версткой
  */
 export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
   if (!items || items.length === 0) return null;
 
   return (
-    <nav className={`breadcrumb-item ${className}`} aria-label="Breadcrumb">
-      <ol className="flex items-center text-xs sm:text-sm overflow-x-auto whitespace-nowrap h-5 sm:h-5">
+    <nav 
+      className={`breadcrumb-nav py-2 sm:py-3 w-full ${className}`} 
+      aria-label="Breadcrumb"
+    >
+      <ol className="flex items-center flex-wrap text-xs sm:text-sm overflow-x-auto overflow-y-hidden whitespace-nowrap scrollbar-hide">
         {items.map((item, index) => (
           <li
             key={`${item.href}-${index}`}
-            className="flex items-center flex-shrink-0 h-5 sm:h-5 min-w-0"
+            className="flex items-center flex-shrink-0"
           >
             {index > 0 && (
-              <ChevronRightIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-gray-400 mx-1 sm:mx-2 flex-shrink-0" />
+              <ChevronRightIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-gray-400 mx-1.5 sm:mx-2 flex-shrink-0" 
+                aria-hidden="true"
+              />
             )}
 
             {item.isLast ? (
-              <span className="text-gray-900 font-medium h-5 sm:h-5 flex items-center">
+              <span 
+                className="text-gray-600 font-medium py-1 truncate max-w-[160px] sm:max-w-xs" 
+                aria-current="page"
+              >
                 {item.title}
               </span>
             ) : (
               <Link
                 href={item.href}
-                className="text-gray-600 hover:text-gray-800 transition-colors h-5 sm:h-5 flex items-center"
+                className="text-gray-500 hover:text-gray-900 transition-colors py-1 flex items-center"
                 title={item.title}
               >
                 {index === 0 && (
-                  <HomeIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1 flex-shrink-0" />
+                  <HomeIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-0.5 sm:mr-1 flex-shrink-0 text-gray-500" />
                 )}
-                <span className="flex items-center h-5 sm:h-5">
+                <span className="truncate max-w-[120px] sm:max-w-xs hover:underline">
                   {item.title}
                 </span>
               </Link>

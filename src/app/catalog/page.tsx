@@ -374,18 +374,20 @@ export default function CatalogPage() {
                 <div className="flex gap-3 w-full sm:w-auto">
                   <button
                     onClick={toggleMobileFilters}
-                    className="lg:hidden flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-initial"
+                    className="lg:hidden flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-initial min-h-[38px]"
                   >
                     <AdjustmentsHorizontalIcon className="h-4 w-4 mr-2 text-gray-600" />
                     Фильтры
                   </button>
-                  <ProductSorter
-                    value={filters.sortOrder}
-                    onChange={(newSortOrder) =>
-                      handleFiltersChange({ sortOrder: newSortOrder })
-                    }
-                    className="flex-1 sm:flex-initial"
-                  />
+                  <div className="flex-1 sm:flex-initial min-w-[120px]">
+                    <ProductSorter
+                      value={filters.sortOrder}
+                      onChange={(newSortOrder) =>
+                        handleFiltersChange({ sortOrder: newSortOrder })
+                      }
+                      className="w-full"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

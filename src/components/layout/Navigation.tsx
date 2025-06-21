@@ -14,8 +14,8 @@ export function Navigation() {
             KRON
           </Link>
           <div className="flex items-center gap-6">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="text-gray-700 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-2 py-1"
               aria-label="Перейти к товарам"
             >
@@ -24,8 +24,16 @@ export function Navigation() {
             <Link
               href="/cart"
               className="text-gray-700 hover:text-gray-900 relative transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-2 py-1"
-              aria-label={cartItemsCount > 0 ? `Корзина (${cartItemsCount} товаров)` : 'Корзина'}
-              title={cartItemsCount > 0 ? `В корзине ${cartItemsCount} товаров` : 'Перейти в корзину'}
+              aria-label={
+                cartItemsCount > 0
+                  ? `Корзина (${cartItemsCount} товаров)`
+                  : 'Корзина'
+              }
+              title={
+                cartItemsCount > 0
+                  ? `В корзине ${cartItemsCount} товаров`
+                  : 'Перейти в корзину'
+              }
             >
               Корзина
               {cartItemsCount > 0 && (

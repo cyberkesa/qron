@@ -42,9 +42,9 @@ import RegionSelector from '@/components/product/RegionSelector';
 
 // Типы для компонента страницы продукта
 interface ProductPageProps {
-  params: Promise<{
+  params: {
     slug: string;
-  }>;
+  };
 }
 
 // Тип для табов
@@ -124,8 +124,8 @@ export default function ProductPage({ params }: ProductPageProps) {
   const { data: userData } = useQuery(GET_VIEWER);
   const { addToCart: unifiedAddToCart, cart: unifiedCart } = useCartContext();
 
-  // Извлекаем slug из params с помощью React.use()
-  const { slug } = React.use(params);
+  // Извлекаем slug из params напрямую без использования React.use()
+  const { slug } = params;
 
   // Состояния компонента
   const [isAddingToCart, setIsAddingToCart] = useState(false);

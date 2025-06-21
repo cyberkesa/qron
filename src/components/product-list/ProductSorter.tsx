@@ -72,15 +72,15 @@ export const ProductSorter = ({
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white border border-gray-300 rounded-md py-1.5 px-2 flex items-center justify-between w-full hover:border-blue-500 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs touch-manipulation"
+        className="bg-white border border-gray-200 rounded-lg py-2 px-4 flex items-center justify-between w-full hover:border-gray-300 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm min-h-[38px]"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        <span className="text-gray-800 truncate text-xs">
+        <span className="text-gray-800 truncate flex items-center">
           {selectedOption.shortLabel}
         </span>
         <ChevronDownIcon
-          className={`h-3 w-3 text-gray-500 transition-transform duration-200 ml-1 flex-shrink-0 ${
+          className={`h-4 w-4 text-gray-500 transition-transform duration-200 ml-1.5 flex-shrink-0 ${
             isOpen ? 'transform rotate-180' : ''
           }`}
         />
@@ -88,22 +88,22 @@ export const ProductSorter = ({
 
       {/* Выпадающий список для опций сортировки */}
       {isOpen && (
-        <div className="absolute mt-1 w-full product-sorter-dropdown">
+        <div className="absolute z-20 mt-1 w-full shadow-lg product-sorter-dropdown bg-white border border-gray-200 rounded-lg py-1">
           {sortOptions.map((option) => (
             <button
               key={option.value}
               onClick={() =>
                 handleOptionClick(option.value as ProductSortOrder)
               }
-              className={`product-sorter-option touch-manipulation ${
-                option.value === value ? 'selected' : ''
-              }`}
+              className={`product-sorter-option touch-manipulation w-full text-left px-4 py-2 hover:bg-gray-50 ${
+                option.value === value ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+              } flex items-center justify-between`}
               role="option"
               aria-selected={option.value === value}
             >
-              <span className="truncate text-xs">{option.shortLabel}</span>
+              <span className="truncate text-sm">{option.shortLabel}</span>
               {option.value === value && (
-                <CheckIcon className="h-3 w-3 flex-shrink-0 ml-1" />
+                <CheckIcon className="h-4 w-4 flex-shrink-0 ml-1.5 text-blue-600" />
               )}
             </button>
           ))}

@@ -366,13 +366,22 @@ export function Footer() {
             © {currentYear} ООО &laquo;КРОН&raquo;. Все права защищены
           </p>
           <div className="flex flex-wrap justify-center gap-4 md:flex-row md:space-y-0 md:space-x-4 text-xs text-gray-700">
-            <a href="#" className="hover:text-blue-700 transition-colors underline-offset-2 hover:underline">
+            <a
+              href="#"
+              className="hover:text-blue-700 transition-colors underline-offset-2 hover:underline"
+            >
               Карта сайта
             </a>
-            <a href="#" className="hover:text-blue-700 transition-colors underline-offset-2 hover:underline">
+            <a
+              href="#"
+              className="hover:text-blue-700 transition-colors underline-offset-2 hover:underline"
+            >
               Оферта
             </a>
-            <a href="#" className="hover:text-blue-700 transition-colors underline-offset-2 hover:underline">
+            <a
+              href="#"
+              className="hover:text-blue-700 transition-colors underline-offset-2 hover:underline"
+            >
               Пользовательское соглашение
             </a>
           </div>

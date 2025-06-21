@@ -22,7 +22,8 @@
     "bundle-size": "npx bundlesize",
     "optimize-images": "npx next-optimized-images",
     "check-unused-css": "npx purgecss --css ./src/**/*.css --content ./src/**/*.{js,jsx,ts,tsx} --output ./optimized-css/",
-    "prepare": "husky"
+    "prepare": "husky",
+    "install-deps": "npm install --legacy-peer-deps"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -31,10 +32,12 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.13.5",
-    "@apollo/experimental-nextjs-app-support": "^0.12.1",
+    "@apollo/client": "^3.8.0",
+    "@apollo/experimental-nextjs-app-support": "^0.5.1",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@types/dompurify": "^3.0.5",
     "@types/next": "^9.0.0",
     "@types/uuid": "^10.0.0",
@@ -43,10 +46,10 @@
     "dompurify": "^3.2.6",
     "glob": "^11.0.1",
     "graphql": "^16.10.0",
-    "next": "^15.2.5",
+    "next": "14.2.0",
     "node-fetch": "^3.3.2",
-    "react": "^18",
-    "react-dom": "^18",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-phone-input-2": "^2.15.1",
     "rxjs": "^7.8.2",
     "tailwind-merge": "^3.2.0",
@@ -56,12 +59,12 @@
     "@types/glob": "^8.1.0",
     "@types/node": "^22.14.0",
     "@types/react": "^18",
-    "@types/react-dom": "^19.1.2",
+    "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^8.29.1",
     "@typescript-eslint/parser": "^8.29.1",
     "autoprefixer": "^10.4.21",
     "eslint": "^8",
-    "eslint-config-next": "15.2.4",
+    "eslint-config-next": "14.2.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
     "husky": "^9.1.7",

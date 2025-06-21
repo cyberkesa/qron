@@ -34,7 +34,6 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <head>
-
         {/* Font preloading */}
         <link
           rel="preload"

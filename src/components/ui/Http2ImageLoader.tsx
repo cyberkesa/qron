@@ -23,76 +23,91 @@ export const Http2ImageLoader: React.FC<Http2ImageLoaderProps> = ({
   const [loadingQueue, setLoadingQueue] = useState<string[]>([]);
 
   // Функция для загрузки изображения
-  const loadImage = useCallback((src: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      
-      // Оптимизации для HTTP/2
-      img.crossOrigin = 'anonymous';
-      img.decoding = 'async';
-      img.loading = priority ? 'eager' : 'lazy';
-      
-      img.onload = () => {
-        resolve(src);
-      };
-      
-      img.onerror = () => {
-        reject(new Error(`Failed to load image: ${src}`));
-      };
-      
-      // Добавляем параметры оптимизации для tovari-kron.ru
-      if (src.includes('tovari-kron.ru') || src.includes('files.tovari-kron.ru')) {
-        // Пытаемся загрузить WebP версию
-        const webpSrc = src.replace(/\.(jpg|jpeg|png)$/i, '.webp');
-        
-        // Проверяем поддержку WebP
-        const testWebP = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = 1;
-          canvas.height = 1;
-          return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+  const loadImage = useCallback(
+    (src: string): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+
+        // Оптимизации для HTTP/2
+        img.crossOrigin = 'anonymous';
+        img.decoding = 'async';
+        img.loading = priority ? 'eager' : 'lazy';
+
+        img.onload = () => {
+          resolve(src);
         };
-        
-        if (testWebP()) {
-          img.src = webpSrc;
+
+        img.onerror = () => {
+          reject(new Error(`Failed to load image: ${src}`));
+        };
+
+        // Добавляем параметры оптимизации для tovari-kron.ru
+        if (
+          src.includes('tovari-kron.ru') ||
+          src.includes('files.tovari-kron.ru')
+        ) {
+          // Пытаемся загрузить WebP версию
+          const webpSrc = src.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+
+          // Проверяем поддержку WebP
+          const testWebP = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            return (
+              canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0
+            );
+          };
+
+          if (testWebP()) {
+            img.src = webpSrc;
+          } else {
+            img.src = src;
+          }
         } else {
           img.src = src;
         }
-      } else {
-        img.src = src;
-      }
-    });
-  }, [priority]);
+      });
+    },
+    [priority]
+  );
 
   // Функция для загрузки пакета изображений
-  const loadImageBatch = useCallback(async (batch: string[]) => {
-    try {
-      const promises = batch.map(src => loadImage(src));
-      const results = await Promise.allSettled(promises);
-      
-      const successful = results
-        .filter((result): result is PromiseFulfilledResult<string> => 
-          result.status === 'fulfilled'
-        )
-        .map(result => result.value);
-      
-      setLoadedImages(prev => [...prev, ...successful]);
-      
-      // Логируем ошибки в development
-      if (process.env.NODE_ENV === 'development') {
-        results.forEach((result, index) => {
-          if (result.status === 'rejected') {
-            console.warn(`Failed to load image ${batch[index]}:`, result.reason);
-          }
-        });
+  const loadImageBatch = useCallback(
+    async (batch: string[]) => {
+      try {
+        const promises = batch.map((src) => loadImage(src));
+        const results = await Promise.allSettled(promises);
+
+        const successful = results
+          .filter(
+            (result): result is PromiseFulfilledResult<string> =>
+              result.status === 'fulfilled'
+          )
+          .map((result) => result.value);
+
+        setLoadedImages((prev) => [...prev, ...successful]);
+
+        // Логируем ошибки в development
+        if (process.env.NODE_ENV === 'development') {
+          results.forEach((result, index) => {
+            if (result.status === 'rejected') {
+              console.warn(
+                `Failed to load image ${batch[index]}:`,
+                result.reason
+              );
+            }
+          });
+        }
+
+        return successful;
+      } catch (error) {
+        console.error('Error loading image batch:', error);
+        return [];
       }
-      
-      return successful;
-    } catch (error) {
-      console.error('Error loading image batch:', error);
-      return [];
-    }
-  }, [loadImage]);
+    },
+    [loadImage]
+  );
 
   // Основная логика загрузки
   useEffect(() => {
@@ -107,9 +122,9 @@ export const Http2ImageLoader: React.FC<Http2ImageLoaderProps> = ({
 
       // Загружаем пакеты последовательно, но изображения в пакете параллельно
       for (const batch of batches) {
-        setLoadingQueue(prev => [...prev, ...batch]);
+        setLoadingQueue((prev) => [...prev, ...batch]);
         await loadImageBatch(batch);
-        setLoadingQueue(prev => prev.filter(img => !batch.includes(img)));
+        setLoadingQueue((prev) => prev.filter((img) => !batch.includes(img)));
       }
     };
 
@@ -137,11 +152,7 @@ export const useHttp2ImageLoader = (
     preload?: boolean;
   } = {}
 ) => {
-  const {
-    maxConcurrent = 6,
-    priority = false,
-    preload = false,
-  } = options;
+  const { maxConcurrent = 6, priority = false, preload = false } = options;
 
   const [loadedImages, setLoadedImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -181,12 +192,13 @@ export const useHttp2ImageLoader = (
 
         const batchResults = await Promise.allSettled(promises);
         const successful = batchResults
-          .filter((result): result is PromiseFulfilledResult<string> => 
-            result.status === 'fulfilled'
+          .filter(
+            (result): result is PromiseFulfilledResult<string> =>
+              result.status === 'fulfilled'
           )
-          .map(result => result.value);
+          .map((result) => result.value);
 
-        setLoadedImages(prev => [...prev, ...successful]);
+        setLoadedImages((prev) => [...prev, ...successful]);
       }
     } catch (error) {
       console.error('Error in useHttp2ImageLoader:', error);
@@ -230,4 +242,4 @@ export const CriticalImagePreloader: React.FC<{
   }, [isLoading, loadedImages.length, images.length, onComplete]);
 
   return null;
-}; 
+};

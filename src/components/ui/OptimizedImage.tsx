@@ -94,12 +94,16 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   // Определяем лучший источник изображения с HTTP/2 оптимизацией
   const getBestImageSrc = useCallback(() => {
     // Автоматически генерируем современные форматы для доменов tovari-kron.ru
-    if (currentSrc.includes('tovari-kron.ru') || currentSrc.includes('files.tovari-kron.ru')) {
+    if (
+      currentSrc.includes('tovari-kron.ru') ||
+      currentSrc.includes('files.tovari-kron.ru')
+    ) {
       // Проверяем поддержку форматов браузером
       if (typeof window !== 'undefined') {
         // Проверяем поддержку AVIF
         if (avifSrc || currentSrc.match(/\.(jpg|jpeg|png)$/i)) {
-          const avifUrl = avifSrc || currentSrc.replace(/\.(jpg|jpeg|png)$/i, '.avif');
+          const avifUrl =
+            avifSrc || currentSrc.replace(/\.(jpg|jpeg|png)$/i, '.avif');
           // Возвращаем AVIF если поддерживается
           if (CSS.supports('(content: url("data:image/avif;base64,"))')) {
             return avifUrl;
@@ -108,7 +112,8 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 
         // Проверяем поддержку WebP
         if (webpSrc || currentSrc.match(/\.(jpg|jpeg|png)$/i)) {
-          const webpUrl = webpSrc || currentSrc.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+          const webpUrl =
+            webpSrc || currentSrc.replace(/\.(jpg|jpeg|png)$/i, '.webp');
           // Возвращаем WebP если поддерживается
           if (CSS.supports('(content: url("data:image/webp;base64,"))')) {
             return webpUrl;

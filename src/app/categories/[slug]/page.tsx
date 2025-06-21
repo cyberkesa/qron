@@ -21,9 +21,9 @@ import {
 } from '@/components/ui/Breadcrumbs';
 
 interface CategoryPageProps {
-  params: Promise<{
+  params: {
     slug: string;
-  }>;
+  };
 }
 
 export default function CategoryPage({ params }: CategoryPageProps) {
@@ -31,7 +31,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>('NEWEST_FIRST');
   const [hideOutOfStock, setHideOutOfStock] = useState(true);
 
-  const { slug } = React.use(params);
+  const { slug } = params;
 
   const {
     data: categoryData,
@@ -192,7 +192,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       {/* Хлебные крошки */}
       <Breadcrumbs
         items={buildCategoryBreadcrumbs(category)}
-        className="mb-6"
       />
 
       {/* Заголовок категории */}
@@ -269,11 +268,14 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           Товаров:{' '}
           <span className="font-medium ml-1">{totalProductsCount}</span>
         </p>
-        <div className="flex gap-3">
-          <ProductSorter value={sortOrder} onChange={handleSortChange} />
+        <div className="flex gap-3 w-full sm:w-auto">
+          <div className="flex-1 sm:flex-initial min-w-[120px]">
+            <ProductSorter value={sortOrder} onChange={handleSortChange} className="w-full" />
+          </div>
           <StockFilter
             value={hideOutOfStock}
             onChange={handleStockFilterChange}
+            className="flex-1 sm:flex-initial"
           />
         </div>
       </div>

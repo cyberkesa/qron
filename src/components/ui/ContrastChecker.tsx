@@ -14,38 +14,42 @@ const ContrastChecker: React.FC = () => {
       const computedStyle = window.getComputedStyle(element);
       const color = computedStyle.color;
       const backgroundColor = computedStyle.backgroundColor;
-      
+
       // Пропускаем элементы без текста или с прозрачным фоном
-      if (!color || backgroundColor === 'rgba(0, 0, 0, 0)' || !element.textContent?.trim()) {
+      if (
+        !color ||
+        backgroundColor === 'rgba(0, 0, 0, 0)' ||
+        !element.textContent?.trim()
+      ) {
         return;
       }
 
       const contrast = calculateContrast(color, backgroundColor);
-      
+
       if (contrast < 4.5) {
-        console.warn(
-          `🔍 Низкая контрастность (${contrast.toFixed(2)}:1):`,
-          {
-            element,
-            color,
-            backgroundColor,
-            text: element.textContent?.slice(0, 50),
-            classes: element.className,
-          }
-        );
+        console.warn(`🔍 Низкая контрастность (${contrast.toFixed(2)}:1):`, {
+          element,
+          color,
+          backgroundColor,
+          text: element.textContent?.slice(0, 50),
+          classes: element.className,
+        });
       }
     };
 
-    const calculateContrast = (foreground: string, background: string): number => {
+    const calculateContrast = (
+      foreground: string,
+      background: string
+    ): number => {
       const getLuminance = (color: string): number => {
         // Парсим RGB значения из строки
         const rgb = color.match(/\d+/g);
         if (!rgb || rgb.length < 3) return 0;
 
-        const [r, g, b] = rgb.map(val => {
+        const [r, g, b] = rgb.map((val) => {
           const normalized = parseInt(val) / 255;
-          return normalized <= 0.03928 
-            ? normalized / 12.92 
+          return normalized <= 0.03928
+            ? normalized / 12.92
             : Math.pow((normalized + 0.055) / 1.055, 2.4);
         });
 
@@ -62,9 +66,11 @@ const ContrastChecker: React.FC = () => {
 
     const scanForContrastIssues = () => {
       // Сканируем все текстовые элементы
-      const textElements = document.querySelectorAll('p, span, a, h1, h2, h3, h4, h5, h6, button, label, div');
-      
-      textElements.forEach(element => {
+      const textElements = document.querySelectorAll(
+        'p, span, a, h1, h2, h3, h4, h5, h6, button, label, div'
+      );
+
+      textElements.forEach((element) => {
         if (element.textContent?.trim()) {
           checkElementContrast(element);
         }
@@ -101,7 +107,10 @@ const ContrastChecker: React.FC = () => {
  * Хук для проверки конкретных цветов
  */
 export const useContrastValidator = () => {
-  const validateContrast = (foreground: string, background: string): {
+  const validateContrast = (
+    foreground: string,
+    background: string
+  ): {
     ratio: number;
     isAACompliant: boolean;
     isAAACompliant: boolean;
@@ -109,15 +118,17 @@ export const useContrastValidator = () => {
   } => {
     const hexToRgb = (hex: string) => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      } : null;
+      return result
+        ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16),
+          }
+        : null;
     };
 
     const getLuminance = (r: number, g: number, b: number): number => {
-      const [rs, gs, bs] = [r, g, b].map(c => {
+      const [rs, gs, bs] = [r, g, b].map((c) => {
         c = c / 255;
         return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
       });
@@ -128,7 +139,12 @@ export const useContrastValidator = () => {
     const bg = hexToRgb(background);
 
     if (!fg || !bg) {
-      return { ratio: 0, isAACompliant: false, isAAACompliant: false, level: 'fail' };
+      return {
+        ratio: 0,
+        isAACompliant: false,
+        isAAACompliant: false,
+        level: 'fail',
+      };
     }
 
     const l1 = getLuminance(fg.r, fg.g, fg.b);
@@ -168,11 +184,23 @@ export const ContrastTestCard: React.FC<{
         {text}
       </div>
       <div className="text-sm space-y-1">
-        <p>Контрастность: <strong>{result.ratio.toFixed(2)}:1</strong></p>
-        <p>Уровень: <strong className={
-          result.level === 'AAA' ? 'text-green-600' :
-          result.level === 'AA' ? 'text-yellow-600' : 'text-red-600'
-        }>{result.level}</strong></p>
+        <p>
+          Контрастность: <strong>{result.ratio.toFixed(2)}:1</strong>
+        </p>
+        <p>
+          Уровень:{' '}
+          <strong
+            className={
+              result.level === 'AAA'
+                ? 'text-green-600'
+                : result.level === 'AA'
+                  ? 'text-yellow-600'
+                  : 'text-red-600'
+            }
+          >
+            {result.level}
+          </strong>
+        </p>
         <p>WCAG AA: {result.isAACompliant ? '✅' : '❌'}</p>
         <p>WCAG AAA: {result.isAAACompliant ? '✅' : '❌'}</p>
       </div>
@@ -180,4 +208,4 @@ export const ContrastTestCard: React.FC<{
   );
 };
 
-export default ContrastChecker; 
+export default ContrastChecker;

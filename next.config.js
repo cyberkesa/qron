@@ -32,10 +32,10 @@ const nextConfig = {
     optimizeCss: true,
     cssChunking: 'strict',
     optimizePackageImports: [
-      '@heroicons/react', 
-      'lodash', 
+      '@heroicons/react',
+      'lodash',
       '@apollo/client',
-      'react-phone-input-2'
+      'react-phone-input-2',
     ],
     serverActions: {
       bodySizeLimit: '2mb',

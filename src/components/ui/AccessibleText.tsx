@@ -2,7 +2,14 @@ import React from 'react';
 
 interface AccessibleTextProps {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'muted' | 'link' | 'error' | 'success' | 'warning';
+  variant?:
+    | 'primary'
+    | 'secondary'
+    | 'muted'
+    | 'link'
+    | 'error'
+    | 'success'
+    | 'warning';
   size?: 'xs' | 'sm' | 'base' | 'lg' | 'xl';
   className?: string;
   as?: 'p' | 'span' | 'div' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -37,7 +44,8 @@ export const AccessibleText: React.FC<AccessibleTextProps> = ({
     xl: 'text-xl',
   };
 
-  const combinedClassName = `${variantClasses[variant]} ${sizeClasses[size]} ${className}`.trim();
+  const combinedClassName =
+    `${variantClasses[variant]} ${sizeClasses[size]} ${className}`.trim();
 
   return <Component className={combinedClassName}>{children}</Component>;
 };
@@ -80,7 +88,8 @@ export const AccessibleButton: React.FC<{
   const variantClasses = {
     primary: 'bg-blue-700 text-white hover:bg-blue-800 focus:ring-blue-500',
     secondary: 'bg-gray-700 text-white hover:bg-gray-800 focus:ring-gray-500',
-    outline: 'border-2 border-gray-700 text-gray-700 hover:bg-gray-700 hover:text-white focus:ring-gray-500',
+    outline:
+      'border-2 border-gray-700 text-gray-700 hover:bg-gray-700 hover:text-white focus:ring-gray-500',
   };
 
   const sizeClasses = {
@@ -165,7 +174,10 @@ export const useContrastCheck = () => {
     return (lighter + 0.05) / (darker + 0.05);
   };
 
-  const isWCAGCompliant = (contrast: number, level: 'AA' | 'AAA' = 'AA'): boolean => {
+  const isWCAGCompliant = (
+    contrast: number,
+    level: 'AA' | 'AAA' = 'AA'
+  ): boolean => {
     return level === 'AA' ? contrast >= 4.5 : contrast >= 7;
   };
 

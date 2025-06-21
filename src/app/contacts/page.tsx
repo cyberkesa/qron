@@ -24,8 +24,8 @@ const regionContacts = {
     email: 'info@tovari-kron.ru',
     workingHours: 'Пн-Сб: 9:00 - 18:00',
     coordinates: {
-      lat: 55.6122,
-      lng: 37.7153,
+      lat: 55.4387,
+      lng: 37.6630,
     },
   },
   stavropol: {
@@ -35,8 +35,8 @@ const regionContacts = {
     email: 'ug@tovari-kron.ru',
     workingHours: 'Пн-Сб: 9:00 - 18:00',
     coordinates: {
-      lat: 45.0428,
-      lng: 41.9734,
+      lat: 45.0394,
+      lng: 42.0807,
     },
   },
 };
@@ -80,7 +80,7 @@ export default function ContactsPage() {
             <li className="inline-flex items-center">
               <Link
                 href="/"
-                className="text-gray-700 hover:text-blue-700 transition-colors duration-200"
+                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
               >
                 Главная
               </Link>

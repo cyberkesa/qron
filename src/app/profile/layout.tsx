@@ -13,6 +13,7 @@ import {
   ChevronRightIcon,
   HomeIcon,
 } from '@heroicons/react/24/outline';
+import { Breadcrumbs, BreadcrumbItem } from '@/components/ui/Breadcrumbs';
 
 export default function ProfileLayout({
   children,
@@ -56,26 +57,37 @@ export default function ProfileLayout({
 
   // Breadcrumbs setup
   const getBreadcrumbItems = () => {
-    const items = [
-      { label: 'Главная', path: '/' },
-      { label: 'Личный кабинет', path: '/profile' },
+    const items: BreadcrumbItem[] = [
+      { title: 'Главная', href: '/' },
+      { title: 'Личный кабинет', href: '/profile' },
     ];
 
     if (pathname && pathname.includes('/profile/orders')) {
-      items.push({ label: 'Мои заказы', path: '/profile/orders' });
+      items.push({ title: 'Мои заказы', href: '/profile/orders', isLast: true });
     } else if (pathname && pathname.includes('/profile/addresses')) {
-      items.push({ label: 'Мои адреса', path: '/profile/addresses' });
+      items.push({ title: 'Мои адреса', href: '/profile/addresses', isLast: !pathname.includes('/new') && !pathname.includes('/edit') });
 
       if (pathname && pathname.includes('/new')) {
         items.push({
-          label: 'Добавление адреса',
-          path: '/profile/addresses/new',
+          title: 'Добавление адреса',
+          href: '/profile/addresses/new',
+          isLast: true
         });
       } else if (pathname && pathname.includes('/edit')) {
-        items.push({ label: 'Редактирование адреса', path: pathname });
+        items.push({ 
+          title: 'Редактирование адреса', 
+          href: pathname,
+          isLast: true
+        });
       }
     } else if (pathname && pathname.includes('/profile/edit')) {
-      items.push({ label: 'Редактирование профиля', path: '/profile/edit' });
+      items.push({ 
+        title: 'Редактирование профиля', 
+        href: '/profile/edit',
+        isLast: true
+      });
+    } else if (pathname === '/profile') {
+      items[items.length - 1].isLast = true;
     }
 
     return items;
@@ -137,32 +149,7 @@ export default function ProfileLayout({
   return (
     <main className="container mx-auto px-4 py-6">
       {/* Breadcrumbs */}
-      <div className="flex items-center mb-4 text-sm">
-        {breadcrumbItems.map((item, index) => (
-          <div key={item.path} className="flex items-center">
-            {index > 0 && (
-              <ChevronRightIcon className="w-4 h-4 text-gray-400 mx-1" />
-            )}
-            {index === breadcrumbItems.length - 1 ? (
-              <span className="text-gray-500">{item.label}</span>
-            ) : (
-              <Link
-                href={item.path}
-                className="text-gray-700 hover:text-blue-700 transition-colors duration-200"
-              >
-                {index === 0 ? (
-                  <div className="flex items-center">
-                    <HomeIcon className="w-4 h-4 mr-1" />
-                    {item.label}
-                  </div>
-                ) : (
-                  item.label
-                )}
-              </Link>
-            )}
-          </div>
-        ))}
-      </div>
+      <Breadcrumbs items={breadcrumbItems} className="mb-4" />
 
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
         Личный кабинет

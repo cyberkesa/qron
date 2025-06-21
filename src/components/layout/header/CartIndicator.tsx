@@ -16,8 +16,16 @@ const CartIndicator = memo(({ itemCount, totalPrice }: CartIndicatorProps) => {
       <Link
         href="/cart"
         className="relative flex items-center text-gray-700 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
-        aria-label={itemCount > 0 ? `Корзина (${itemCount} товаров) - ${totalPrice}` : 'Корзина'}
-        title={itemCount > 0 ? `В корзине ${itemCount} товаров на сумму ${totalPrice}` : 'Перейти в корзину'}
+        aria-label={
+          itemCount > 0
+            ? `Корзина (${itemCount} товаров) - ${totalPrice}`
+            : 'Корзина'
+        }
+        title={
+          itemCount > 0
+            ? `В корзине ${itemCount} товаров на сумму ${totalPrice}`
+            : 'Перейти в корзину'
+        }
       >
         <div className="flex items-center gap-1 mr-2">
           <ShoppingCartIcon className="h-6 w-6" />

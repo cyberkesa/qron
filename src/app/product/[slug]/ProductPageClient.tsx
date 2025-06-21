@@ -345,8 +345,8 @@ export default function ProductPageClient({ params }: ProductPageProps) {
 
   return (
     <div className="bg-white">
-      {/* Хлебные крошки - уменьшенный режим на мобильных */}
-      <div className="container mx-auto px-3 md:px-4 py-2 md:py-5 text-sm">
+      {/* Хлебные крошки с улучшенной адаптивностью */}
+      <div className="container mx-auto">
         <Breadcrumbs items={buildProductBreadcrumbs(product)} />
       </div>
 
