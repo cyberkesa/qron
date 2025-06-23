@@ -99,9 +99,13 @@ const OptimizedProductCard = memo(
             )}
 
             {/* Статус наличия */}
-            {isOutOfStock && (
+            {isOutOfStock ? (
               <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-gray-500 text-white text-xs font-medium px-1.5 py-0.5 rounded-full z-10">
                 Нет в наличии
+              </div>
+            ) : (
+              <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-green-500 text-white text-xs font-medium px-1.5 py-0.5 rounded-full z-10">
+                В наличии
               </div>
             )}
 

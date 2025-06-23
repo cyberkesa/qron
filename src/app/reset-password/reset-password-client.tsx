@@ -318,31 +318,20 @@ export default function ResetPasswordClient() {
                 >
                   Email *
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <EnvelopeIcon className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="email"
-                    id="emailAddress"
-                    name="emailAddress"
-                    value={emailAddress}
-                    onChange={handleChange}
-                    className={`w-full pl-10 px-4 py-2 border ${
-                      formErrors.emailAddress
-                        ? 'border-red-300'
-                        : isValidEmail(emailAddress) && emailAddress.length > 0
-                          ? 'border-green-300 focus:ring-green-500'
-                          : 'border-gray-300'
-                    } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                    required
-                  />
-                  {isValidEmail(emailAddress) && emailAddress.length > 0 && (
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <CheckCircleIcon className="h-5 w-5 text-green-500" />
-                    </div>
-                  )}
+                <div className="input-icon-left">
+                  <EnvelopeIcon className="input-icon" />
                 </div>
+                <input
+                  type="email"
+                  id="emailAddress"
+                  name="emailAddress"
+                  value={emailAddress}
+                  onChange={handleChange}
+                  className={`w-full input-with-icon-left py-2 sm:py-2.5 border ${
+                    formErrors.emailAddress ? 'border-red-500' : 'border-gray-300'
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
+                  required
+                />
                 {formErrors.emailAddress && (
                   <p className="mt-1 text-sm text-red-600">
                     {formErrors.emailAddress}
@@ -406,25 +395,21 @@ export default function ResetPasswordClient() {
                 >
                   Код подтверждения *
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <CheckCircleIcon className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    id="passwordResetCode"
-                    name="passwordResetCode"
-                    value={resetState.passwordResetCode}
-                    onChange={handleChange}
-                    className={`w-full pl-10 px-4 py-2 border ${
-                      formErrors.passwordResetCode
-                        ? 'border-red-300'
-                        : 'border-gray-300'
-                    } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                    placeholder="Введите код из письма"
-                    required
-                  />
+                <div className="input-icon-left">
+                  <CheckCircleIcon className="input-icon" />
                 </div>
+                <input
+                  type="text"
+                  id="passwordResetCode"
+                  name="passwordResetCode"
+                  value={resetState.passwordResetCode}
+                  onChange={handleChange}
+                  className={`w-full input-with-icons-both py-2 sm:py-2.5 border ${
+                    formErrors.passwordResetCode ? 'border-red-500' : 'border-gray-300'
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
+                  placeholder="Введите код из письма"
+                  required
+                />
                 {formErrors.passwordResetCode && (
                   <p className="mt-1 text-sm text-red-600">
                     {formErrors.passwordResetCode}
@@ -449,66 +434,62 @@ export default function ResetPasswordClient() {
                 >
                   Новый пароль *
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                    <LockClosedIcon className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="newPassword"
-                    name="newPassword"
-                    value={resetState.newPassword}
-                    onChange={handleChange}
-                    className={`w-full pl-9 pr-10 py-2 border ${
-                      formErrors.newPassword
-                        ? 'border-red-300'
-                        : 'border-gray-300'
-                    } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                    required
-                    minLength={6}
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-500 hover:text-gray-700 transition-colors"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
-                    ) : (
-                      <EyeIcon className="h-5 w-5" aria-hidden="true" />
-                    )}
-                  </button>
+                <div className="input-icon-left">
+                  <LockClosedIcon className="input-icon" />
                 </div>
-                {formErrors.newPassword ? (
-                  <p className="mt-1 text-sm text-red-600">
-                    {formErrors.newPassword}
-                  </p>
-                ) : (
-                  <div className="mt-2">
-                    <p className="text-xs text-gray-500 mb-1">
-                      Требования к паролю:
-                    </p>
-                    <ul className="text-xs space-y-1">
-                      {passwordRules.map((rule, index) => (
-                        <li key={index} className="flex items-center">
-                          {rule.valid ? (
-                            <CheckCircleIcon className="h-4 w-4 text-green-500 mr-1" />
-                          ) : (
-                            <ExclamationCircleIcon className="h-4 w-4 text-gray-400 mr-1" />
-                          )}
-                          <span
-                            className={
-                              rule.valid ? 'text-green-700' : 'text-gray-500'
-                            }
-                          >
-                            {rule.text}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="newPassword"
+                  name="newPassword"
+                  value={resetState.newPassword}
+                  onChange={handleChange}
+                  className={`w-full input-with-icons-both py-2 sm:py-2.5 border ${
+                    formErrors.newPassword ? 'border-red-500' : 'border-gray-300'
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  className="input-icon-right text-gray-500 hover:text-gray-700 transition-colors touch-manipulation"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeSlashIcon className="input-icon" aria-hidden="true" />
+                  ) : (
+                    <EyeIcon className="input-icon" aria-hidden="true" />
+                  )}
+                </button>
               </div>
+              {formErrors.newPassword ? (
+                <p className="mt-1 text-sm text-red-600">
+                  {formErrors.newPassword}
+                </p>
+              ) : (
+                <div className="mt-2">
+                  <p className="text-xs text-gray-500 mb-1">
+                    Требования к паролю:
+                  </p>
+                  <ul className="text-xs space-y-1">
+                    {passwordRules.map((rule, index) => (
+                      <li key={index} className="flex items-center">
+                        {rule.valid ? (
+                          <CheckCircleIcon className="h-4 w-4 text-green-500 mr-1" />
+                        ) : (
+                          <ExclamationCircleIcon className="h-4 w-4 text-gray-400 mr-1" />
+                        )}
+                        <span
+                          className={
+                            rule.valid ? 'text-green-700' : 'text-gray-500'
+                          }
+                        >
+                          {rule.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="mb-6">
                 <label
@@ -518,8 +499,8 @@ export default function ResetPasswordClient() {
                   Подтверждение пароля *
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                    <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                  <div className="input-icon-left">
+                    <LockClosedIcon className="input-icon" />
                   </div>
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
@@ -527,32 +508,31 @@ export default function ResetPasswordClient() {
                     name="confirmPassword"
                     value={resetState.confirmPassword}
                     onChange={handleChange}
-                    className={`w-full pl-9 pr-10 py-2 border ${
+                    className={`w-full input-with-icons-both py-2 sm:py-2.5 border ${
                       formErrors.confirmPassword
-                        ? 'border-red-300'
-                        : resetState.newPassword ===
-                              resetState.confirmPassword &&
-                            resetState.confirmPassword.length > 0
-                          ? 'border-green-300'
-                          : 'border-gray-300'
-                    } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                        ? 'border-red-500'
+                        : resetState.newPassword === resetState.confirmPassword &&
+                          resetState.confirmPassword.length > 0
+                        ? 'border-green-300'
+                        : 'border-gray-300'
+                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                     required
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-500 hover:text-gray-700 transition-colors"
+                    className="input-icon-right text-gray-500 hover:text-gray-700 transition-colors touch-manipulation"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? (
-                      <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+                      <EyeSlashIcon className="input-icon" aria-hidden="true" />
                     ) : (
-                      <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                      <EyeIcon className="input-icon" aria-hidden="true" />
                     )}
                   </button>
                   {resetState.newPassword === resetState.confirmPassword &&
                     resetState.confirmPassword.length > 0 && (
-                      <div className="absolute inset-y-0 right-9 flex items-center pointer-events-none">
-                        <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                      <div className="absolute inset-y-0 right-10 flex items-center pointer-events-none">
+                        <CheckCircleIcon className="h-4 w-4 text-green-500" />
                       </div>
                     )}
                 </div>
@@ -566,64 +546,37 @@ export default function ResetPasswordClient() {
                 </p>
               </div>
 
-              <div className="flex items-center justify-between space-x-4">
+              <div className="flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={() => setFormStep(1)}
-                  className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                  onClick={() => {
+                    setFormStep(1);
+                    setFormErrors({});
+                    setErrorMessage('');
+                  }}
+                  className="text-blue-600 hover:text-blue-800 transition-colors text-sm"
                 >
-                  Назад
+                  Вернуться назад
                 </button>
                 <button
                   type="submit"
                   disabled={resetLoading}
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {resetLoading ? (
-                    <div className="flex items-center justify-center">
-                      <svg
-                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Сохранение...
-                    </div>
-                  ) : (
-                    'Сохранить новый пароль'
-                  )}
+                  {resetLoading ? 'Сброс пароля...' : 'Сбросить пароль'}
                 </button>
               </div>
             </form>
           )}
+        </div>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Вспомнили пароль?{' '}
-              <Link
-                href={`/login${
-                  redirectTo !== '/' ? `?redirect=${redirectTo}` : ''
-                }`}
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                Войти
-              </Link>
-            </p>
-          </div>
+        <div className="mt-6 text-center">
+          <Link
+            href="/login"
+            className="text-blue-600 hover:text-blue-800 transition-colors text-sm"
+          >
+            Вернуться на страницу входа
+          </Link>
         </div>
       </div>
     </main>

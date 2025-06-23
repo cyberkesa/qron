@@ -350,8 +350,8 @@ export default function RegisterClient() {
                 Имя *
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <UserIcon className="h-5 w-5 text-gray-400" />
+                <div className="input-icon-left">
+                  <UserIcon className="input-icon" />
                 </div>
                 <input
                   type="text"
@@ -359,9 +359,9 @@ export default function RegisterClient() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`w-full pl-10 px-4 py-2 border ${
-                    formErrors.name ? 'border-red-300' : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  className={`w-full input-with-icon-left py-2 sm:py-2.5 border ${
+                    formErrors.name ? 'border-red-500' : 'border-gray-300'
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                   required
                 />
               </div>
@@ -381,8 +381,8 @@ export default function RegisterClient() {
                 Email *
               </label>
               <div className="relative flex">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                <div className="input-icon-left">
+                  <EnvelopeIcon className="input-icon" />
                 </div>
                 <input
                   type="email"
@@ -390,9 +390,9 @@ export default function RegisterClient() {
                   name="emailAddress"
                   value={formData.emailAddress}
                   onChange={handleChange}
-                  className={`flex-grow pl-10 px-4 py-2 border ${
+                  className={`flex-grow input-with-icons-both py-2 sm:py-2.5 border ${
                     formErrors.emailAddress
-                      ? 'border-red-300'
+                      ? 'border-red-500'
                       : isValidEmail(formData.emailAddress) &&
                           formData.emailAddress.length > 0
                         ? 'border-green-300 focus:ring-green-500'
@@ -402,8 +402,8 @@ export default function RegisterClient() {
                 />
                 {isValidEmail(formData.emailAddress) &&
                   formData.emailAddress.length > 0 && (
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                    <div className="input-icon-right">
+                      <CheckCircleIcon className="input-icon" />
                     </div>
                   )}
                 <button
@@ -475,8 +475,8 @@ export default function RegisterClient() {
                 Пароль *
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                  <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                <div className="input-icon-left">
+                  <LockClosedIcon className="input-icon" />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -484,21 +484,21 @@ export default function RegisterClient() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`w-full pl-9 pr-10 py-2 border ${
-                    formErrors.password ? 'border-red-300' : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  className={`w-full input-with-icons-both py-2 sm:py-2.5 border ${
+                    formErrors.password ? 'border-red-500' : 'border-gray-300'
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                   required
                   minLength={6}
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-500 hover:text-gray-700 transition-colors"
+                  className="input-icon-right text-gray-500 hover:text-gray-700 transition-colors touch-manipulation"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+                    <EyeSlashIcon className="input-icon" aria-hidden="true" />
                   ) : (
-                    <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                    <EyeIcon className="input-icon" aria-hidden="true" />
                   )}
                 </button>
               </div>
@@ -541,8 +541,8 @@ export default function RegisterClient() {
                 Подтверждение пароля *
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                  <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                <div className="input-icon-left">
+                  <LockClosedIcon className="input-icon" />
                 </div>
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -550,31 +550,31 @@ export default function RegisterClient() {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`w-full pl-9 pr-10 py-2 border ${
+                  className={`w-full input-with-icons-both py-2 sm:py-2.5 border ${
                     formErrors.confirmPassword
-                      ? 'border-red-300'
+                      ? 'border-red-500'
                       : formData.password === formData.confirmPassword &&
                           formData.confirmPassword.length > 0
                         ? 'border-green-300'
                         : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                   required
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-500 hover:text-gray-700 transition-colors"
+                  className="input-icon-right text-gray-500 hover:text-gray-700 transition-colors touch-manipulation"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   {showConfirmPassword ? (
-                    <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+                    <EyeSlashIcon className="input-icon" aria-hidden="true" />
                   ) : (
-                    <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                    <EyeIcon className="input-icon" aria-hidden="true" />
                   )}
                 </button>
                 {formData.password === formData.confirmPassword &&
                   formData.confirmPassword.length > 0 && (
-                    <div className="absolute inset-y-0 right-9 flex items-center pointer-events-none">
-                      <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                    <div className="input-icon-right">
+                      <CheckCircleIcon className="input-icon" />
                     </div>
                   )}
               </div>
@@ -596,8 +596,8 @@ export default function RegisterClient() {
                 Код подтверждения *
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                <div className="input-icon-left">
+                  <EnvelopeIcon className="input-icon" />
                 </div>
                 <input
                   type="text"
@@ -605,14 +605,14 @@ export default function RegisterClient() {
                   name="verificationCode"
                   value={verificationState.emailAddressVerificationCode}
                   onChange={handleChange}
-                  className={`w-full pl-10 px-4 py-2 border ${
+                  className={`w-full input-with-icons-both py-2 sm:py-2.5 border ${
                     formErrors.verificationCode
-                      ? 'border-red-300'
+                      ? 'border-red-500'
                       : verificationState.emailAddressVerificationCode.length >
                           0
                         ? 'border-blue-300'
                         : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                   placeholder="Введите код из письма"
                   required
                 />

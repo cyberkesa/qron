@@ -153,8 +153,19 @@ export const ProductCarousel = ({ products }: ProductCarouselProps) => {
             (_, index) => (
               <div
                 key={index}
-                className="w-1.5 h-1.5 rounded-full bg-gray-300 transition-colors duration-200"
-              />
+                className="cursor-pointer"
+                onClick={() => {
+                  if (scrollContainerRef.current) {
+                    const cardWidth = getCardWidth();
+                    scrollContainerRef.current.scrollTo({
+                      left: cardWidth * index * 2,
+                      behavior: 'smooth',
+                    });
+                  }
+                }}
+              >
+                <span className="block w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-gray-300 transition-colors duration-200" />
+              </div>
             )
           )}
         </div>

@@ -37,8 +37,9 @@ export const VirtualizedProductGrid: React.FC<VirtualizedProductGridProps> = ({
 
   // Адаптивное количество элементов в ряду
   const responsiveItemsPerRow = useMemo(() => {
-    if (containerSize.width < 640) return 2; // mobile
-    if (containerSize.width < 1024) return 3; // tablet
+    if (containerSize.width < 640) return 1; // mobile
+    if (containerSize.width < 768) return 2; // small tablets
+    if (containerSize.width < 1024) return 3; // tablets
     return itemsPerRow; // desktop
   }, [containerSize.width, itemsPerRow]);
 
@@ -202,7 +203,7 @@ export const MobileVirtualizedGrid: React.FC<{
 
   return (
     <div className={className}>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {visibleProducts.map((product, index) => (
           <OptimizedProductCard
             key={product.id}

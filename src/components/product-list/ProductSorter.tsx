@@ -72,15 +72,15 @@ export const ProductSorter = ({
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white border border-gray-200 rounded-lg py-2 px-4 flex items-center justify-between w-full hover:border-gray-300 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm min-h-[38px]"
+        className="bg-white border border-gray-200 rounded-lg py-2 px-4 flex items-center justify-between w-full hover:border-gray-300 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm min-h-[38px] min-w-0"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
-        <span className="text-gray-800 truncate flex items-center">
+        <span className="text-gray-800 font-medium truncate flex items-center">
           {selectedOption.shortLabel}
         </span>
         <ChevronDownIcon
-          className={`h-4 w-4 text-gray-500 transition-transform duration-200 ml-1.5 flex-shrink-0 ${
+          className={`h-4 w-4 text-gray-500 transition-transform duration-200 ml-2 flex-shrink-0 ${
             isOpen ? 'transform rotate-180' : ''
           }`}
         />
@@ -97,13 +97,13 @@ export const ProductSorter = ({
               }
               className={`product-sorter-option touch-manipulation w-full text-left px-4 py-2 hover:bg-gray-50 ${
                 option.value === value
-                  ? 'bg-blue-50 text-blue-700'
+                  ? 'bg-blue-50 text-blue-700 font-medium'
                   : 'text-gray-700'
               } flex items-center justify-between`}
               role="option"
               aria-selected={option.value === value}
             >
-              <span className="truncate text-sm">{option.shortLabel}</span>
+              <span className="truncate text-sm">{option.label}</span>
               {option.value === value && (
                 <CheckIcon className="h-4 w-4 flex-shrink-0 ml-1.5 text-blue-600" />
               )}
@@ -113,21 +113,7 @@ export const ProductSorter = ({
       )}
 
       {/* Mobile Sorter Buttons */}
-      <div className="md:hidden flex items-center gap-2 overflow-x-auto py-1 w-full no-scrollbar">
-        {sortOptions.map((option) => (
-          <button
-            key={option.value}
-            onClick={() => handleOptionClick(option.value as ProductSortOrder)}
-            className={`whitespace-nowrap px-3 py-2 rounded-lg text-sm flex items-center justify-center min-h-[38px] border transition-all ${
-              value === option.value
-                ? 'bg-blue-50 text-blue-700'
-                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+      {/* Отдельные кнопки сортировки удалены по запросу пользователя */}
     </div>
   );
 };

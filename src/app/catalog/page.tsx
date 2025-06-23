@@ -220,10 +220,10 @@ export default function CatalogPage() {
 
   const ProductGrid = ({ products }: { products: Product[] }) =>
     products.length > 0 ? (
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-        {products.map((product, index) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+        {products.map((product) => (
           <ProductCard
-            key={`catalog-${product.id}-${index}`}
+            key={product.id}
             product={product}
           />
         ))}
@@ -317,11 +317,11 @@ export default function CatalogPage() {
           {/* Мобильные фильтры */}
           {showMobileFilters && (
             <div
-              className="fixed inset-0 z-50 bg-black/60 lg:hidden"
+              className="fixed inset-0 z-50 bg-black/60 lg:hidden touch-none"
               onClick={toggleMobileFilters}
             >
               <div
-                className="absolute right-0 top-0 h-full w-[320px] max-w-[85vw] bg-white overflow-y-auto"
+                className="absolute right-0 top-0 h-full w-[85vw] sm:w-[420px] bg-white overflow-y-auto pb-safe"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
@@ -352,7 +352,7 @@ export default function CatalogPage() {
 
           {/* Десктопные фильтры */}
           <div className="hidden lg:block">
-            <div className="sticky top-24">
+            <div className="sticky top-header md:top-20 lg:top-24">
               <ProductFilters
                 categories={categories}
                 filters={filters}
@@ -374,12 +374,13 @@ export default function CatalogPage() {
                 <div className="flex gap-3 w-full sm:w-auto">
                   <button
                     onClick={toggleMobileFilters}
-                    className="lg:hidden flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-initial min-h-[38px]"
+                    className="lg:hidden flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-initial max-w-[160px]"
                   >
                     <AdjustmentsHorizontalIcon className="h-4 w-4 mr-2 text-gray-600" />
-                    Фильтры
+                    <span className="xs:hidden">Фильтры</span>
+                    <span className="hidden xs:inline">Фильтры</span>
                   </button>
-                  <div className="flex-1 sm:flex-initial min-w-[120px]">
+                  <div className="flex-1 min-w-0">
                     <ProductSorter
                       value={filters.sortOrder}
                       onChange={(newSortOrder) =>

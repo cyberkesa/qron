@@ -168,7 +168,7 @@ const ProductInfo = ({
         )}
 
         {/* Кнопка добавления в корзину для десктопа */}
-        <div className="hidden lg:block">
+        <div className="block">
           {currentCartQuantity > 0 && onUpdateQuantity ? (
             <div className="flex items-center justify-center">
               <QuantityCounter

@@ -37,7 +37,6 @@ import ProductImageGallery, {
 } from '@/components/product/ProductImageGallery';
 import ProductInfo from '@/components/product/ProductInfo';
 import ProductTabs from '@/components/product/ProductTabs';
-import MobileAddToCart from '@/components/product/MobileAddToCart';
 import RegionSelector from '@/components/product/RegionSelector';
 
 // Типы для компонента страницы продукта
@@ -418,20 +417,12 @@ export default function ProductPageClient({ params }: ProductPageProps) {
       </div>
 
       {/* "Липкая" панель покупки для мобильных устройств */}
-      <MobileAddToCart
-        price={product.price}
-        formatPrice={formatPrice}
-        isAddingToCart={isAddingToCart}
-        notAvailableInRegion={notAvailableInRegion}
-        onAddToCart={handleAddToCart}
-        onUpdateQuantity={handleUpdateQuantity}
-        currentCartQuantity={currentCartQuantity}
-      />
+      {/* Removing the mobile sticky cart button as requested */}
 
       {/* Блоки рекомендаций */}
-      <div className="pb-24 md:pb-8">
+      <div className="pb-8">
         {' '}
-        {/* Extra padding at bottom for mobile for sticky cart button */}
+        {/* Reduced padding at bottom now that sticky cart button is removed */}
         {/* Блок с похожими товарами */}
         {data?.productBySlug && (
           <div className="mt-6 md:mt-12">

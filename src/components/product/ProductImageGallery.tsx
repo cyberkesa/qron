@@ -64,14 +64,15 @@ const ProductImageGallery = ({
               <Image
                 src={currentImage.url}
                 alt={currentImage.alt}
-                className={`object-contain p-4 md:p-8 transition-all duration-500 ${
+                className={`object-contain p-2 sm:p-4 md:p-8 transition-all duration-500 ${
                   isImageLoading ? 'opacity-0' : 'opacity-100'
                 }`}
                 fill
-                sizes="(max-width: 768px) 100vw, 50vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, 50vw"
                 priority={selectedImageIndex === 0}
                 quality={95}
                 onLoad={handleImageLoad}
+                unoptimized={true}
               />
 
               {/* Кнопка увеличения */}
@@ -94,7 +95,7 @@ const ProductImageGallery = ({
           {images.length > 1 && (
             <>
               <button
-                className="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-white/95 backdrop-blur-sm p-2 md:p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 group/nav opacity-70 md:opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                className="absolute left-1 sm:left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-white/95 backdrop-blur-sm p-1.5 sm:p-2 md:p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 group/nav opacity-70 md:opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
                 onClick={() =>
                   handleImageChange(
                     (selectedImageIndex - 1 + images.length) % images.length
@@ -103,36 +104,42 @@ const ProductImageGallery = ({
                 aria-label="Предыдущее изображение"
                 style={{ WebkitTapHighlightColor: 'transparent' }}
               >
-                <ChevronLeftIcon className="w-4 h-4 md:w-5 md:h-5 text-gray-700 group-hover/nav:text-blue-600 transition-colors" />
+                <ChevronLeftIcon className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gray-700 group-hover/nav:text-blue-600 transition-colors" />
               </button>
 
               <button
-                className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-white/95 backdrop-blur-sm p-2 md:p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 group/nav opacity-70 md:opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                className="absolute right-1 sm:right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-white/95 backdrop-blur-sm p-1.5 sm:p-2 md:p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 group/nav opacity-70 md:opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
                 onClick={() =>
                   handleImageChange((selectedImageIndex + 1) % images.length)
                 }
                 aria-label="Следующее изображение"
                 style={{ WebkitTapHighlightColor: 'transparent' }}
               >
-                <ChevronRightIcon className="w-4 h-4 md:w-5 md:h-5 text-gray-700 group-hover/nav:text-blue-600 transition-colors" />
+                <ChevronRightIcon className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gray-700 group-hover/nav:text-blue-600 transition-colors" />
               </button>
             </>
           )}
 
           {/* Индикатор изображений */}
           {images.length > 1 && (
-            <div className="absolute bottom-3 md:bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1.5 md:gap-2 opacity-90 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-1/2 transform -translate-x-1/2 flex gap-0.5 sm:gap-1 md:gap-2 opacity-90 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
               {images.map((_, index) => (
-                <button
+                <div 
                   key={index}
-                  className={`rounded-full transition-all duration-300 ${
-                    selectedImageIndex === index
-                      ? 'bg-blue-600 w-3 md:w-6 h-2 md:h-2'
-                      : 'bg-white/70 hover:bg-white w-2 h-2'
-                  }`}
                   onClick={() => handleImageChange(index)}
+                  className="cursor-pointer focus:outline-none"
+                  role="button"
+                  tabIndex={0}
                   aria-label={`Перейти к изображению ${index + 1}`}
-                />
+                >
+                  <span
+                    className={`block rounded-full ${
+                      selectedImageIndex === index
+                        ? 'bg-blue-600 w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3'
+                        : 'bg-white/70 w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2'
+                    }`}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -165,6 +172,7 @@ const ProductImageGallery = ({
                   className="object-contain p-1.5 md:p-2 transition-transform duration-300 group-hover/thumb:scale-110"
                   fill
                   sizes="(max-width: 640px) 64px, (max-width: 768px) 80px, 96px"
+                  unoptimized={true}
                 />
 
                 {/* Overlay для неактивных миниатюр */}

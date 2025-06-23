@@ -149,8 +149,8 @@ export default function LoginClient() {
               Email
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <EnvelopeIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+              <div className="input-icon-left">
+                <EnvelopeIcon className="input-icon" />
               </div>
               <input
                 type="email"
@@ -160,7 +160,7 @@ export default function LoginClient() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="example@mail.ru"
-                className={`w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-2.5 border ${
+                className={`w-full input-with-icon-left py-2 sm:py-2.5 border ${
                   formErrors.email ? 'border-red-500' : 'border-gray-300'
                 } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                 autoComplete="email"
@@ -182,8 +182,8 @@ export default function LoginClient() {
               Пароль
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <LockClosedIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+              <div className="input-icon-left">
+                <LockClosedIcon className="input-icon" />
               </div>
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -192,7 +192,7 @@ export default function LoginClient() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Введите пароль"
-                className={`w-full pl-9 sm:pl-10 pr-9 sm:pr-10 py-2 sm:py-2.5 border ${
+                className={`w-full input-with-icons-both py-2 sm:py-2.5 border ${
                   formErrors.password ? 'border-red-500' : 'border-gray-300'
                 } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                 autoComplete="current-password"
@@ -201,17 +201,17 @@ export default function LoginClient() {
               <button
                 type="button"
                 aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 transition-colors touch-manipulation"
+                className="input-icon-right text-gray-500 hover:text-gray-700 transition-colors touch-manipulation"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
                   <EyeSlashIcon
-                    className="h-4 w-4 sm:h-5 sm:w-5"
+                    className="input-icon"
                     aria-hidden="true"
                   />
                 ) : (
                   <EyeIcon
-                    className="h-4 w-4 sm:h-5 sm:w-5"
+                    className="input-icon"
                     aria-hidden="true"
                   />
                 )}
