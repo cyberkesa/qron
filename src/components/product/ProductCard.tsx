@@ -65,7 +65,7 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
     return cartItem ? cartItem.quantity : 0;
   }, [unifiedCart, product.id]);
 
-  // Получаем уведомление о статусе товара (в наличии/нет в наличии)
+  // Получаем уведомление о статусе товара (показываем только "Нет в наличии" и "Скоро в наличии")
   const getStockStatusBadge = useCallback(() => {
     switch (product.stockAvailabilityStatus) {
       case ProductStockAvailabilityStatus.OUT_OF_STOCK:
@@ -81,11 +81,8 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
           </div>
         );
       case ProductStockAvailabilityStatus.IN_STOCK:
-        return (
-          <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-green-600 text-white text-xs font-medium px-1.5 sm:px-2 py-0.5 rounded-full z-20 pointer-events-none shadow-sm">
-            В наличии
-          </div>
-        );
+        // Не показываем плашку "В наличии"
+        return null;
       default:
         return null;
     }
