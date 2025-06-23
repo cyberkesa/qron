@@ -49,14 +49,14 @@ const getIconsByType = (type: NotificationType) => {
 const getBgColorByType = (type: NotificationType) => {
   switch (type) {
     case 'success':
-      return 'bg-gray-50';
+      return 'bg-gradient-to-r from-green-50 to-emerald-50';
     case 'error':
-      return 'bg-gray-50';
+      return 'bg-gradient-to-r from-red-50 to-rose-50';
     case 'warning':
-      return 'bg-gray-50';
+      return 'bg-gradient-to-r from-amber-50 to-yellow-50';
     case 'info':
     default:
-      return 'bg-gray-50';
+      return 'bg-gradient-to-r from-blue-50 to-indigo-50';
   }
 };
 
@@ -77,42 +77,42 @@ const getGlowColorByType = (type: NotificationType) => {
 const getBorderColorByType = (type: NotificationType) => {
   switch (type) {
     case 'success':
-      return 'border-gray-300';
+      return 'border-green-300';
     case 'error':
-      return 'border-gray-400';
+      return 'border-red-300';
     case 'warning':
-      return 'border-gray-300';
+      return 'border-amber-300';
     case 'info':
     default:
-      return 'border-gray-300';
+      return 'border-blue-300';
   }
 };
 
 const getTextColorByType = (type: NotificationType) => {
   switch (type) {
     case 'success':
-      return 'text-gray-800';
+      return 'text-green-800';
     case 'error':
-      return 'text-gray-900';
+      return 'text-red-800';
     case 'warning':
-      return 'text-gray-800';
+      return 'text-amber-800';
     case 'info':
     default:
-      return 'text-gray-800';
+      return 'text-blue-800';
   }
 };
 
 const getIconColorByType = (type: NotificationType) => {
   switch (type) {
     case 'success':
-      return 'text-gray-600';
+      return 'text-green-600';
     case 'error':
-      return 'text-gray-700';
+      return 'text-red-600';
     case 'warning':
-      return 'text-gray-600';
+      return 'text-amber-600';
     case 'info':
     default:
-      return 'text-gray-600';
+      return 'text-blue-600';
   }
 };
 
@@ -162,7 +162,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
   return (
     <div
-      className={`${bgColor} px-3 py-2 rounded-lg shadow-md ${animationClass} transition-all duration-200 w-full max-w-[280px] border ${borderColor}`}
+      className={`${bgColor} px-3 py-2 rounded-lg shadow-md ${getGlowColorByType(notification.type)} ${animationClass} transition-all duration-200 w-full max-w-[280px] border ${borderColor}`}
       role="alert"
       style={{
         animationDelay: `${animationDelay}ms`,

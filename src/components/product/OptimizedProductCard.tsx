@@ -104,7 +104,7 @@ const OptimizedProductCard = memo(
                 Нет в наличии
               </div>
             ) : (
-              <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-green-500 text-white text-xs font-medium px-1.5 py-0.5 rounded-full z-10">
+              <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-green-600 text-white text-xs font-medium px-1.5 py-0.5 rounded-full z-10 shadow-sm">
                 В наличии
               </div>
             )}

@@ -368,6 +368,7 @@ export const ProductFilters = ({
           <StockFilter
             value={filters.hideOutOfStock}
             onChange={handleStockFilterChange}
+            showHint={true}
           />
 
           <label className="flex items-center cursor-pointer">

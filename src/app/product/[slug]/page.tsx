@@ -71,9 +71,9 @@ const InfoCard = ({
     className={`bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${className}`}
   >
     <div className="p-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-          <Icon className="w-5 h-5 text-blue-600" />
+      <div className="flex items-center gap-2 sm:gap-3 mb-4">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
         </div>
         <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
       </div>
@@ -84,7 +84,7 @@ const InfoCard = ({
 
 // Компонент загрузки
 const ProductSkeleton = () => (
-  <div className="min-h-screen bg-gray-50">
+  <div className="min-h-screen bg-white">
     <div className="container mx-auto px-4 py-6">
       <div className="animate-pulse">
         {/* Breadcrumbs skeleton */}
@@ -98,7 +98,7 @@ const ProductSkeleton = () => (
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Image skeleton */}
-          <div className="aspect-square bg-gray-200 rounded-2xl"></div>
+          <div className="max-w-[480px] w-full aspect-square bg-gray-200 rounded-2xl"></div>
 
           {/* Info skeleton */}
           <div className="space-y-6">
@@ -347,7 +347,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto bg-white rounded-2xl border border-red-200 p-8 text-center shadow-sm">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -371,7 +371,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   if (!data || !data.productBySlug) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto bg-white rounded-2xl border border-yellow-200 p-8 text-center shadow-sm">
             <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -402,7 +402,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     (product as { attributes?: ProductAttribute[] }).attributes || [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Хлебные крошки */}
       <div className="bg-white border-b border-gray-100">
         <div className="container mx-auto px-4 py-4">
@@ -412,9 +412,9 @@ export default function ProductPage({ params }: ProductPageProps) {
 
       {/* Основной контент */}
       <div className="container mx-auto px-4 py-6 lg:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10 lg:gap-12 mb-8">
           {/* Галерея изображений */}
-          <div className="lg:sticky lg:top-8 self-start">
+          <div className="lg:sticky top-[var(--header-height,4.5rem)] pt-safe self-start">
             <ProductImageGallery
               images={productImages}
               productName={product.name}
@@ -457,16 +457,16 @@ export default function ProductPage({ params }: ProductPageProps) {
                 {productAttributes.map((attribute, index) => (
                   <div
                     key={attribute.name}
-                    className={`flex justify-between items-start py-3 ${
+                    className={`grid grid-cols-[auto_1fr] gap-4 py-3 break-words ${
                       index !== productAttributes.length - 1
                         ? 'border-b border-gray-100'
                         : ''
                     }`}
                   >
-                    <span className="text-sm font-medium text-gray-600 flex-1">
+                    <span className="text-sm font-medium text-gray-600">
                       {attribute.name}
                     </span>
-                    <span className="text-sm font-semibold text-gray-900 flex-1 text-right">
+                    <span className="text-sm font-semibold text-gray-900 text-right">
                       {attribute.value}
                     </span>
                   </div>

@@ -16,9 +16,9 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow no-shift pt-2 pb-20 md:pb-0">
-          <PageContainer noPadding className="px-4 py-4">
+          <div className="container-layout py-4">
             <PageTransition>{children}</PageTransition>
-          </PageContainer>
+          </div>
         </main>
         <Footer />
         <BottomNavigation />

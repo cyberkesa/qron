@@ -80,6 +80,12 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
             Скоро в наличии
           </div>
         );
+      case ProductStockAvailabilityStatus.IN_STOCK:
+        return (
+          <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-green-600 text-white text-xs font-medium px-1.5 sm:px-2 py-0.5 rounded-full z-20 pointer-events-none shadow-sm">
+            В наличии
+          </div>
+        );
       default:
         return null;
     }

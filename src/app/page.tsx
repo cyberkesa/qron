@@ -51,7 +51,7 @@ const HERO_BENEFITS = [
   {
     title: 'Бесплатная доставка',
     description: 'При заказе от 5000 ₽',
-    detail: 'Доставим в любую точку региона',
+    detail: 'Доставим в любую точку региона в кратчайшие сроки',
     icon: TruckIcon,
     color: 'blue',
     href: '/delivery',
@@ -59,7 +59,7 @@ const HERO_BENEFITS = [
   {
     title: 'Скидка 10%',
     description: 'На строительные материалы',
-    detail: 'Акция действует до конца месяца',
+    detail: 'Акция действует до конца месяца на весь ассортимент',
     icon: TagIcon,
     color: 'green',
     href: '/special-offers',
@@ -67,7 +67,7 @@ const HERO_BENEFITS = [
   {
     title: 'Гарантия качества',
     description: 'Более 1000+ товаров',
-    detail: 'Сертифицированная продукция',
+    detail: 'Сертифицированная продукция от проверенных поставщиков',
     icon: ShieldCheckIcon,
     color: 'amber',
     href: '/about',
@@ -115,18 +115,18 @@ const BenefitCard = memo(
     const colorClasses = {
       blue: {
         bg: 'from-blue-500 to-blue-600',
-        text: 'text-blue-100',
-        button: 'bg-blue-600/30 hover:bg-blue-600/50',
+        text: 'text-blue-50',
+        button: 'bg-blue-500/40 hover:bg-blue-500/60',
       },
       green: {
-        bg: 'from-green-500 to-green-600',
-        text: 'text-green-100',
-        button: 'bg-green-600/30 hover:bg-green-600/50',
+        bg: 'from-emerald-500 to-emerald-600',
+        text: 'text-emerald-50',
+        button: 'bg-emerald-500/40 hover:bg-emerald-500/60',
       },
       amber: {
         bg: 'from-amber-500 to-amber-600',
-        text: 'text-amber-100',
-        button: 'bg-amber-600/30 hover:bg-amber-600/50',
+        text: 'text-amber-50',
+        button: 'bg-amber-500/40 hover:bg-amber-500/60',
       },
     };
 
@@ -135,39 +135,44 @@ const BenefitCard = memo(
 
     return (
       <div
-        className={`bg-gradient-to-br ${colors.bg} rounded-lg sm:rounded-xl p-1 sm:p-2 md:p-4 lg:p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 benefit-card-compact`}
+        className={`bg-gradient-to-br ${colors.bg} rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 lg:p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform sm:hover:-translate-y-1 flex flex-col h-full`}
       >
-        {/* Иконка - центрируем на мобильных */}
-        <div className="flex justify-center mb-1 sm:mb-2">
+        {/* Иконка */}
+        <div className="flex sm:justify-start justify-center mb-2 sm:mb-3">
           <div className="flex-shrink-0">
-            <IconComponent className="h-3 w-3 sm:h-4 sm:w-4 md:h-6 md:w-6 lg:h-8 lg:w-8" />
+            <IconComponent
+              className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7"
+              aria-hidden="true"
+            />
           </div>
         </div>
 
-        {/* Заголовок и описание - центрируем на мобильных */}
+        {/* Заголовок и описание */}
         <div className="text-center sm:text-left">
-          <h3 className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-bold mb-0.5 sm:mb-1 leading-tight">
+          <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold mb-1 sm:mb-2 leading-tight">
             {benefit.title}
           </h3>
-          <p className="text-xs sm:text-sm md:text-base font-medium mb-1 sm:mb-2 leading-tight">
+          <p className="text-xs sm:text-sm md:text-base font-medium mb-2 sm:mb-3 leading-tight">
             {benefit.description}
           </p>
         </div>
 
-        {/* Детали - скрываем на очень маленьких экранах */}
+        {/* Детали */}
         <p
-          className={`hidden sm:block text-xs md:text-sm ${colors.text} mb-2 md:mb-3 lg:mb-4 text-center sm:text-left details`}
+          className={`text-xs md:text-sm ${colors.text} mb-3 md:mb-4 text-center sm:text-left line-clamp-2 sm:line-clamp-3`}
         >
           {benefit.detail}
         </p>
 
-        {/* Кнопка - скрываем на мобильных, показываем на планшетах и больше */}
-        <Link
-          href={benefit.href}
-          className={`hidden sm:inline-block text-white ${colors.button} px-2 md:px-3 lg:px-4 py-1 md:py-1.5 lg:py-2 rounded-md lg:rounded-lg text-xs md:text-sm font-medium transition-colors w-full text-center button`}
-        >
-          Подробнее
-        </Link>
+        {/* Кнопка - показываем на всех устройствах */}
+        <div className="mt-auto">
+          <Link
+            href={benefit.href}
+            className={`inline-block text-white ${colors.button} px-3 md:px-4 py-1.5 md:py-2 rounded-md lg:rounded-lg text-xs md:text-sm font-medium transition-colors w-full text-center`}
+          >
+            Подробнее
+          </Link>
+        </div>
       </div>
     );
   }
@@ -178,7 +183,7 @@ BenefitCard.displayName = 'BenefitCard';
 // Компонент каталога
 const CatalogSection = memo(() => (
   <section className="mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 lg:p-8 border border-blue-100 shadow-sm">
+    <div className="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg sm:rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 border border-blue-200 shadow-md max-w-screen-md mx-auto">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-3 sm:space-y-4 lg:space-y-0">
         <div className="flex-1">
           <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2 md:mb-3">
@@ -190,10 +195,13 @@ const CatalogSection = memo(() => (
         </div>
         <Link
           href="/catalog"
-          className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium flex items-center justify-center transition-colors text-sm sm:text-base"
+          className="w-full lg:w-auto bg-blue-500 hover:bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-md sm:rounded-lg font-medium flex items-center justify-center transition-colors text-sm sm:text-base shadow-md hover:shadow-lg"
         >
           Перейти в каталог
-          <ArrowRightIcon className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+          <ArrowRightIcon
+            className="ml-2 h-4 w-4 sm:h-5 sm:w-5"
+            aria-hidden="true"
+          />
         </Link>
       </div>
     </div>
@@ -204,24 +212,30 @@ CatalogSection.displayName = 'CatalogSection';
 
 // Компонент лучших предложений
 const BestDealsSection = memo(({ products }: { products: Product[] }) => {
-  if (!products.length) return null;
+  if (!products.length || products.length < 4) return null;
 
   return (
     <section className="mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 border border-amber-100 shadow-sm">
+      <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 border border-amber-200 shadow-md">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 md:mb-6 space-y-2 sm:space-y-0">
           <div className="flex items-center">
-            <FireIcon className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-orange-500 mr-2 sm:mr-3 flex-shrink-0" />
+            <FireIcon
+              className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-orange-600 mr-2 sm:mr-3 flex-shrink-0"
+              aria-hidden="true"
+            />
             <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
               Лучшие предложения
             </h2>
           </div>
           <Link
             href="/best-deals"
-            className="flex items-center text-orange-600 hover:text-orange-700 transition-colors text-xs sm:text-sm font-medium"
+            className="flex items-center text-orange-600 hover:text-orange-700 transition-colors text-xs sm:text-sm font-medium hover:underline"
           >
             Смотреть все
-            <ChevronRightIcon className="ml-1 w-3 h-3 sm:w-4 sm:h-4" />
+            <ChevronRightIcon
+              className="ml-1 w-3 h-3 sm:w-4 sm:h-4"
+              aria-hidden="true"
+            />
           </Link>
         </div>
 
@@ -230,7 +244,7 @@ const BestDealsSection = memo(({ products }: { products: Product[] }) => {
         </div>
 
         <div className="mt-3 sm:mt-4 text-center">
-          <span className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-2 rounded-full text-xs sm:text-sm bg-orange-100 text-orange-800">
+          <span className="inline-flex items-center px-2 sm:px-3 py-1 sm:py-2 rounded-full text-xs sm:text-sm bg-gradient-to-r from-orange-200 to-amber-200 text-orange-800 shadow-sm border border-orange-300">
             <FireIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
             Специальные цены
           </span>
@@ -244,8 +258,8 @@ BestDealsSection.displayName = 'BestDealsSection';
 
 // Компонент о компании
 const CompanySection = memo(() => (
-  <section className="bg-[#F8FAFC] py-[60px] md:py-[40px]">
-    <div className="container mx-auto max-w-[1120px] px-4 md:px-3">
+  <section className="bg-gradient-to-b from-white to-blue-50 py-[60px] md:py-[40px] pb-safe">
+    <div className="container mx-auto max-w-7xl px-4 md:px-3">
       {/* Заголовок */}
       <h2 className="text-[28px] md:text-[24px] font-bold text-[#1A1A1A] leading-[1.3] mb-6 md:mb-4">
         {COMPANY_INFO.title}
@@ -304,7 +318,7 @@ const CompanySection = memo(() => (
       <div className="text-center">
         <Link
           href="/contact"
-          className="inline-block w-full md:max-w-[280px] bg-[#2563EB] hover:bg-[#1E4BB8] text-white font-semibold text-base py-3 px-6 rounded-md transition-all duration-200 hover:shadow-[0_2px_8px_rgba(0,0,0,0.1)]"
+          className="inline-block w-full md:max-w-[280px] bg-blue-500 hover:bg-blue-600 text-white font-semibold text-base py-3 px-6 rounded-md transition-all duration-300 shadow-md hover:shadow-lg"
         >
           Связаться с нами
         </Link>
@@ -317,8 +331,8 @@ CompanySection.displayName = 'CompanySection';
 
 // Компонент мобильного приложения
 const MobileAppSection = memo(() => (
-  <section className="mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 lg:p-8 border border-blue-200 shadow-sm">
+  <section className="mb-4 sm:mb-6 md:mb-8 lg:mb-12 pb-safe">
+    <div className="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 lg:p-8 border border-blue-200 shadow-md">
       <div className="text-center max-w-4xl mx-auto">
         <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4">
           {APP_INFO.title}
@@ -333,7 +347,7 @@ const MobileAppSection = memo(() => (
             href="https://apps.apple.com/ru/app/крон-интернет-магазин/id1611541742"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 sm:flex-initial bg-blue-600 text-white px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-md sm:rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors text-sm sm:text-base"
+            className="flex-1 sm:flex-initial bg-blue-500 text-white px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-md sm:rounded-lg flex items-center justify-center hover:bg-blue-600 transition-all duration-300 text-sm sm:text-base shadow-md hover:shadow-lg"
           >
             <svg
               className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-2"
@@ -351,7 +365,7 @@ const MobileAppSection = memo(() => (
             href="https://www.rustore.ru/catalog/app/ru.tovarikron.android"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 sm:flex-initial bg-blue-600 text-white px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-md sm:rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors text-sm sm:text-base"
+            className="flex-1 sm:flex-initial bg-blue-500 text-white px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-md sm:rounded-lg flex items-center justify-center hover:bg-blue-600 transition-all duration-300 text-sm sm:text-base shadow-md hover:shadow-lg"
           >
             <svg
               className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-2"
@@ -376,19 +390,19 @@ MobileAppSection.displayName = 'MobileAppSection';
 const LoadingSection = memo(() => (
   <div className="animate-pulse space-y-6 sm:space-y-8">
     {/* Hero skeleton */}
-    <div className="h-48 sm:h-64 bg-gray-200 rounded-xl"></div>
+    <div className="aspect-square max-w-[480px] bg-gray-200 rounded-xl"></div>
 
     {/* Cards skeleton */}
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="bg-gray-200 h-32 sm:h-40 rounded-lg"></div>
+        <div key={index} className="bg-gray-200 aspect-[4/3] rounded-lg"></div>
       ))}
     </div>
 
     {/* Products skeleton */}
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
       {Array.from({ length: 8 }).map((_, index) => (
-        <div key={index} className="bg-gray-200 h-48 sm:h-72 rounded-lg"></div>
+        <div key={index} className="bg-gray-200 aspect-square rounded-lg"></div>
       ))}
     </div>
   </div>
@@ -593,8 +607,8 @@ export default function Home() {
     return (
       <>
         {/* Hero секция с преимуществами */}
-        <section className="mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-          <div className="grid grid-cols-3 lg:grid-cols-3 gap-1 sm:gap-2 md:gap-4 lg:gap-6 benefits-grid">
+        <section className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 benefits-grid">
             {HERO_BENEFITS.map((benefit, index) => (
               <BenefitCard key={index} benefit={benefit} />
             ))}
@@ -621,12 +635,12 @@ export default function Home() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse">
-          <div className="h-64 bg-gray-200 rounded-xl mb-8" />
+          <div className="aspect-square max-w-[480px] bg-gray-200 rounded-xl mb-8" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-gray-200 h-72 rounded-lg" />
-            <div className="bg-gray-200 h-72 rounded-lg" />
-            <div className="bg-gray-200 h-72 rounded-lg" />
-            <div className="bg-gray-200 h-72 rounded-lg" />
+            <div className="bg-gray-200 aspect-square rounded-lg" />
+            <div className="bg-gray-200 aspect-square rounded-lg" />
+            <div className="bg-gray-200 aspect-square rounded-lg" />
+            <div className="bg-gray-200 aspect-square rounded-lg" />
           </div>
         </div>
       </div>

@@ -133,6 +133,17 @@ object {
    КОМПОНЕНТЫ И ОБЩИЕ СТИЛИ
    ============================== */
 
+/* Контейнеры для хедера, футера и основного контента */
+.container-layout,
+.header-container,
+.footer-container {
+  @apply container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+.header-padding {
+  @apply py-0;
+}
+
 /* Базовые стили для инпутов с иконками (пункт 10) */
 @layer components {
   /* Инпуты с иконками - базовые стили */

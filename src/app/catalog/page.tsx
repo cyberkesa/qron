@@ -13,6 +13,7 @@ import {
   ProductFiltersState,
 } from '@/components/product-list/ProductFilters';
 import { ProductSorter } from '@/components/product-list/ProductSorter';
+import { StockFilter } from '@/components/product-list/StockFilter';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import {
   ProductSortOrder,
@@ -177,6 +178,19 @@ export default function CatalogPage() {
   );
 
   const totalProductsCount = useMemo(() => products.length, [products.length]);
+
+  // Подсчет товаров в наличии
+  const inStockProductsCount = useMemo(() => {
+    if (!productsData?.products?.edges) return 0;
+
+    return productsData.products.edges.filter(
+      (edge: { node: Product }) =>
+        edge.node.stockAvailabilityStatus ===
+          ProductStockAvailabilityStatus.IN_STOCK ||
+        edge.node.stockAvailabilityStatus ===
+          ProductStockAvailabilityStatus.IN_STOCK_SOON
+    ).length;
+  }, [productsData?.products?.edges]);
 
   const isDataLoading = useMemo(
     () => productsLoading || categoriesLoading,
@@ -365,18 +379,36 @@ export default function CatalogPage() {
             {/* Панель управления */}
             <div className="bg-white rounded-lg border border-gray-200 p-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <span className="bg-gray-50 text-gray-700 rounded-full px-4 py-2 text-sm font-medium">
-                  Найдено товаров: {totalProductsCount}
-                </span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span className="bg-gray-50 text-gray-700 rounded-full px-4 py-2 text-sm font-medium">
+                    Найдено товаров: {totalProductsCount}
+                  </span>
+                  {inStockProductsCount !== totalProductsCount && (
+                    <span className="text-xs text-gray-500 sm:ml-1">
+                      (в наличии: {inStockProductsCount})
+                    </span>
+                  )}
+                </div>
                 <div className="flex gap-3 w-full sm:w-auto">
                   <button
                     onClick={toggleMobileFilters}
-                    className="lg:hidden flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-initial max-w-[160px]"
+                    className="lg:hidden flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm bg-white hover:bg-gray-50 transition-colors flex-shrink-0"
                   >
                     <AdjustmentsHorizontalIcon className="h-4 w-4 mr-2 text-gray-600" />
-                    <span className="xs:hidden">Фильтры</span>
-                    <span className="hidden xs:inline">Фильтры</span>
+                    <span>Фильтры</span>
                   </button>
+
+                  {/* Кнопка "Скрыть отсутствующие" */}
+                  <div className="hidden sm:block lg:hidden">
+                    <StockFilter
+                      value={filters.hideOutOfStock}
+                      onChange={(value) =>
+                        handleFiltersChange({ hideOutOfStock: value })
+                      }
+                      showHint={true}
+                    />
+                  </div>
+
                   <div className="flex-1 min-w-0">
                     <ProductSorter
                       value={filters.sortOrder}
@@ -387,6 +419,17 @@ export default function CatalogPage() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Мобильная кнопка "Скрыть отсутствующие" */}
+              <div className="mt-4 sm:hidden">
+                <StockFilter
+                  value={filters.hideOutOfStock}
+                  onChange={(value) =>
+                    handleFiltersChange({ hideOutOfStock: value })
+                  }
+                  className="w-full"
+                />
               </div>
             </div>
 

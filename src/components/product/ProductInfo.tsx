@@ -141,8 +141,8 @@ const ProductInfo = ({
           {/* Статус наличия */}
           <div className="ml-auto">
             {!notAvailableInRegion ? (
-              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-300 text-gray-800 rounded-xl availability-badge">
-                <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-300 text-green-800 rounded-xl availability-badge">
+                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
                 <span className="font-semibold text-sm">В наличии</span>
               </div>
             ) : (
@@ -178,13 +178,14 @@ const ProductInfo = ({
                 onDecrement={() => onUpdateQuantity(-1)}
                 isLoading={isAddingToCart}
                 compact={false}
+                className="w-full max-w-[320px]"
               />
             </div>
           ) : (
             <button
               onClick={onAddToCart}
               disabled={isAddingToCart || notAvailableInRegion}
-              className={`w-full h-14 bg-gray-900 text-white rounded-xl font-semibold text-lg shadow-md hover:bg-gray-800 transition-colors duration-200 ${
+              className={`w-full max-w-[320px] h-14 bg-gray-900 text-white rounded-xl font-semibold text-lg shadow-md hover:bg-gray-800 transition-colors duration-200 ${
                 isAddingToCart || notAvailableInRegion
                   ? 'opacity-50 cursor-not-allowed'
                   : ''
