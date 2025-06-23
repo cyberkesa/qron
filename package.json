@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "dev:clean": "lsof -ti :3000 | xargs kill -9 2>/dev/null || true && next dev",
+    "dev": "./scripts/kill-ports.sh && next dev",
+    "dev:clean": "./scripts/kill-ports.sh && next dev",
+    "restart-dev": "./scripts/restart-dev.sh",
+    "kill-ports": "./scripts/kill-ports.sh",
+    "check-ports": "./scripts/check-ports.sh",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

@@ -220,7 +220,7 @@ export default function CatalogPage() {
 
   const ProductGrid = ({ products }: { products: Product[] }) =>
     products.length > 0 ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
@@ -265,7 +265,7 @@ export default function CatalogPage() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
             {Array.from({ length: 10 }).map((_, index) => (
               <div
                 key={index}

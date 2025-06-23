@@ -62,27 +62,27 @@ export function QuantityCounter({
   const getSizeClassesBySize = (sizeParam: 'xs' | 'sm' | 'md' | 'lg') => {
     const sizeMap = {
       xs: {
-        button: 'w-6 h-6 sm:w-7 sm:h-7',
+        button: 'w-8 h-8 sm:w-7 sm:h-7',
         counter: 'w-6 sm:w-8 px-1',
-        icon: 'h-3 w-3',
+        icon: 'h-4 w-4 sm:h-3.5 sm:w-3.5',
         text: 'text-xs sm:text-sm',
       },
       sm: {
-        button: 'w-7 h-7 sm:w-8 sm:h-8',
-        counter: 'w-8 sm:w-10 px-1',
-        icon: 'h-3 w-3 sm:h-4 sm:w-4',
+        button: 'w-9 h-9 sm:w-8 sm:h-8',
+        counter: 'w-10 sm:w-12 px-1',
+        icon: 'h-5 w-5 sm:h-4 sm:w-4',
         text: 'text-sm',
       },
       md: {
-        button: 'w-8 h-8 sm:w-10 sm:h-10',
+        button: 'w-10 h-10',
         counter: 'w-10 sm:w-12 px-2',
-        icon: 'h-4 w-4',
+        icon: 'h-5 w-5',
         text: 'text-sm sm:text-base',
       },
       lg: {
-        button: 'w-10 h-10 sm:w-12 sm:h-12',
+        button: 'w-12 h-12',
         counter: 'w-12 sm:w-16 px-2',
-        icon: 'h-4 w-4 sm:h-5 sm:w-5',
+        icon: 'h-5 w-5 sm:h-6 sm:w-6',
         text: 'text-base sm:text-lg',
       },
     };
@@ -101,14 +101,14 @@ export function QuantityCounter({
       <button
         onClick={handleDecrement}
         disabled={isLoading || disabled || quantity <= minQuantity}
-        className={`${sizeClasses.button} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-150 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-gray-600 touch-manipulation`}
+        className={`${sizeClasses.button} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-800 active:bg-gray-200 transition-colors duration-150 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-gray-600 touch-manipulation border-r border-gray-200`}
         aria-label="Уменьшить количество"
       >
         <MinusIcon className={sizeClasses.icon} />
       </button>
 
       <div
-        className={`${sizeClasses.counter} text-center font-medium relative flex items-center justify-center min-h-[2rem] sm:min-h-[2.5rem]`}
+        className={`${sizeClasses.counter} text-center font-medium relative flex items-center justify-center min-h-[2rem] sm:min-h-[2.5rem] bg-white`}
       >
         {isLoading ? (
           <div className="animate-pulse h-3 w-3 sm:h-4 sm:w-4 bg-gray-200 rounded-full"></div>
@@ -126,7 +126,7 @@ export function QuantityCounter({
       <button
         onClick={handleIncrement}
         disabled={isLoading || disabled}
-        className={`${sizeClasses.button} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-150 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-gray-600 touch-manipulation`}
+        className={`${sizeClasses.button} flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-gray-800 active:bg-gray-200 transition-colors duration-150 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-gray-600 touch-manipulation border-l border-gray-200`}
         aria-label="Увеличить количество"
       >
         <PlusIcon className={sizeClasses.icon} />

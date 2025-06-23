@@ -434,7 +434,7 @@ object {
 /* Базовые мобильные стили (пункт 5 - в будущем перенести в Tailwind-утилиты) */
 @media (max-width: 640px) {
   /* Улучшенные тач-таргеты для мобильных (пункт 2) */
-  .touch-button {
+.touch-button {
     min-height: 2.75rem;
     min-width: 2.75rem;
   }
@@ -474,24 +474,24 @@ object {
   }
 
   /* Обрезка текста на мобильных */
-  .mobile-truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+.mobile-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-  .mobile-truncate-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+.mobile-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   }
 
   .mobile-truncate-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
-    overflow: hidden;
+  overflow: hidden;
   }
 }
 

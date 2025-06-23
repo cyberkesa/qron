@@ -56,7 +56,7 @@ const MobileAddToCart = ({
               className={`ml-auto px-6 py-3 rounded-xl font-semibold text-sm ${
                 notAvailableInRegion
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none'
-                  : 'mobile-cart-button text-white'
+                  : 'bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700 shadow-sm'
               }`}
               style={{
                 WebkitTapHighlightColor: 'transparent',
