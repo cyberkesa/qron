@@ -222,10 +222,7 @@ export default function CatalogPage() {
     products.length > 0 ? (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-          />
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     ) : null;

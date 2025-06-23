@@ -328,7 +328,9 @@ export default function ResetPasswordClient() {
                   value={emailAddress}
                   onChange={handleChange}
                   className={`w-full input-with-icon-left py-2 sm:py-2.5 border ${
-                    formErrors.emailAddress ? 'border-red-500' : 'border-gray-300'
+                    formErrors.emailAddress
+                      ? 'border-red-500'
+                      : 'border-gray-300'
                   } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                   required
                 />
@@ -405,7 +407,9 @@ export default function ResetPasswordClient() {
                   value={resetState.passwordResetCode}
                   onChange={handleChange}
                   className={`w-full input-with-icons-both py-2 sm:py-2.5 border ${
-                    formErrors.passwordResetCode ? 'border-red-500' : 'border-gray-300'
+                    formErrors.passwordResetCode
+                      ? 'border-red-500'
+                      : 'border-gray-300'
                   } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                   placeholder="Введите код из письма"
                   required
@@ -444,7 +448,9 @@ export default function ResetPasswordClient() {
                   value={resetState.newPassword}
                   onChange={handleChange}
                   className={`w-full input-with-icons-both py-2 sm:py-2.5 border ${
-                    formErrors.newPassword ? 'border-red-500' : 'border-gray-300'
+                    formErrors.newPassword
+                      ? 'border-red-500'
+                      : 'border-gray-300'
                   } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                   required
                   minLength={6}
@@ -511,10 +517,11 @@ export default function ResetPasswordClient() {
                     className={`w-full input-with-icons-both py-2 sm:py-2.5 border ${
                       formErrors.confirmPassword
                         ? 'border-red-500'
-                        : resetState.newPassword === resetState.confirmPassword &&
-                          resetState.confirmPassword.length > 0
-                        ? 'border-green-300'
-                        : 'border-gray-300'
+                        : resetState.newPassword ===
+                              resetState.confirmPassword &&
+                            resetState.confirmPassword.length > 0
+                          ? 'border-green-300'
+                          : 'border-gray-300'
                     } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base`}
                     required
                   />

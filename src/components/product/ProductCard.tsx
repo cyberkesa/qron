@@ -309,12 +309,13 @@ function ProductCardBase({ product, onAddToCart }: ProductCardProps) {
             >
               <div className="flex items-center justify-center space-x-1">
                 {product.images.slice(0, 4).map((_, index) => (
-                  <span
-                    key={index}
-                    className="inline-block"
-                  >
-                    <span 
-                      className={`block w-1.5 h-1.5 rounded-full ${index === (isHovering ? 1 : 0) ? 'bg-gray-600' : 'bg-gray-300'}`}
+                  <span key={index} className="inline-block">
+                    <span
+                      className={`block w-1.5 h-1.5 rounded-full ${
+                        index === (isHovering ? 1 : 0)
+                          ? 'bg-gray-600'
+                          : 'bg-gray-300'
+                      }`}
                     />
                   </span>
                 ))}

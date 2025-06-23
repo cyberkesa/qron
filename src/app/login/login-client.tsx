@@ -205,15 +205,9 @@ export default function LoginClient() {
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeSlashIcon
-                    className="input-icon"
-                    aria-hidden="true"
-                  />
+                  <EyeSlashIcon className="input-icon" aria-hidden="true" />
                 ) : (
-                  <EyeIcon
-                    className="input-icon"
-                    aria-hidden="true"
-                  />
+                  <EyeIcon className="input-icon" aria-hidden="true" />
                 )}
               </button>
             </div>

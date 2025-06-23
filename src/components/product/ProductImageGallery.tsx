@@ -124,7 +124,7 @@ const ProductImageGallery = ({
           {images.length > 1 && (
             <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-1/2 transform -translate-x-1/2 flex gap-0.5 sm:gap-1 md:gap-2 opacity-90 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
               {images.map((_, index) => (
-                <div 
+                <div
                   key={index}
                   onClick={() => handleImageChange(index)}
                   className="cursor-pointer focus:outline-none"

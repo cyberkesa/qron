@@ -18,7 +18,7 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: '**',
-      }
+      },
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 3600, // 1 hour cache
