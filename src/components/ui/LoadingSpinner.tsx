@@ -63,3 +63,74 @@ export function LoadingSpinner({
     </div>
   );
 }
+
+// Интерфейс для компонента Skeleton
+interface SkeletonProps {
+  className?: string;
+  height?: string;
+  width?: string;
+  rounded?: string;
+  children?: React.ReactNode;
+}
+
+// Компонент Skeleton с градиентной анимацией
+export function Skeleton({
+  className = '',
+  height = 'h-8',
+  width = 'w-full',
+  rounded = 'rounded',
+  children,
+}: SkeletonProps) {
+  const baseClasses = 'animate-shimmer';
+
+  const combinedClasses = [baseClasses, height, width, rounded, className]
+    .filter(Boolean)
+    .join(' ');
+
+  return <div className={combinedClasses}>{children}</div>;
+}
+
+// Компонент для создания скелетонов текста
+export function TextSkeleton({
+  lines = 1,
+  className = '',
+  width = 'w-full',
+}: {
+  lines?: number;
+  className?: string;
+  width?: string;
+}) {
+  return (
+    <div className={`space-y-2 ${className}`}>
+      {Array.from({ length: lines }).map((_, i) => (
+        <Skeleton
+          key={i}
+          height="h-4"
+          width={i === lines - 1 && lines > 1 ? 'w-4/5' : width}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Компонент для создания скелетона изображения
+export function ImageSkeleton({
+  className = '',
+  height = 'h-40',
+  width = 'w-full',
+  rounded = 'rounded-lg',
+}: {
+  className?: string;
+  height?: string;
+  width?: string;
+  rounded?: string;
+}) {
+  return (
+    <Skeleton
+      className={className}
+      height={height}
+      width={width}
+      rounded={rounded}
+    />
+  );
+}

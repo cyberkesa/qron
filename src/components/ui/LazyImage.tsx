@@ -81,7 +81,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
   // Set up blur effect class
   const blurEffectClass =
     enableBlurEffect && !isLoaded && !hasError
-      ? 'animate-pulse filter blur-[2px] scale-105 bg-gray-100'
+      ? 'filter blur-[1px] scale-105'
       : 'scale-100';
 
   // Set up base class
@@ -152,7 +152,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
       />
 
       {!isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+        <div className="absolute inset-0 animate-shimmer" />
       )}
     </div>
   );

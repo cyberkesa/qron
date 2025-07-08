@@ -34,7 +34,7 @@ export const SkeletonLoader: React.FC<{
 }> = ({ width = '100%', height = '1rem', className = '', rounded = false }) => {
   return (
     <div
-      className={`animate-pulse bg-gray-200 ${rounded ? 'rounded-full' : 'rounded'} ${className}`}
+      className={`animate-shimmer ${rounded ? 'rounded-full' : 'rounded'} ${className}`}
       style={{ width, height }}
     />
   );

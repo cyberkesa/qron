@@ -160,7 +160,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
     return (
       <div
         ref={imgRef}
-        className={`bg-gray-200 animate-pulse ${className}`}
+        className={`animate-shimmer ${className}`}
         style={{ width, height }}
         aria-label={alt}
       >
@@ -201,7 +201,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
 
       {/* Skeleton loader */}
       {!isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        <div className="absolute inset-0 animate-shimmer" />
       )}
 
       {/* Error state */}

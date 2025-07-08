@@ -388,21 +388,27 @@ MobileAppSection.displayName = 'MobileAppSection';
 
 // Компонент загрузки
 const LoadingSection = memo(() => (
-  <div className="animate-pulse space-y-6 sm:space-y-8">
+  <div className="space-y-6 sm:space-y-8">
     {/* Hero skeleton */}
-    <div className="aspect-square max-w-[480px] bg-gray-200 rounded-xl"></div>
+    <div className="animate-shimmer aspect-square max-w-[480px] rounded-xl"></div>
 
     {/* Cards skeleton */}
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="bg-gray-200 aspect-[4/3] rounded-lg"></div>
+        <div
+          key={index}
+          className="animate-shimmer aspect-[4/3] rounded-lg"
+        ></div>
       ))}
     </div>
 
     {/* Products skeleton */}
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
       {Array.from({ length: 8 }).map((_, index) => (
-        <div key={index} className="bg-gray-200 aspect-square rounded-lg"></div>
+        <div
+          key={index}
+          className="animate-shimmer aspect-square rounded-lg"
+        ></div>
       ))}
     </div>
   </div>

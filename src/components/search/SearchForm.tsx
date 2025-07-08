@@ -375,9 +375,34 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [placeholder, setPlaceholder] = useState(
+    'Поиск товаров и категорий...'
+  );
 
   // Используем хук для истории поиска
   const { searchHistory, addToHistory, clearHistory } = useSearchHistory();
+
+  // Устанавливаем разные плейсхолдеры для разных размеров экрана
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.matchMedia('(max-width: 640px)').matches) {
+        setPlaceholder('Поиск...');
+      } else {
+        setPlaceholder('Поиск товаров и категорий...');
+      }
+    };
+
+    // Инициализация
+    handleResize();
+
+    // Слушаем изменение размера окна
+    window.addEventListener('resize', handleResize);
+
+    // Очистка
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   // Используем debounced значение для поисковых запросов
   const debouncedSearchQuery = useDebounce(searchQuery, 200);
@@ -588,17 +613,18 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
         <input
           ref={inputRef}
           type="text"
-          placeholder="Поиск товаров и категорий..."
+          placeholder={placeholder}
           className="
-            w-full h-12 px-3 pl-10 pr-8
+            w-full h-12 px-3 sm:pr-8 pr-7
             bg-white border border-gray-300 rounded-xl
             text-gray-900 placeholder-gray-500
             focus:outline-none focus:ring-2 focus:ring-gray-500/20 focus:border-gray-500
             transition-all duration-200 ease-out
             hover:border-gray-400 hover:shadow-sm
-            text-sm font-medium
+            sm:text-sm text-xs font-medium
             shadow-sm
             min-h-[3rem]
+            sm:pl-12 pl-10
           "
           value={searchQuery}
           onChange={handleInputChange}
@@ -608,7 +634,7 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
         />
 
         {/* Иконка поиска */}
-        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none flex-shrink-0" />
+        <MagnifyingGlassIcon className="sm:h-5 sm:w-5 h-4 w-4 text-gray-400 absolute sm:left-4 left-3 top-1/2 transform -translate-y-1/2 pointer-events-none flex-shrink-0" />
 
         {/* Кнопка очистки */}
         {searchQuery && (
@@ -616,7 +642,7 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
             type="button"
             onClick={clearSearch}
             className="
-              absolute right-2 top-1/2 transform -translate-y-1/2 
+              absolute sm:right-3 right-2 top-1/2 transform -translate-y-1/2 
               w-6 h-6 flex items-center justify-center
               text-gray-400 hover:text-gray-600 
               rounded-full hover:bg-gray-100
@@ -625,7 +651,7 @@ const SearchForm = memo(({ className = '' }: { className?: string }) => {
             "
             aria-label="Очистить поиск"
           >
-            <XMarkIcon className="h-4 w-4" />
+            <XMarkIcon className="sm:h-4 sm:w-4 h-3.5 w-3.5" />
           </button>
         )}
       </form>

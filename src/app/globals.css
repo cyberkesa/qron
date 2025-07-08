@@ -199,6 +199,23 @@ object {
   .p-mobile {
     @apply p-1.5 sm:p-2;
   }
+  
+  /* Новые стили для скелетонов с градиентной анимацией */
+  .skeleton-gradient {
+    @apply relative overflow-hidden bg-gray-200;
+  }
+  
+  .skeleton-gradient::after {
+    content: "";
+    @apply absolute inset-0;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 1.5s infinite;
+  }
 }
 
 /* Стили для форм */
@@ -413,6 +430,15 @@ object {
   }
 }
 
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Классы анимаций */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-in-out;
@@ -436,6 +462,28 @@ object {
 
 .animate-zoom-in {
   animation: zoomIn 0.3s ease-in-out;
+}
+
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+.animate-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.5s infinite;
 }
 
 /* ==============================
