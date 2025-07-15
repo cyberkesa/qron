@@ -61,7 +61,7 @@ export function OrdersList({
         <tbody>
           <tr>
             <td colSpan={5} className="px-6 py-8">
-              <div className="animate-pulse space-y-4">
+              <div className="animate-shimmer space-y-4">
                 <div className="h-4 bg-gray-200 rounded-xl w-1/4 mb-4"></div>
                 <div className="space-y-3">
                   {[...Array(3)].map((_, i) => (
@@ -185,7 +185,7 @@ export function OrdersList({
   if (loading && !orders.length) {
     return (
       <div className="p-6">
-        <div className="animate-pulse space-y-6">
+        <div className="animate-shimmer space-y-6">
           <div className="h-6 bg-gray-200 rounded-xl w-1/4 mb-6"></div>
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (

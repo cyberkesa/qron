@@ -112,7 +112,7 @@ const OptimizedProductCard = memo(
                   {/* Placeholder, пока не загрузится изображение */}
                   {!imageLoaded && (
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+                      <div className="w-8 h-8 rounded-full bg-gray-200 animate-shimmer"></div>
                     </div>
                   )}
                   <Image

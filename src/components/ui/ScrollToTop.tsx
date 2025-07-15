@@ -58,13 +58,25 @@ export function ScrollToTop() {
   return (
     <button
       onClick={scrollToTop}
-      className={`fixed right-6 p-3 bg-gray-800 hover:bg-gray-900 text-white rounded-lg shadow-md z-30 transition-all duration-200 md:bottom-6 ${
-        isAnimating ? 'opacity-70' : 'hover:shadow-lg'
-      }`}
-      style={{ bottom: getBottomPosition() }}
+      className={`fixed right-4 md:right-6 p-2.5 bg-gradient-to-br from-blue-500/90 via-blue-600/90 to-blue-700/90 text-white rounded-full shadow-xl z-30
+        transition-all duration-300 md:bottom-6
+        scale-100 active:scale-95
+        hover:shadow-2xl hover:brightness-110
+        focus:outline-none focus:ring-2 focus:ring-blue-400/60 focus:ring-offset-2
+        border border-white/30
+        ${isAnimating ? 'opacity-80' : 'hover:opacity-100'}
+        animate-fade-in-up
+      `}
+      style={{
+        bottom: getBottomPosition(),
+        boxShadow:
+          '0 4px 24px 0 rgba(37,99,235,0.18), 0 1.5px 6px 0 rgba(0,0,0,0.10)',
+      }}
       aria-label="Прокрутить вверх"
     >
-      <ArrowUpIcon className="h-5 w-5" />
+      <span className="flex items-center justify-center">
+        <ArrowUpIcon className="h-5 w-5 drop-shadow-[0_1px_4px_rgba(37,99,235,0.25)]" />
+      </span>
     </button>
   );
 }

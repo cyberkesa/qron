@@ -27,7 +27,7 @@ function RegisterLoading() {
           Регистрация
         </h1>
         <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="animate-pulse">
+          <div className="animate-shimmer">
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>
             <div className="h-10 bg-gray-200 rounded mb-6"></div>
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-6"></div>

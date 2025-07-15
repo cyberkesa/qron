@@ -629,7 +629,7 @@ export default function Home() {
 
         {/* О компании */}
         <CompanySection />
-
+        <div className="mb-8 sm:mb-10 md:mb-12" />
         {/* Мобильное приложение */}
         <MobileAppSection />
       </>
@@ -640,7 +640,7 @@ export default function Home() {
   if (!isClient) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse">
+        <div className="animate-shimmer">
           <div className="aspect-square max-w-[480px] bg-gray-200 rounded-xl mb-8" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-gray-200 aspect-square rounded-lg" />

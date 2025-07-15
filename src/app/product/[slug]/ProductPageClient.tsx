@@ -281,7 +281,7 @@ export default function ProductPageClient({ params }: ProductPageProps) {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-10 flex justify-center">
-        <div className="animate-pulse">
+        <div className="animate-shimmer">
           <div className="h-64 bg-gray-200 rounded-lg w-96 mb-4"></div>
           <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
           <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>

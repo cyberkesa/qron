@@ -253,8 +253,8 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       )}
 
       {/* Панель управления */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-gray-200">
-        <p className="text-gray-600 flex items-center text-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-6 pb-4 border-b border-gray-200">
+        <p className="text-gray-600 flex items-center text-sm mb-2 sm:mb-0">
           <svg
             className="h-4 w-4 mr-2 text-blue-600"
             viewBox="0 0 20 20"
@@ -266,19 +266,16 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           Товаров:{' '}
           <span className="font-medium ml-1">{totalProductsCount}</span>
         </p>
-        <div className="flex gap-3 w-full sm:w-auto">
-          <div className="flex-1 sm:flex-initial min-w-[120px]">
-            {/* Sort */}
-            <ProductSorter
-              value={sortOrder}
-              onChange={handleSortChange}
-              className="w-full"
-            />
-          </div>
+        <div className="flex w-full sm:w-auto gap-2 sm:gap-3 items-center">
+          <ProductSorter
+            value={sortOrder}
+            onChange={handleSortChange}
+            className="flex-1 min-w-[140px] max-w-full"
+          />
           <StockFilter
             value={hideOutOfStock}
             onChange={handleStockFilterChange}
-            className="flex-1 sm:flex-initial"
+            className="flex-1 min-w-[140px] max-w-full"
           />
         </div>
       </div>

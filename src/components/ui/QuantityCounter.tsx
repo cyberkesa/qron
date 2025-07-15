@@ -111,7 +111,7 @@ export function QuantityCounter({
         className={`${sizeClasses.counter} text-center font-medium relative flex items-center justify-center min-h-[2rem] sm:min-h-[2.5rem] bg-white`}
       >
         {isLoading ? (
-          <div className="animate-pulse h-3 w-3 sm:h-4 sm:w-4 bg-gray-200 rounded-full"></div>
+          <div className="animate-shimmer h-3 w-3 sm:h-4 sm:w-4 bg-gray-200 rounded-full"></div>
         ) : (
           <span
             className={`inline-block transition-opacity duration-200 ${

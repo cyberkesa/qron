@@ -1,9 +1,9 @@
 'use client';
 
 import { Switch } from '@headlessui/react';
-import { EyeSlashIcon, ArchiveBoxXMarkIcon } from '@heroicons/react/24/outline';
-import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
+import { ArchiveBoxXMarkIcon } from '@heroicons/react/24/outline';
+import cn from 'classnames';
+import { useState } from 'react';
 
 interface StockFilterProps {
   value: boolean;
@@ -12,6 +12,15 @@ interface StockFilterProps {
   showHint?: boolean;
 }
 
+/**
+ * StockFilter — современный toggle для фильтра "Скрыть отсутствующие"
+ * Использует Headless UI Switch, стилизован под общий стиль сайта
+ * Props:
+ *   value: boolean — текущее состояние
+ *   onChange: (value: boolean) => void — обработчик изменения
+ *   className: string — дополнительные классы
+ *   showHint: boolean — показывать ли tooltip
+ */
 export const StockFilter = ({
   value = false,
   onChange,
@@ -24,24 +33,29 @@ export const StockFilter = ({
     <div className="relative">
       <div
         className={cn(
-          'flex items-center gap-2 sm:gap-3 bg-white border border-gray-200 rounded-lg px-3 sm:px-4 py-2 min-h-[38px] flex-shrink-0 transition-all duration-200',
-          value ? 'border-green-300 bg-green-50/50' : 'hover:border-gray-300',
+          // pixel-perfect: как ProductSorter
+          'flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-1 min-h-[36px] text-xs',
+          'sm:px-4 sm:py-2 sm:rounded-lg sm:min-h-[38px] sm:text-sm',
+          // убираем зеленую обводку, оставляем только hover
+          'hover:border-gray-300',
+          // убираем любые focus-обводки
           className
         )}
         onMouseEnter={() => showHint && setShowTooltip(true)}
         onMouseLeave={() => showHint && setShowTooltip(false)}
       >
-        <ArchiveBoxXMarkIcon
-          className={`h-4 w-4 sm:h-5 sm:w-5 ${value ? 'text-green-600' : 'text-gray-400'}`}
-        />
-
-        {/* Используем компонент Switch из Headless UI */}
+        {/* Toggle Switch */}
         <Switch
           checked={value}
           onChange={onChange}
-          className={`${
-            value ? 'bg-green-500' : 'bg-gray-200'
-          } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+          className={cn(
+            // pixel-perfect: как ProductSorter
+            'relative inline-flex items-center rounded-full transition-colors duration-300 outline-none',
+            'h-6 w-10 sm:h-6 sm:w-12',
+            value ? 'bg-green-500' : 'bg-gray-200',
+            // убираем любые focus-обводки
+            'shadow-inner hover:shadow-md'
+          )}
           aria-label={
             value ? 'Показать все товары' : 'Скрыть отсутствующие товары'
           }
@@ -50,27 +64,29 @@ export const StockFilter = ({
             {value ? 'Показать все товары' : 'Скрыть отсутствующие товары'}
           </span>
           <span
-            className={`${
-              value ? 'translate-x-6' : 'translate-x-1'
-            } inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm`}
+            className={cn(
+              // pixel-perfect: как ProductSorter
+              'absolute top-1/2 -translate-y-1/2 transition-all duration-300',
+              'h-4 w-4 sm:h-4 sm:w-4 rounded-full bg-white shadow-lg ring-1 ring-gray-300',
+              value ? 'left-[calc(100%-1rem)]' : 'left-0'
+            )}
           />
         </Switch>
-
         <span
-          className={`text-xs sm:text-sm whitespace-nowrap leading-tight ${
-            value ? 'text-green-700 font-medium' : 'text-gray-700'
-          }`}
+          className={cn(
+            // pixel-perfect: как ProductSorter
+            'font-medium whitespace-nowrap leading-tight select-none transition-colors',
+            'text-xs sm:text-sm',
+            value ? 'text-green-700' : 'text-gray-700'
+          )}
         >
           Скрыть отсутствующие
         </span>
       </div>
-
-      {/* Всплывающая подсказка */}
+      {/* Tooltip (если нужен) */}
       {showTooltip && (
-        <div className="absolute z-10 top-full left-0 mt-2 p-2 bg-gray-800 text-white text-xs rounded shadow-lg max-w-xs">
-          {value
-            ? 'В списке отображаются только товары, которые есть в наличии'
-            : 'Включите, чтобы скрыть товары, которых нет в наличии'}
+        <div className="absolute left-0 top-full mt-2 z-10 bg-white border border-gray-200 rounded-lg shadow-lg px-3 py-2 text-xs text-gray-700 whitespace-nowrap animate-fade-in">
+          Показывать только товары в наличии
         </div>
       )}
     </div>
