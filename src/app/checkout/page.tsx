@@ -155,25 +155,29 @@ export default function CheckoutPage() {
 
   // Валидация телефона
   const validatePhone = (phone: string): boolean => {
-    if (!phone.trim()) {
+    const digits = phone.replace(/\D/g, '');
+    if (!digits) {
       setPhoneError('Телефон обязателен для заказа');
       return false;
     }
-
-    // Проверяем, что номер начинается с +7 и имеет правильную длину
-    if (!phone.startsWith('+7') || phone.length !== 12) {
+    // Проверяем, что номер российский и содержит 11 цифр (например, 7XXXXXXXXXX)
+    if (!/^7\d{10}$/.test(digits)) {
       setPhoneError('Введите корректный номер телефона');
       return false;
     }
-
     setPhoneError('');
     return true;
   };
 
   // Форматирование номера для API
   const formatPhoneForApi = (phone: string): string => {
-    // Удаляем все нецифровые символы
-    return phone.replace(/\D/g, '');
+    const digits = phone.replace(/\D/g, '');
+    // Если номер начинается с 7 и длина 11, возвращаем с плюсом
+    if (/^7\d{10}$/.test(digits)) {
+      return `+${digits}`;
+    }
+    // В остальных случаях возвращаем исходное значение (или можно выбросить ошибку)
+    return phone;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
