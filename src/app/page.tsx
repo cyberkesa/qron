@@ -390,14 +390,14 @@ MobileAppSection.displayName = 'MobileAppSection';
 const LoadingSection = memo(() => (
   <div className="space-y-6 sm:space-y-8">
     {/* Hero skeleton */}
-    <div className="animate-shimmer aspect-square max-w-[480px] rounded-xl"></div>
+    <div className="animate-shimmer aspect-square max-w-[480px] rounded-xl bg-gray-200"></div>
 
     {/* Cards skeleton */}
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {Array.from({ length: 3 }).map((_, index) => (
         <div
           key={index}
-          className="animate-shimmer aspect-[4/3] rounded-lg"
+          className="animate-shimmer aspect-[4/3] rounded-lg bg-gray-200"
         ></div>
       ))}
     </div>
@@ -407,7 +407,7 @@ const LoadingSection = memo(() => (
       {Array.from({ length: 8 }).map((_, index) => (
         <div
           key={index}
-          className="animate-shimmer aspect-square rounded-lg"
+          className="animate-shimmer aspect-square rounded-lg bg-gray-200"
         ></div>
       ))}
     </div>

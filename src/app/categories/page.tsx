@@ -12,12 +12,12 @@ export default function CategoriesPage() {
   if (loading) {
     return (
       <main className="container mx-auto px-4 py-8">
-        <div className="h-10 bg-gray-200 rounded w-56 mb-8 animate-pulse"></div>
+        <div className="h-10 bg-gray-200 rounded w-56 mb-8 animate-shimmer"></div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
-              className="p-6 bg-gray-100 rounded-lg animate-pulse"
+              className="p-6 bg-gray-100 rounded-lg animate-shimmer"
             >
               <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-4"></div>
               <div className="h-7 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>

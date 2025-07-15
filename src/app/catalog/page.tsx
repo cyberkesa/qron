@@ -270,7 +270,7 @@ export default function CatalogPage() {
       {/* Состояния загрузки и ошибок */}
       {isDataLoading && !productsData ? (
         <div className="space-y-6">
-          <div className="bg-white rounded-lg p-4 animate-pulse">
+          <div className="bg-white rounded-lg p-4 animate-shimmer">
             <div className="flex justify-between items-center">
               <div className="h-6 bg-gray-200 rounded w-32"></div>
               <div className="flex gap-2">
@@ -283,7 +283,7 @@ export default function CatalogPage() {
             {Array.from({ length: 10 }).map((_, index) => (
               <div
                 key={index}
-                className="bg-white rounded-lg h-48 sm:h-56 lg:h-64 animate-pulse"
+                className="bg-white rounded-lg h-48 sm:h-56 lg:h-64 animate-shimmer"
               ></div>
             ))}
           </div>

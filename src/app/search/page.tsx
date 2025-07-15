@@ -276,15 +276,15 @@ function SearchPageContent() {
 function SearchLoading() {
   return (
     <>
-      <div className="h-12 bg-gray-200 rounded-lg w-full mb-8 animate-pulse"></div>
+      <div className="h-12 bg-gray-200 rounded-lg w-full mb-8 animate-shimmer"></div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="md:col-span-1">
-          <div className="h-96 bg-gray-200 rounded-lg animate-pulse"></div>
+          <div className="h-96 bg-gray-200 rounded-lg animate-shimmer"></div>
         </div>
 
         <div className="md:col-span-3">
-          <div className="h-12 bg-gray-200 rounded-lg w-full mb-6 animate-pulse"></div>
+          <div className="h-12 bg-gray-200 rounded-lg w-full mb-6 animate-shimmer"></div>
 
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
             {Array(6)
@@ -294,7 +294,7 @@ function SearchLoading() {
                   key={i}
                   className="h-48 sm:h-56 lg:h-64 bg-gray-200 rounded-lg relative overflow-hidden"
                 >
-                  <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 bg-gray-300 animate-pulse"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 bg-gray-300 animate-shimmer"></div>
                 </div>
               ))}
           </div>

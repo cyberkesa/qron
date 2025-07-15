@@ -105,20 +105,20 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   if (isLoading) {
     return (
       <main className="container mx-auto px-4 py-6">
-        <div className="h-6 bg-gray-200 rounded w-1/4 animate-pulse mb-6"></div>
-        <div className="h-8 bg-gray-200 rounded w-2/3 mb-8 animate-pulse"></div>
+        <div className="h-6 bg-gray-200 rounded w-1/4 animate-shimmer mb-6"></div>
+        <div className="h-8 bg-gray-200 rounded w-2/3 mb-8 animate-shimmer"></div>
         <div className="flex justify-between mb-6 gap-4">
-          <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+          <div className="h-6 bg-gray-200 rounded w-32 animate-shimmer"></div>
           <div className="flex gap-4">
-            <div className="h-10 bg-gray-200 rounded w-40 animate-pulse"></div>
-            <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-40 animate-shimmer"></div>
+            <div className="h-10 bg-gray-200 rounded w-32 animate-shimmer"></div>
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
           {Array.from({ length: 12 }).map((_, index) => (
             <div
               key={index}
-              className="h-48 sm:h-56 lg:h-64 bg-gray-200 rounded-lg animate-pulse"
+              className="h-48 sm:h-56 lg:h-64 bg-gray-200 rounded-lg animate-shimmer"
             ></div>
           ))}
         </div>
