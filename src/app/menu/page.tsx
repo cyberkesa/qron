@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_CATEGORIES, GET_VIEWER, LOGOUT } from '@/lib/queries';
@@ -275,10 +276,13 @@ export default function MenuPage() {
                 >
                   <div className="flex items-center space-x-3">
                     {category.iconUrl && (
-                      <img
+                      <Image
                         src={category.iconUrl}
                         alt={category.title}
+                        width={24}
+                        height={24}
                         className="w-6 h-6 object-contain"
+                        unoptimized
                       />
                     )}
                     <span className="font-medium text-gray-900">
