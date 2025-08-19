@@ -82,7 +82,7 @@ export function useCart(): UseCartResult {
 
   // Проверка авторизации пользователя
   const { data: userData } = useQuery(GET_VIEWER);
-  const isAuthenticated = !!userData?.viewer;
+  const isAuthenticated = userData?.viewer?.__typename === 'RegisteredViewer';
 
   // Интеграция с системой уведомлений
   const { showSuccess, showError } = useNotificationContext();

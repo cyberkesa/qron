@@ -95,7 +95,7 @@ export default function RootLayout({
         <ClientLayout>{children}</ClientLayout>
         <ScrollToTop />
         <Script
-          src="https://api-maps.yandex.ru/2.1/?apikey=0a1aee5c-636b-4e86-8a79-fcaece99de92&lang=ru_RU"
+          src={`https://api-maps.yandex.ru/2.1/?apikey=${process.env.NEXT_PUBLIC_YMAPS_API_KEY || ''}&lang=ru_RU`}
           strategy="afterInteractive"
         />
         <YandexMetrika />

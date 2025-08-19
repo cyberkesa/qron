@@ -64,7 +64,8 @@ const getGuestToken = async () => {
 
       // Сначала получаем список регионов
       const regionsResponse = await fetch(
-        'https://api.tovari-kron.ru/v1/graphql',
+        process.env.NEXT_PUBLIC_API_URL ||
+          'https://api.tovari-kron.ru/v1/graphql',
         {
           method: 'POST',
           headers: {
@@ -101,7 +102,8 @@ const getGuestToken = async () => {
     logger.log('Выполняем вход как гость с регионом ID:', regionId);
 
     const guestLoginResponse = await fetch(
-      'https://api.tovari-kron.ru/v1/graphql',
+      process.env.NEXT_PUBLIC_API_URL ||
+        'https://api.tovari-kron.ru/v1/graphql',
       {
         method: 'POST',
         headers: {
@@ -229,13 +231,16 @@ const refreshAccessToken = async () => {
       refreshToken.substring(0, 10) + '...'
     );
 
-    const response = await fetch('https://api.tovari-kron.ru/v1/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: `
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_URL ||
+        'https://api.tovari-kron.ru/v1/graphql',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `
           mutation RefreshToken($refreshToken: String!) {
             refreshToken(refreshToken: $refreshToken) {
               ... on RefreshTokenSuccessResult {
@@ -251,9 +256,10 @@ const refreshAccessToken = async () => {
             }
           }
         `,
-        variables: { refreshToken },
-      }),
-    });
+          variables: { refreshToken },
+        }),
+      }
+    );
 
     if (!response.ok) {
       logger.error(
@@ -322,7 +328,8 @@ const refreshAccessToken = async () => {
 };
 
 const httpLink = new HttpLink({
-  uri: 'https://api.tovari-kron.ru/v1/graphql',
+  uri:
+    process.env.NEXT_PUBLIC_API_URL || 'https://api.tovari-kron.ru/v1/graphql',
 });
 
 // Добавляем логирование для отладки запросов

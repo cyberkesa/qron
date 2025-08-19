@@ -4,27 +4,28 @@ import { useEffect } from 'react';
 import Script from 'next/script';
 import Image from 'next/image';
 
-// Фиксированный ID счетчика Яндекс.Метрики
-const YANDEX_METRIKA_ID = '100995493';
+// ID счетчика Яндекс.Метрики из окружения
+const YANDEX_METRIKA_ID = process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID || '';
 
 export function YandexMetrika() {
   useEffect(() => {
-    // Отправка просмотра страницы при изменении маршрута в SPA
-    const handleRouteChange = (url: string) => {
-      if (window.ym) {
-        window.ym(Number(YANDEX_METRIKA_ID), 'hit', url);
-      }
-    };
-
-    // Добавляем слушатель для Next.js
-    document.addEventListener('routeChangeComplete', handleRouteChange as any);
-
-    return () => {
-      document.removeEventListener(
-        'routeChangeComplete',
-        handleRouteChange as any
-      );
-    };
+    if (!YANDEX_METRIKA_ID) return;
+    // Для App Router отслеживаем изменения пути
+    try {
+      const onPopState = () => {
+        if (window.ym) {
+          window.ym(
+            Number(YANDEX_METRIKA_ID),
+            'hit',
+            window.location.pathname + window.location.search
+          );
+        }
+      };
+      window.addEventListener('popstate', onPopState);
+      return () => {
+        window.removeEventListener('popstate', onPopState);
+      };
+    } catch {}
   }, []);
 
   return (
@@ -37,13 +38,13 @@ export function YandexMetrika() {
           k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
           (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-          ym(${YANDEX_METRIKA_ID}, "init", {
+          ${YANDEX_METRIKA_ID ? `ym(${YANDEX_METRIKA_ID}, "init", {` : ''}
             clickmap: true,
             trackLinks: true,
             accurateTrackBounce: true,
             webvisor: true,
             ecommerce: "dataLayer"
-          });
+          }${YANDEX_METRIKA_ID ? ');' : ''}
         `}
       </Script>
       <noscript>
