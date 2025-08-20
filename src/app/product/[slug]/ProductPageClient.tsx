@@ -137,7 +137,7 @@ export default function ProductPageClient({ params }: ProductPageProps) {
         product_category: data.productBySlug.category?.title || 'Без категории',
       });
     }
-  }, [data?.productBySlug?.id, slug, addToHistory]);
+  }, [data?.productBySlug, addToHistory]);
 
   // Получаем текущее количество товара в корзине
   const getCurrentCartQuantity = useCallback(() => {

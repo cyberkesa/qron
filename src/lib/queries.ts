@@ -586,12 +586,12 @@ export const LOGOUT = gql`
 
 export const REFRESH_TOKEN = gql`
   mutation RefreshToken($refreshToken: String!) {
-    refreshAccessToken(refreshToken: $refreshToken) {
-      ... on RefreshAccessTokenSuccessResult {
+    refreshToken(refreshToken: $refreshToken) {
+      ... on RefreshTokenSuccessResult {
         accessToken
         refreshToken
       }
-      ... on RefreshAccessTokenError {
+      ... on RefreshTokenFailedResult {
         message
       }
       ... on UnexpectedError {
