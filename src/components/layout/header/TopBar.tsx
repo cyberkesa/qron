@@ -11,6 +11,7 @@ import {
 import RegionSelector, {
   REGION_CONTACTS,
 } from '@/components/region/RegionSelector';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 // Мемоизированный компонент верхней панели хедера
 const TopBar = memo(
@@ -56,6 +57,7 @@ const TopBar = memo(
               <EnvelopeIcon className="h-4 w-4 mr-1.5 flex-shrink-0" />
               <span>Контакты</span>
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </div>
