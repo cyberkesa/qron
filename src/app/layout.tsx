@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru">
+    <html lang="ru" data-theme="light">
       <head>
         {/* Font preloading */}
         <link
@@ -89,10 +89,18 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className={inter.className}>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[10000] focus:bg-blue-600 focus:text-white focus:px-3 focus:py-2 focus:rounded"
+        >
+          Пропустить к контенту
+        </a>
         <Http2Optimizer priority={true} />
         <Http2Monitor />
         <ContrastChecker />
-        <ClientLayout>{children}</ClientLayout>
+        <ClientLayout>
+          <div id="main">{children}</div>
+        </ClientLayout>
         <ScrollToTop />
         <Script
           src="https://api-maps.yandex.ru/2.1/?apikey=0a1aee5c-636b-4e86-8a79-fcaece99de92&lang=ru_RU"

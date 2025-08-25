@@ -39,6 +39,7 @@
     "@apollo/experimental-nextjs-app-support": "^0.5.1",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@hookform/resolvers": "^5.2.1",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/dompurify": "^3.0.5",
@@ -52,10 +53,12 @@
     "node-fetch": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.62.0",
     "react-phone-input-2": "^2.15.1",
     "rxjs": "^7.8.2",
     "tailwind-merge": "^3.2.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^4.1.1"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
