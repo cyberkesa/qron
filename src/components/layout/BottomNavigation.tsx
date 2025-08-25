@@ -19,6 +19,7 @@ import {
   UserIcon as UserIconSolid,
   Bars3Icon as Bars3IconSolid,
 } from '@heroicons/react/24/solid';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 interface BottomNavItem {
   id: string;
@@ -158,6 +159,9 @@ export const BottomNavigation: React.FC = () => {
               </Link>
             );
           })}
+          <div className="flex-1 flex items-center justify-center">
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
     </>

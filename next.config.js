@@ -24,7 +24,7 @@ const nextConfig = {
     minimumCacheTTL: 3600, // 1 hour cache
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    unoptimized: true, // Отключаем оптимизацию изображений для устранения ошибок
+    unoptimized: process.env.NEXT_IMAGE_UNOPTIMIZED === 'true',
   },
   // Улучшение производительности и совместимости с Vercel
   experimental: {
