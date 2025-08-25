@@ -42,7 +42,6 @@
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/dompurify": "^3.0.5",
-    "@types/next": "^9.0.0",
     "@types/uuid": "^10.0.0",
     "clsx": "^2.1.1",
     "critters": "^0.0.25",
