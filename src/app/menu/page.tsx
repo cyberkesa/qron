@@ -275,11 +275,16 @@ export default function MenuPage() {
                 >
                   <div className="flex items-center space-x-3">
                     {category.iconUrl && (
-                      <img
-                        src={category.iconUrl}
-                        alt={category.title}
-                        className="w-6 h-6 object-contain"
-                      />
+                      <span className="relative inline-block w-6 h-6">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={category.iconUrl}
+                          alt={category.title}
+                          className="w-6 h-6 object-contain"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </span>
                     )}
                     <span className="font-medium text-gray-900">
                       {category.title}

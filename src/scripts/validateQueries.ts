@@ -35,22 +35,8 @@ interface ValidationContext {
 const schemaPath = path.join(__dirname, '../../schema.json');
 const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf-8'));
 
-// Import queries
-const queriesPath = path.join(__dirname, '../lib/queries.ts');
-const queriesContent = fs.readFileSync(queriesPath, 'utf-8');
-
-// Extract queries from the content
+// Pattern to extract gql contents in scanned files
 const queryRegex = /gql`([\s\S]*?)`/g;
-const queries: { name: string; query: string }[] = [];
-let match;
-
-while ((match = queryRegex.exec(queriesContent)) !== null) {
-  const queryContent = match[1];
-  const queryNameMatch = queryContent.match(/(?:query|mutation)\s+(\w+)/);
-  if (queryNameMatch) {
-    queries.push({ name: queryNameMatch[1], query: queryContent });
-  }
-}
 
 // Функция для получения типа поля из схемы
 function getTypeFromSchema(typeName: string): any {

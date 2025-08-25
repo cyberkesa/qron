@@ -1,6 +1,55 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Design System Themes */
+:root[data-theme='light'] {
+  --color-bg: 255 255 255;
+  --color-fg: 17 24 39;
+  --brand-50: 239 246 255;
+  --brand-100: 219 234 254;
+  --brand-200: 191 219 254;
+  --brand-300: 147 197 253;
+  --brand-400: 96 165 250;
+  --brand-500: 59 130 246;
+  --brand-600: 37 99 235;
+  --brand-700: 29 78 216;
+  --brand-800: 30 64 175;
+  --brand-900: 30 58 138;
+  --neutral-50: 249 250 251;
+  --neutral-900: 17 24 39;
+}
+
+:root[data-theme='dark'] {
+  --color-bg: 17 24 39;
+  --color-fg: 243 244 246;
+  --brand-50: 7 12 24;
+  --brand-100: 12 23 46;
+  --brand-200: 20 37 73;
+  --brand-300: 29 55 109;
+  --brand-400: 37 78 150;
+  --brand-500: 59 130 246;
+  --brand-600: 96 165 250;
+  --brand-700: 147 197 253;
+  --brand-800: 191 219 254;
+  --brand-900: 219 234 254;
+  --neutral-50: 31 41 55;
+  --neutral-900: 243 244 246;
+}
+
+:root[data-theme='high-contrast'] {
+  --color-bg: 0 0 0;
+  --color-fg: 255 255 0;
+}
 
 /* ==============================
    БАЗОВЫЕ СТИЛИ И ПЕРЕМЕННЫЕ

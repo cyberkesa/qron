@@ -29,7 +29,7 @@ export default function PageContainer({
     full: 'max-w-none',
   };
 
-  const paddingClasses = noPadding ? '' : 'px-4 py-6';
+  const paddingClasses = noPadding ? '' : 'px-3 py-4 sm:px-4 sm:py-6';
 
   return (
     <Component
